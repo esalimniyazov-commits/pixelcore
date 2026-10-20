@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maxfiylik siyosati — PixelCore Studio</title>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+  <link rel="icon" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color:var(--m1)"/><stop offset="1" style="stop-color:var(--m2)"/>
+      </linearGradient>
+    </defs>
+    <symbol id="logo" viewBox="0 0 555 555">
+      <path fill="url(#g)" fill-rule="evenodd" d="M0 0H262V272H0Z M83 83H248V157H150V255H83Z M295 0H555V272H295Z M472 83H307V157H405V255H472Z M0 297H262V555H0Z M83 472H248V398H150V300H83Z M295 297H555V555H295Z M472 472H307V398H405V300H472Z"/>
+      <circle cx="278" cy="279" r="65" style="fill:var(--dot)"/>
+    </symbol>
+  </svg>
+  <header class="nav solid">
+    <a class="brand" href="index.html"><svg><use href="#logo"/></svg><span>PixelCore</span></a>
+    <div class="tools"><button class="icon-btn" id="theme" aria-label="Mavzuni almashtirish">◐</button><a class="pill" href="index.html#apps">Barcha ilovalar</a></div>
+  </header>
+  <main class="admin doc">
+    <h1 class="ah">Maxfiylik siyosati</h1>
+    <p class="muted">Oxirgi yangilanish: 2026-10-20</p>
+
+    <h2>1. Umumiy</h2>
+    <p>Bu sahifa PixelCore Studio saytida (va u orqali taqdim etiladigan xizmatlarda) qanday ma'lumotlar ishlatilishini tushuntiradi. Ilovalarimiz haqidagi ma'lumotlar 6-bo'limda.</p>
+
+    <h2>2. Saytda qanday ma'lumotlar yig'iladi</h2>
+    <p>Sayt hisobsiz ham ochiladi. Hisob yaratsangiz, quyidagilar saqlanadi:</p>
+    <ul>
+      <li><b>Email va parol.</b> Parol Firebase Authentication tomonidan himoyalangan holda saqlanadi, biz uni ko'ra olmaymiz.</li>
+      <li><b>Sevimlilar ro'yxati</b> (qaysi o'yinlarni belgilaganingiz).</li>
+      <li><b>Sharhlar va baholar.</b> Ular ochiq ko'rinadi, muallif sifatida emailingizning @ belgisigacha bo'lgan qismi ko'rsatiladi.</li>
+      <li><b>Fikr-mulohazalar.</b> Faqat sayt administratori ko'radi (email va xabar matni).</li>
+      <li><b>Pixel o'yini natijalari.</b> Natijalar jadvalida emailingizning @ belgisigacha bo'lgan qismi ochiq ko'rinadi.</li>
+    </ul>
+
+    <h2>3. Ma'lumotlar qayerda saqlanadi</h2>
+    <p>Ma'lumotlar Google Firebase xizmatida (Authentication va Firestore) saqlanadi. Saytda reklama yoki alohida statistika (analytics) vositalari ishlatilmaydi. Shriftlar Google Fonts orqali yuklanadi, shuning uchun brauzeringiz Google serverlariga murojaat qiladi.</p>
+
+    <h2>4. Brauzer xotirasi</h2>
+    <p>Brauzeringizda faqat qulaylik uchun ma'lumotlar saqlanadi: tanlangan mavzu (yorug' yoki qorong'i), til, sevimlilar ro'yxati va yuklash tugmasi bosilganini eslab qolish belgisi.</p>
+
+    <h2>5. Ma'lumotlarni o'chirish</h2>
+    <p>Hisobingiz, sharhlaringiz va boshqa ma'lumotlaringizni o'chirishni xohlasangiz, quyidagi manzil orqali yozing. Sharhingizni saytning o'zida ham o'chirishingiz mumkin.</p>
+
+    <h2>6. Ilovalarimiz</h2>
+    <p>Bizni ilovalarimiz va oyinlarimiz foydalanuvchidan hech qanday shaxsiy ma’lumot yig’maydi, saqlamaydi va uchinchi tomonlarga yubormaydi. Ilova reklama yoki statistika vositalaridan foydalanmaydi.</p>
+    <p>Barcha ilova va oyinlarga tegishli!</p>
+
+    <h2>7. Bog'lanish</h2>
+    <p>Savollar uchun: esalimniyazov@gmail.com yoki Telegram: t.me/PixelCoreStudio.</p>
+  </main>
+  <script src="firebase.js"></script>
+</body>
+</html>

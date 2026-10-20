@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Sitemap: https://esalimniyazov-commits.github.io/pixelcore/sitemap.xml

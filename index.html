@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelCore Studio — Android o'yinlar va ilovalar</title>
+  <meta name="description" content="PixelCore Studio: Android uchun o'yinlar va ilovalar. Yangi versiyalar Telegram kanalida.">
+  <meta name="theme-color" content="#080b12">
+  <link rel="canonical" href="https://esalimniyazov-commits.github.io/pixelcore/">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PixelCore Studio">
+  <meta property="og:description" content="Android uchun o'yinlar va ilovalar.">
+  <meta property="og:image" content="https://esalimniyazov-commits.github.io/pixelcore/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"PixelCore Studio","url":"https://esalimniyazov-commits.github.io/pixelcore/","logo":"https://esalimniyazov-commits.github.io/pixelcore/icon-512.png"}</script>
+  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Logo belgisi (SVG): bir marta e'lon qilinadi, hamma joyda ishlatiladi -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color:var(--m1)"/><stop offset="1" style="stop-color:var(--m2)"/>
+      </linearGradient>
+    </defs>
+    <symbol id="logo" viewBox="0 0 555 555">
+      <path fill="url(#g)" fill-rule="evenodd" d="M0 0H262V272H0Z M83 83H248V157H150V255H83Z M295 0H555V272H295Z M472 83H307V157H405V255H472Z M0 297H262V555H0Z M83 472H248V398H150V300H83Z M295 297H555V555H295Z M472 472H307V398H405V300H472Z"/>
+      <circle cx="278" cy="279" r="65" style="fill:var(--dot)"/>
+    </symbol>
+  </svg>
+
+  <div class="glow" id="glow"></div>
+
+  <header class="nav" id="nav">
+    <a class="brand" href="#top"><svg><use href="#logo"/></svg><span>PixelCore</span></a>
+    <nav>
+      <a href="#about">Biz haqimizda</a>
+      <a href="#apps">Ilovalar</a>
+      <a href="#news">Yangiliklar</a>
+      <a href="#play">O'yin</a>
+      <a href="#contact">Bog'lanish</a>
+    </nav>
+    <div class="tools">
+      <select class="icon-btn" id="lang" aria-label="Til"><option value="uz">UZ</option><option value="ru">RU</option><option value="en">EN</option></select>
+      <button class="icon-btn" id="theme" aria-label="Mavzuni almashtirish">◐</button>
+      <button class="pill" id="account">Kirish</button>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Android uchun o'yinlar va ilovalar yaratamiz.</h1>
+        <p>PixelCore Studio — kichik, lekin puxta jamoa. Har bir ilovani o'zbek foydalanuvchisini o'ylab, tez va chiroyli qilib chiqaramiz.</p>
+        <div class="row">
+          <a class="btn primary" data-link="telegram" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener">Telegram'dan yuklab olish</a>
+          <a class="btn ghost" href="#apps">Ilovalarni ko'rish</a>
+        </div>
+      </div>
+      <button class="hero-logo" id="logoBtn" aria-label="Logotipni bosing">
+        <span class="ring"></span><span class="ring r2"></span>
+        <svg class="mark"><use href="#logo"/></svg>
+      </button>
+    </section>
+
+    <section id="about" class="sec">
+      <h2>Biz kimmiz</h2>
+      <div class="about">
+        <p class="lead">Logotipimizdagi to'rtta bo'lak — to'rtta yo'nalish, markazdagi nuqta esa ularni birlashtiruvchi g'oya.</p>
+        <ul class="facts">
+          <li><b>Android</b><span>Barcha ilovalar Android qurilmalar uchun</span></li>
+          <li><b>O'zbek tilida</b><span>Interfeys va mazmun o'zimizning tilda</span></li>
+          <li><b>Telegram'da</b><span>Yangi versiyalar avval kanalda chiqadi</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="apps" class="sec">
+      <h2>O'yinlar va ilovalar</h2>
+      <div class="filters">
+        <input class="field" id="q" type="search" placeholder="O'yin yoki ilovani qidirish">
+        <select class="field" id="flt" aria-label="Holat"><option value="">Hammasi</option><option value="Chiqarilgan">Chiqarilgan</option><option value="Tez orada">Tez orada</option><option value="fav">Sevimlilar</option></select>
+      </div>
+      <div class="grid" id="games">
+        <article class="card tilt" data-status="Chiqarilgan">
+          <div class="icon">IQ</div>
+          <h3>MindIQ</h3>
+          <p>O'zbek tilidagi IQ va mantiq testlari. Fikrlash tezligingizni sinab ko'ring.</p>
+          <div class="tags"><span>Android</span><span>Mantiq</span><span>v1.0.1</span></div>
+          <a class="btn primary sm" data-link="telegram" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener">Yuklab olish</a>
+        </article>
+        <article class="card tilt soon" data-status="Tez orada">
+          <div class="icon">?</div>
+          <h3>Yangi o'yin</h3>
+          <p>Ustida ishlayapmiz. Birinchilardan bo'lib bilish uchun Telegram kanalimizga qo'shiling.</p>
+          <div class="tags"><span>Tez orada</span></div>
+          <a class="btn ghost sm" data-link="telegram" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener">Xabar olish</a>
+        </article>
+      </div>
+    </section>
+
+    <section id="news" class="sec">
+      <h2>Yangiliklar</h2>
+      <div class="news" id="newsList"><p class="muted">Hozircha yangilik yo'q.</p></div>
+    </section>
+
+    <section id="play" class="sec">
+      <h2>Pixel o'yini</h2>
+      <div class="play">
+        <div>
+          <p class="muted">15 soniyada yonib turgan pikselni iloji boricha ko'p marta bosing.</p>
+          <p><b>Ball</b>: <span id="score">0</span> &nbsp; <b>Vaqt</b>: <span id="time">15</span></p>
+          <div class="board" id="board"></div>
+          <button class="btn primary sm" id="start" style="margin-top:16px">Boshlash</button>
+        </div>
+        <div>
+          <h3>Eng yaxshi natijalar</h3>
+          <ol class="top" id="top"><li class="muted">Hali natija yo'q.</li></ol>
+          <p class="muted" id="pmsg"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="fun" class="sec">
+      <h2>Bilasizmi?</h2>
+      <div class="fun">
+        <p id="fact">Piksel — rasmning eng kichik bo'lagi. Ekrandagi har bir o'yin millionlab pikseldan tuzilgan.</p>
+        <button class="btn ghost" id="next">Yana bir fakt</button>
+      </div>
+    </section>
+
+    <section id="faq" class="sec">
+      <h2>Ko'p beriladigan savollar</h2>
+      <div class="faq">
+        <details><summary>Ilovani qayerdan yuklab olaman?</summary><p>Telegram kanalimizdan yoki o'yin kartasidagi "Yuklab olish" tugmasi orqali.</p></details>
+        <details><summary>Qaysi qurilmalarda ishlaydi?</summary><p>Ilovalarimiz Android qurilmalar uchun yaratilgan.</p></details>
+        <details><summary>Xato topsam kimga yozaman?</summary><p>Telegram yoki Instagram sahifamizga yozing, tez orada tuzatamiz.</p></details>
+        <details><summary>O'z g'oyam bor, taklif qilsam bo'ladimi?</summary><p>Albatta. G'oyangizni Telegram orqali yuboring.</p></details>
+        <details><summary>Ilovalarni qayerdan olish xavfsiz?</summary><p>Faqat rasmiy kanalimiz va shu saytdagi havolalardan yuklab oling.</p></details>
+      </div>
+    </section>
+
+    <section id="feedback" class="sec">
+      <h2>Fikr-mulohaza</h2>
+      <form class="fb" id="fbForm">
+        <select class="field" id="fbType"><option value="Xato">Xato</option><option value="G'oya">G'oya</option><option value="Savol">Savol</option></select>
+        <textarea class="field" id="fbText" maxlength="1000" placeholder="Xabaringiz" required></textarea>
+        <p class="err" id="fbMsg"></p>
+        <button class="btn primary sm">Yuborish</button>
+      </form>
+    </section>
+
+    <section id="contact" class="sec">
+      <h2>Bizni kuzating</h2>
+      <div class="links">
+        <a class="link" data-link="telegram" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener"><b>Telegram</b><span>Yangi ilovalar va yangiliklar</span></a>
+        <a class="link" data-link="instagram" href="https://instagram.com/YOUR_PAGE" target="_blank" rel="noopener"><b>Instagram</b><span>Jarayon va ichki kuzatuvlar</span></a>
+        <a class="link" data-link="support" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener"><b>Qo'llab-quvvatlash</b><span>Yangi ilovalar uchun yordam bering</span></a>
+      </div>
+      <div class="kit">
+        <b>Logotip (press-kit)</b>
+        <span>Maqola yoki video uchun logotipni yuklab oling.</span>
+        <div class="row">
+          <button class="btn ghost sm" data-kit="#a9c2ec,#9aa7b4,pixelcore-och">Och rang</button>
+          <button class="btn ghost sm" data-kit="#2f3e56,#7f8a93,pixelcore-qora-kok">To'q ko'k</button>
+          <button class="btn ghost sm" data-kit="#ffffff,#c9d1da,pixelcore-oq">Oq</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <svg><use href="#logo"/></svg>
+    <span>© <span id="year"></span> PixelCore Studio</span>
+    <a href="privacy.html">Maxfiylik siyosati</a>
+  </footer>
+  <dialog id="authDlg">
+    <div id="guest">
+      <div class="seg"><button type="button" data-mode="login" class="on">Kirish</button><button type="button" data-mode="register">Ro'yxatdan o'tish</button></div>
+      <form id="authForm">
+        <input class="field" id="email" type="email" placeholder="Email" required autocomplete="email">
+        <input class="field" id="pass" type="password" placeholder="Parol (kamida 6 ta belgi)" required minlength="6" autocomplete="current-password">
+        <p class="err" id="authErr"></p>
+        <button class="btn primary" id="authSubmit" style="width:100%">Kirish</button>
+      </form>
+    </div>
+    <div id="member" hidden>
+      <p>Siz kirgansiz:<br><b id="who"></b></p>
+      <div class="row">
+        <a class="btn ghost sm" id="adminLink" href="admin.html" hidden>Admin panel</a>
+        <button class="btn ghost sm" id="logout" type="button">Chiqish</button>
+      </div>
+    </div>
+    <button class="btn ghost sm" id="closeDlg" type="button" style="margin-top:16px;width:100%">Yopish</button>
+  </dialog>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
+  <script src="i18n.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
