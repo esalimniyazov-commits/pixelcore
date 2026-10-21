@@ -2,12 +2,13 @@ const $ = function (id) { return document.getElementById(id); };
 const gid = new URLSearchParams(location.search).get("id");
 function put(h) { $("app").innerHTML = h; }
 if (!db || !gid) put('<p class="muted">Ilova topilmadi.</p>');
-else db.collection("games").doc(gid).get().then(function (d) {
+else Promise.all([db.collection("games").doc(gid).get(), db.collection("shots").doc(gid).get().catch(function () { return null; })]).then(function (r) {
+  const d = r[0], sd = r[1];
   if (!d.exists) return put('<p class="muted">Ilova topilmadi.</p>');
   const g = d.data(), soon = g.status === "Tez orada";
   document.title = g.title + " — PixelCore Studio";
-  const shots = (g.shots || []).map(function (u) {
-    return '<button class="shot" data-src="' + esc(safeUrl(u)) + '"><img loading="lazy" src="' + esc(safeUrl(u)) + '" alt="' + esc(g.title) + ' skrinshoti"></button>';
+  const shots = ((sd && sd.exists && sd.data().list) || g.shots || []).map(function (u) {
+    return '<button class="shot"><img loading="lazy" src="' + esc(safeUrl(u)) + '" alt="' + esc(g.title) + ' skrinshoti"></button>';
   }).join("");
   put('<div class="icon big">' + (g.icon ? '<img src="' + esc(safeUrl(g.icon)) + '" alt="">' : esc(g.title.slice(0, 2).toUpperCase())) + "</div>" +
     '<h1 class="ah">' + esc(g.title) + '</h1><div class="tags"><span>Android</span><span>' + esc(g.status) + "</span>" +
@@ -20,7 +21,7 @@ else db.collection("games").doc(gid).get().then(function (d) {
 }).catch(function () { put('<p class="muted">Yuklab bo\'lmadi.</p>'); });
 document.addEventListener("click", function (e) {
   const s = e.target.closest(".shot");
-  if (s) { $("zimg").src = s.dataset.src; $("zoom").showModal(); }
+  if (s) { $("zimg").src = s.querySelector("img").src; $("zoom").showModal(); }
 });
 $("zc").addEventListener("click", function () { $("zoom").close(); });
 

@@ -35,8 +35,12 @@
           <textarea class="field" id="gDesc" placeholder="Qisqa tavsif" required></textarea>
           <input class="field" id="gVer" placeholder="Versiya (masalan, v1.0.1)">
           <input class="field" id="gLink" type="url" placeholder="Yuklab olish havolasi (https://...)">
-          <input class="field" id="gIcon" type="url" placeholder="Ikonka rasmi havolasi (ixtiyoriy)">
-          <textarea class="field" id="gShots" placeholder="Skrinshot havolalari, har biri yangi qatorda (ixtiyoriy)"></textarea>
+          <label class="muted" for="gIconFile">Ikonka (rasm tanlang, kvadratga avtomatik moslanadi)</label>
+          <input class="field" id="gIconFile" type="file" accept="image/*">
+          <img id="gIconPrev" class="prev" alt="" hidden style="margin-bottom:12px">
+          <label class="muted" for="gShotFile">Skrinshotlar (ko'pi bilan 6 ta, avtomatik kichraytiriladi)</label>
+          <input class="field" id="gShotFile" type="file" accept="image/*" multiple>
+          <div class="thumbs" id="gShotPrev"></div>
           <textarea class="field" id="gChange" placeholder="Versiyalar tarixi (masalan: v1.0.1 - xatolar tuzatildi)"></textarea>
           <label class="muted" for="gDate">Chiqish sanasi (faqat "Tez orada" uchun)</label>
           <input class="field" id="gDate" type="date">

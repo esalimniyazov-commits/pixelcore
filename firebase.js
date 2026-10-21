@@ -21,7 +21,7 @@ function esc(s) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
   });
 }
-function safeUrl(u) { return /^https?:\/\//.test(u) ? u : "#"; }
+function safeUrl(u) { return /^(https?:\/\/|data:image\/(png|jpe?g|webp);base64,)/.test(u) ? u : "#"; }
 
 // Yorug' / qorong'i rejim
 document.getElementById("theme").addEventListener("click", function () {

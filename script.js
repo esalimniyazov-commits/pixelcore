@@ -143,10 +143,9 @@ function gameCard(id, g) {
     const d = Math.ceil((new Date(g.releaseDate) - Date.now()) / 864e5);
     if (d > 0) left = "<span>" + d + " " + t("kun qoldi") + "</span>";
   }
-  return '<article class="card tilt' + (soon ? " soon" : "") + '" data-id="' + id + '" data-status="' + esc(g.status) + '" data-name="' + esc((g.title + " " + g.desc).toLowerCase()) + '">' +
+  return '<article class="card tilt mini' + (soon ? " soon" : "") + '" data-id="' + id + '" data-status="' + esc(g.status) + '" data-name="' + esc((g.title + " " + g.desc).toLowerCase()) + '">' +
     '<button class="fav" data-id="' + id + '" aria-label="Sevimli">♡</button><div class="icon">' + (g.icon ? '<img src="' + esc(safeUrl(g.icon)) + '" alt="">' : esc(g.title.slice(0, 2).toUpperCase())) + "</div>" +
-    "<h3>" + esc(g.title) + "</h3><p>" + esc(g.desc) + '</p><div class="tags"><span>Android</span><span>' + esc(g.status) + "</span>" +
-    (g.version ? "<span>" + esc(g.version) + "</span>" : "") + left + (g.downloads ? "<span>" + g.downloads + " " + t("yuklash") + "</span>" : "") + "</div>" +
+    "<h3>" + esc(g.title) + "</h3>" + (left ? '<div class="tags">' + left + "</div>" : "") +
     '<div class="row"><a class="btn ' + (soon ? "ghost" : "primary dl") + ' sm" data-id="' + id + '" href="' + esc(safeUrl(g.link || LINKS.telegram)) +
     '" target="_blank" rel="noopener">' + (soon ? "Xabar olish" : "Yuklab olish") + '</a><a class="btn ghost sm" href="app.html?id=' + id + '">Batafsil</a></div></article>';
 }

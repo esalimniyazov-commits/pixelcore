@@ -24,6 +24,7 @@ service cloud.firestore {
         && request.resource.data.get('downloads', 0) == resource.data.get('downloads', 0) + 1);
     }
     match /news/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /shots/{id} { allow read: if true; allow write: if isAdmin(); }
     match /reviews/{rid} {
       allow read: if true;
       allow create, update: if request.auth != null

@@ -198,3 +198,15 @@ select.icon-btn { width:auto; padding:0 8px; font-size:14px; }
 .doc li, .doc p { color:var(--muted); max-width:720px; }
 footer a { text-decoration:underline; }
 @media (max-width:800px) { .play { grid-template-columns:1fr; } }
+
+/* Ixcham kartalar va rasm yuklash */
+.mini { display:flex; flex-direction:column; align-items:center; text-align:center; }
+.mini .icon { width:96px; height:96px; font-size:30px; }
+.mini h3 { margin:16px 0 14px; }
+.mini .tags { justify-content:center; margin-bottom:14px; }
+.mini .row { justify-content:center; margin-top:auto; }
+.prev { width:64px; height:64px; border-radius:14px; object-fit:cover; display:block; }
+.thumbs { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+.thumb { position:relative; }
+.thumb img { height:90px; border-radius:8px; display:block; }
+.thumb button { position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; border:0; background:#e5645a; color:#fff; cursor:pointer; line-height:1; }
