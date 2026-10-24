@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PixelCore Studio — Android o'yinlar va ilovalar</title>
-  <meta name="description" content="PixelCore Studio: Android uchun o'yinlar va ilovalar. Yangi versiyalar Telegram kanalida.">
+  <title>PixelCore Studio — Android, Windows va macOS uchun o'yinlar va ilovalar</title>
+  <meta name="description" content="PixelCore Studio: Android, Windows va macOS uchun o'yinlar va ilovalar. Yangi versiyalar Telegram kanalida.">
   <meta name="theme-color" content="#080b12">
   <link rel="canonical" href="https://esalimniyazov-commits.github.io/pixelcore/">
   <link rel="manifest" href="manifest.webmanifest">
@@ -12,7 +12,7 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta property="og:type" content="website">
   <meta property="og:title" content="PixelCore Studio">
-  <meta property="og:description" content="Android uchun o'yinlar va ilovalar.">
+  <meta property="og:description" content="Android, Windows va macOS uchun o'yinlar va ilovalar.">
   <meta property="og:image" content="https://esalimniyazov-commits.github.io/pixelcore/og.png">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"PixelCore Studio","url":"https://esalimniyazov-commits.github.io/pixelcore/","logo":"https://esalimniyazov-commits.github.io/pixelcore/icon-512.png"}</script>
@@ -43,7 +43,8 @@
     <nav>
       <a href="#about">Biz haqimizda</a>
       <a href="#apps">Ilovalar</a>
-      <a href="#news">Yangiliklar</a>>
+      <a href="#news">Yangiliklar</a>
+      <a href="#play">O'yin</a>
       <a href="#contact">Bog'lanish</a>
     </nav>
     <div class="tools">
@@ -56,11 +57,12 @@
   <main id="top">
     <section class="hero">
       <div class="hero-text">
-        <h1>Android uchun o'yinlar va ilovalar yaratamiz.</h1>
+        <h1>Android, Windows va macOS uchun o'yinlar va ilovalar yaratamiz.</h1>
         <p>PixelCore Studio — kichik, lekin puxta jamoa. Har bir ilovani o'zbek foydalanuvchisini o'ylab, tez va chiroyli qilib chiqaramiz.</p>
+        <div class="plats"><span>Android</span><span>Windows</span><span>macOS</span></div>
         <div class="row">
-          <a class="btn primary" data-link="telegram" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener">Telegram'dan yuklab olish</a>
-          <a class="btn ghost" href="#apps">Ilovalarni ko'rish</a>
+          <a class="btn primary" href="#apps">Ilovalarni ko'rish</a>
+          <a class="btn ghost" data-link="telegram" href="https://t.me/YOUR_CHANNEL" target="_blank" rel="noopener">Telegram kanali</a>
         </div>
       </div>
       <button class="hero-logo" id="logoBtn" aria-label="Logotipni bosing">
@@ -74,7 +76,7 @@
       <div class="about">
         <p class="lead">Logotipimizdagi to'rtta bo'lak — to'rtta yo'nalish, markazdagi nuqta esa ularni birlashtiruvchi g'oya.</p>
         <ul class="facts">
-          <li><b>Android</b><span>Barcha ilovalar Android qurilmalar uchun</span></li>
+          <li><b>Android, Windows, macOS</b><span>Ilovalar va o'yinlar uchta platforma uchun</span></li>
           <li><b>O'zbek tilida</b><span>Interfeys va mazmun o'zimizning tilda</span></li>
           <li><b>Telegram'da</b><span>Yangi versiyalar avval kanalda chiqadi</span></li>
         </ul>
@@ -83,9 +85,12 @@
 
     <section id="apps" class="sec">
       <h2>O'yinlar va ilovalar</h2>
+      <div class="feat" id="feat" hidden></div>
       <div class="filters">
         <input class="field" id="q" type="search" placeholder="O'yin yoki ilovani qidirish">
         <select class="field" id="flt" aria-label="Holat"><option value="">Hammasi</option><option value="Chiqarilgan">Chiqarilgan</option><option value="Tez orada">Tez orada</option><option value="fav">Sevimlilar</option></select>
+        <select class="field" id="plat" aria-label="Platforma"><option value="">Barcha platformalar</option><option value="android">Android</option><option value="windows">Windows</option><option value="mac">macOS</option></select>
+        <select class="field" id="sort" aria-label="Tartib"><option value="new">Yangilari birinchi</option><option value="upd">Yaqinda yangilanganlar</option><option value="name">Nomi bo'yicha</option><option value="dl">Ko'p yuklanganlar</option></select>
       </div>
       <div class="grid" id="games">
         <article class="card tilt" data-status="Chiqarilgan">
@@ -121,8 +126,9 @@
     <section id="faq" class="sec">
       <h2>Ko'p beriladigan savollar</h2>
       <div class="faq">
-        <details><summary>Ilovani qayerdan yuklab olaman?</summary><p>Telegram kanalimizdan yoki o'yin kartasidagi "Yuklab olish" tugmasi orqali.</p></details>
-        <details><summary>Qaysi qurilmalarda ishlaydi?</summary><p>Ilovalarimiz Android qurilmalar uchun yaratilgan.</p></details>
+        <details><summary>Ilovani qayerdan yuklab olaman?</summary><p>O'yin kartasidagi platforma tugmasi (Android, Windows yoki macOS) orqali yoki Telegram kanalimizdan.</p></details>
+        <details><summary>Qaysi qurilmalarda ishlaydi?</summary><p>Android telefonlar, Windows va macOS kompyuterlar uchun versiyalar chiqaramiz. Har bir o'yin sahifasida qaysi platformalar mavjudligi ko'rsatilgan.</p></details>
+        <details><summary>Windows yoki macOS "noma'lum dasturchi" deb ogohlantirsa nima qilaman?</summary><p>Faqat shu saytdagi yoki rasmiy kanalimizdagi havoladan yuklagan bo'lsangiz: Windows'da "More info" va "Run anyway", macOS'da System Settings, Privacy & Security bo'limida "Open Anyway" ni bosing. Boshqa manbadan olingan fayllarni ochmang.</p></details>
         <details><summary>Xato topsam kimga yozaman?</summary><p>Telegram yoki Instagram sahifamizga yozing, tez orada tuzatamiz.</p></details>
         <details><summary>O'z g'oyam bor, taklif qilsam bo'ladimi?</summary><p>Albatta. G'oyangizni Telegram orqali yuboring.</p></details>
         <details><summary>Ilovalarni qayerdan olish xavfsiz?</summary><p>Faqat rasmiy kanalimiz va shu saytdagi havolalardan yuklab oling.</p></details>
@@ -187,6 +193,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="firebase.js"></script>
   <script src="i18n.js"></script>
+  <script src="links.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 const D = {
   "Biz haqimizda": ["О нас", "About"], "Ilovalar": ["Приложения", "Apps"], "Yangiliklar": ["Новости", "News"],
   "O'yin": ["Игра", "Game"], "Bog'lanish": ["Контакты", "Contact"], "Kirish": ["Войти", "Sign in"], "Ro'yxatdan o'tish": ["Регистрация", "Sign up"],
-  "Android uchun o'yinlar va ilovalar yaratamiz.": ["Создаём игры и приложения для Android.", "We build games and apps for Android."],
+  "Android, Windows va macOS uchun o'yinlar va ilovalar yaratamiz.": ["Создаём игры и приложения для Android, Windows и macOS.", "We build games and apps for Android, Windows and macOS."],
   "PixelCore Studio — kichik, lekin puxta jamoa. Har bir ilovani o'zbek foydalanuvchisini o'ylab, tez va chiroyli qilib chiqaramiz.": ["PixelCore Studio — небольшая, но надёжная команда. Каждое приложение мы делаем быстрым и красивым, думая об узбекском пользователе.", "PixelCore Studio is a small but dedicated team. We build every app to be fast and beautiful, with Uzbek users in mind."],
   "Telegram'dan yuklab olish": ["Скачать из Telegram", "Download from Telegram"], "Ilovalarni ko'rish": ["Смотреть приложения", "Browse apps"],
   "Biz kimmiz": ["Кто мы", "Who we are"],
@@ -43,6 +43,13 @@ const D = {
   "Sharhlar": ["Отзывы", "Reviews"], "Sharhingiz": ["Ваш отзыв", "Your review"],
   "Sharh yozish uchun saytda hisobingizga kiring.": ["Войдите на сайте, чтобы написать отзыв.", "Sign in on the site to write a review."],
   "O'chirish": ["Удалить", "Delete"],
+  "Telegram kanali": ["Telegram-канал", "Telegram channel"],
+  "Ilovalar va o'yinlar uchta platforma uchun": ["Приложения и игры для трёх платформ", "Apps and games for three platforms"],
+  "Barcha platformalar": ["Все платформы", "All platforms"],
+  "Yangi": ["Новое", "New"],
+  "Tavsiya etiladi": ["Рекомендуем", "Featured"], "Oxirgi yangilanish:": ["Последнее обновление:", "Last updated:"], "Tizim talablari": ["Системные требования", "System requirements"],
+  "Yangilari birinchi": ["Сначала новые", "Newest first"], "Yaqinda yangilanganlar": ["Недавно обновлённые", "Recently updated"],
+  "Nomi bo'yicha": ["По названию", "By name"], "Ko'p yuklanganlar": ["Самые скачиваемые", "Most downloaded"], "Ulashish": ["Поделиться", "Share"], "Nusxalandi!": ["Скопировано!", "Copied!"],
 };
 let LANG = "uz";
 try { LANG = localStorage.getItem("lang") || (/^ru/.test(navigator.language) ? "ru" : /^en/.test(navigator.language) ? "en" : "uz"); } catch (e) {}

@@ -20,6 +20,7 @@
       <circle cx="278" cy="279" r="65" style="fill:var(--dot)"/>
     </symbol>
   </svg>
+  <div id="toast" class="toast" hidden role="status"></div>
   <header class="nav solid">
     <a class="brand" href="index.html"><svg><use href="#logo"/></svg><span>PixelCore Admin</span></a>
     <div class="tools"><button class="icon-btn" id="theme" aria-label="Mavzuni almashtirish">◐</button><a class="pill" href="index.html">Saytga qaytish</a></div>
@@ -32,20 +33,34 @@
         <h2>Yangi o'yin yoki ilova</h2>
         <form id="gameForm">
           <input class="field" id="gTitle" placeholder="Nomi" required>
-          <textarea class="field" id="gDesc" placeholder="Qisqa tavsif" required></textarea>
+          <textarea class="field" id="gDesc" placeholder="Tavsif" required></textarea>
           <input class="field" id="gVer" placeholder="Versiya (masalan, v1.0.1)">
-          <input class="field" id="gLink" type="url" placeholder="Yuklab olish havolasi (https://...)">
+          <select class="field" id="gStatus"><option>Chiqarilgan</option><option>Tez orada</option></select>
+          <label class="muted" for="gDate">Chiqish sanasi (faqat "Tez orada" uchun)</label>
+          <input class="field" id="gDate" type="date">
+          <div class="pbox"><b>Android</b>
+            <input class="field" id="gAndroid" type="url" placeholder="Yuklab olish havolasi https://... (bo'sh bo'lsa, tugma chiqmaydi)">
+            <input class="field" id="gAndroidSize" placeholder="Fayl hajmi (masalan, 45 MB)">
+            <input class="field" id="gAndroidReq" placeholder="Talab (masalan, Android 8 va yuqori)">
+          </div>
+          <div class="pbox"><b>Windows</b>
+            <input class="field" id="gWindows" type="url" placeholder="Yuklab olish havolasi https://... (bo'sh bo'lsa, tugma chiqmaydi)">
+            <input class="field" id="gWindowsSize" placeholder="Fayl hajmi (masalan, 45 MB)">
+            <input class="field" id="gWindowsReq" placeholder="Talab (masalan, Windows 10 va yuqori)">
+          </div>
+          <div class="pbox"><b>macOS</b>
+            <input class="field" id="gMac" type="url" placeholder="Yuklab olish havolasi https://... (bo'sh bo'lsa, tugma chiqmaydi)">
+            <input class="field" id="gMacSize" placeholder="Fayl hajmi (masalan, 45 MB)">
+            <input class="field" id="gMacReq" placeholder="Talab (masalan, macOS 12 va yuqori)">
+          </div>
+          <label class="chk"><input type="checkbox" id="gFeat"> Tavsiya etiladi (bosh sahifada tepada katta ko'rsatiladi)</label>
           <label class="muted" for="gIconFile">Ikonka (rasm tanlang, kvadratga avtomatik moslanadi)</label>
           <input class="field" id="gIconFile" type="file" accept="image/*">
           <img id="gIconPrev" class="prev" alt="" hidden style="margin-bottom:12px">
-          <label class="muted" for="gShotFile">Skrinshotlar (ko'pi bilan 6 ta, avtomatik kichraytiriladi)</label>
+          <label class="muted" for="gShotFile">Qo'shimcha rasmlar / skrinshotlar (ko'pi bilan 8 ta, avtomatik kichraytiriladi)</label>
           <input class="field" id="gShotFile" type="file" accept="image/*" multiple>
           <div class="thumbs" id="gShotPrev"></div>
           <textarea class="field" id="gChange" placeholder="Versiyalar tarixi (masalan: v1.0.1 - xatolar tuzatildi)"></textarea>
-          <label class="muted" for="gDate">Chiqish sanasi (faqat "Tez orada" uchun)</label>
-          <input class="field" id="gDate" type="date">
-          <select class="field" id="gStatus"><option>Chiqarilgan</option><option>Tez orada</option></select>
-          <p class="err" id="gErr"></p>
           <div class="row"><button class="btn primary sm" id="gSubmit">Qo'shish</button><button type="button" class="btn ghost sm" id="gCancel" hidden>Bekor qilish</button></div>
         </form>
         <div id="gList"></div>
@@ -55,7 +70,6 @@
         <form id="newsForm">
           <input class="field" id="nTitle" placeholder="Sarlavha" required>
           <textarea class="field" id="nText" placeholder="Matn" required></textarea>
-          <p class="err" id="nErr"></p>
           <div class="row"><button class="btn primary sm" id="nSubmit">E'lon qilish</button><button type="button" class="btn ghost sm" id="nCancel" hidden>Bekor qilish</button></div>
         </form>
         <div id="nList"></div>

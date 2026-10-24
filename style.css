@@ -210,3 +210,29 @@ footer a { text-decoration:underline; }
 .thumb { position:relative; }
 .thumb img { height:90px; border-radius:8px; display:block; }
 .thumb button { position:absolute; top:-6px; right:-6px; width:22px; height:22px; border-radius:50%; border:0; background:#e5645a; color:#fff; cursor:pointer; line-height:1; }
+
+/* Platformalar, xabarnoma (toast) */
+.plats { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 28px; }
+.plats span { border:1px solid var(--line); border-radius:999px; padding:4px 14px; color:var(--ice); font-size:14px; }
+.dls { display:flex; gap:10px; flex-wrap:wrap; margin:22px 0; }
+.toast { position:fixed; top:76px; left:50%; transform:translateX(-50%); max-width:min(560px,92vw); padding:12px 20px; border-radius:12px; color:#fff; font-size:15px; z-index:60; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+.toast.ok { background:#2e9e5b; }
+.toast.err { background:#d9534f; }
+.toast[hidden] { display:none; }
+@media (max-width:800px) { .filters { flex-wrap:wrap; } }
+
+/* Banner, tizim talablari, admin platforma qutilari */
+.feat { display:flex; gap:22px; align-items:center; padding:26px; margin-bottom:26px; border-radius:20px; border:1px solid var(--steel); background:linear-gradient(135deg,var(--panel),var(--panel2)); }
+.feat[hidden] { display:none; }
+.feat .icon { width:96px; height:96px; flex:0 0 auto; font-size:30px; }
+.feat h3 { font:700 26px Sora,sans-serif; margin:8px 0 6px; }
+.feat p { margin:0 0 14px; color:var(--muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.badge { display:inline-block; font-size:13px; padding:3px 12px; border-radius:999px; background:var(--steel); color:#fff; }
+.sys { border-top:1px solid var(--line); max-width:560px; }
+.sysrow { display:flex; justify-content:space-between; gap:16px; padding:10px 0; border-bottom:1px solid var(--line); }
+.sysrow span { color:var(--muted); text-align:right; }
+.pbox { border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px; }
+.pbox b { display:block; margin-bottom:8px; }
+.pbox .field { margin-bottom:8px; }
+.chk { display:flex; gap:10px; align-items:center; margin:6px 0 14px; color:var(--muted); }
+@media (max-width:800px) { .feat { flex-direction:column; text-align:center; } .feat .row { justify-content:center; } }
