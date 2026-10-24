@@ -46,7 +46,7 @@ const D = {
   "Telegram kanali": ["Telegram-канал", "Telegram channel"],
   "Ilovalar va o'yinlar uchta platforma uchun": ["Приложения и игры для трёх платформ", "Apps and games for three platforms"],
   "Barcha platformalar": ["Все платформы", "All platforms"],
-  "Yangi": ["Новое", "New"],
+  "Yangi": ["Новое", "New"], "O'yinlar": ["Игры", "Games"],
   "Tavsiya etiladi": ["Рекомендуем", "Featured"], "Oxirgi yangilanish:": ["Последнее обновление:", "Last updated:"], "Tizim talablari": ["Системные требования", "System requirements"],
   "Yangilari birinchi": ["Сначала новые", "Newest first"], "Yaqinda yangilanganlar": ["Недавно обновлённые", "Recently updated"],
   "Nomi bo'yicha": ["По названию", "By name"], "Ko'p yuklanganlar": ["Самые скачиваемые", "Most downloaded"], "Ulashish": ["Поделиться", "Share"], "Nusxalandi!": ["Скопировано!", "Copied!"],
