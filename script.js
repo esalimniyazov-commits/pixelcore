@@ -180,33 +180,13 @@ if (db) {
   }).catch(function () {});
   db.collection("news").orderBy("created", "desc").limit(10).get().then(function (s) {
     if (s.empty) return;
-    const newsItems = s.docs.map(function (d) { return d.data(); });
-    $("newsList").innerHTML = newsItems.map(function (n, i) {
+    $("newsList").innerHTML = s.docs.map(function (d) {
+      const n = d.data();
       return '<article class="post"><time>' + (n.created ? n.created.toDate().toLocaleDateString("en-GB") : "") +
-        "</time><h3>" + esc(n.title || "") + "</h3><p>" + esc(n.text || "") +
-        '</p><button class="news-read-more" type="button" data-news-index="' + i +
-        '">Batafsil o\'qish <span aria-hidden="true">→</span></button></article>';
+        "</time><h3>" + esc(n.title) + "</h3><p>" + esc(n.text) + "</p></article>";
     }).join("");
-
-    const newsList = $("newsList");
-    newsList.addEventListener("click", function (e) {
-      const button = e.target.closest("[data-news-index]");
-      if (!button) return;
-      const item = newsItems[Number(button.dataset.newsIndex)];
-      if (!item) return;
-      $("newsDlgDate").textContent = item.created ? item.created.toDate().toLocaleDateString("en-GB") : "";
-      $("newsDlgTitle").textContent = item.title || "";
-      $("newsDlgText").textContent = item.text || "";
-      $("newsDlg").showModal();
-    });
   }).catch(function () {});
 }
-
-// To'liq yangilik oynasi
-$("closeNewsDlg").addEventListener("click", function () { $("newsDlg").close(); });
-$("newsDlg").addEventListener("click", function (e) {
-  if (e.target === $("newsDlg")) $("newsDlg").close();
-});
 
 // ====== Sevimlilar ======
 let favs = [];
