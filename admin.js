@@ -1,5 +1,22 @@
 const $ = function (id) { return document.getElementById(id); };
 const edit = { games: null, news: null }, cache = { games: {}, news: {} };
+let iconData = "", shots = [], removed = [], tt = null;
+
+// Admin uchun xabarnoma: muvaffaqiyat (yashil) yoki xato (qizil)
+function toast(msg, ok) {
+  const el = $("toast");
+  el.textContent = msg; el.className = "toast " + (ok ? "ok" : "err"); el.hidden = false;
+  clearTimeout(tt); tt = setTimeout(function () { el.hidden = true; }, ok ? 4500 : 9000);
+}
+function why(x) {
+  const m = {
+    "permission-denied": "ruxsat yo'q (Firestore qoidalarida images qatori yo'q yoki email mos emas)",
+    unavailable: "internet yoki Firebase bilan aloqa yo'q",
+    "resource-exhausted": "Firebase limiti tugagan",
+    "invalid-argument": "ma'lumot noto'g'ri yoki juda katta",
+  };
+  return m[x.code] || x.code || x.message;
+}
 
 if (!auth) {
   $("gate").textContent = "Firebase hali sozlanmagan. SETUP.md ga qarang.";
@@ -23,7 +40,7 @@ function list(col, el, label, noEdit) {
       const a = 'data-col="' + col + '" data-id="' + x.id + '"';
       return '<div class="item"><span>' + esc(label(x.data())) + '</span><span>' + (noEdit ? "" : '<button class="del ed" ' + a + '>Tahrirlash</button> ') + '<button class="del" ' + a + '>O\'chirish</button></span></div>';
     }).join("") || '<p class="muted">Hali yo\'q.</p>';
-  });
+  }).catch(function (x) { toast("✕ Ro'yxatni yuklab bo'lmadi: " + why(x), false); });
 }
 function load() {
   list("games", "gList", function (d) { return d.title + " (" + d.status + ")"; });
@@ -35,17 +52,24 @@ function load() {
 
 function reset(col) {
   const g = col === "games";
-  $(g ? "gameForm" : "newsForm").reset(); edit[col] = null; if (g) { setIcon(""); shotsData = []; renderShots(); }
+  $(g ? "gameForm" : "newsForm").reset(); edit[col] = null;
   $(g ? "gCancel" : "nCancel").hidden = true;
   $(g ? "gSubmit" : "nSubmit").textContent = g ? "Qo'shish" : "E'lon qilish";
+  if (g) { setIcon(""); shots = []; removed = []; renderShots(); }
 }
 function startEdit(col, id) {
   const d = cache[col][id]; if (!d) return;
   edit[col] = id;
   if (col === "games") {
+    const L = d.links || {};
     $("gTitle").value = d.title || ""; $("gDesc").value = d.desc || ""; $("gVer").value = d.version || "";
-    $("gLink").value = d.link || ""; $("gStatus").value = d.status || "Chiqarilgan"; setIcon(d.icon || "");
-    loadShots(id); $("gChange").value = d.changelog || ""; $("gDate").value = d.releaseDate || "";
+    $("gStatus").value = d.status || "Chiqarilgan"; $("gDate").value = d.releaseDate || ""; $("gChange").value = d.changelog || "";
+    $("gAndroid").value = L.android || d.link || ""; $("gWindows").value = L.windows || ""; $("gMac").value = L.mac || "";
+    const S = d.sizes || {}, Q = d.reqs || {};
+    $("gAndroidSize").value = S.android || ""; $("gWindowsSize").value = S.windows || ""; $("gMacSize").value = S.mac || "";
+    $("gAndroidReq").value = Q.android || ""; $("gWindowsReq").value = Q.windows || ""; $("gMacReq").value = Q.mac || "";
+    $("gFeat").checked = !!d.featured;
+    setIcon(d.icon || ""); loadShots(id);
     $("gSubmit").textContent = "Saqlash"; $("gCancel").hidden = false; $("gameForm").scrollIntoView({ behavior: "smooth" });
   } else {
     $("nTitle").value = d.title || ""; $("nText").value = d.text || "";
@@ -54,37 +78,69 @@ function startEdit(col, id) {
 }
 document.addEventListener("click", async function (e) {
   const b = e.target.closest(".del"); if (!b) return;
-  if (b.classList.contains("ed")) return startEdit(b.dataset.col, b.dataset.id);
+  const col = b.dataset.col, id = b.dataset.id;
+  if (b.classList.contains("ed")) return startEdit(col, id);
   if (!confirm("O'chirilsinmi?")) return;
-  await db.collection(b.dataset.col).doc(b.dataset.id).delete(); load();
+  try {
+    if (col === "games") {
+      const s = await db.collection("images").where("gameId", "==", id).get();
+      const bt = db.batch(); s.forEach(function (d) { bt.delete(d.ref); }); await bt.commit();
+    }
+    await db.collection(col).doc(id).delete();
+    toast("✓ O'chirildi", true); load();
+  } catch (x) { toast("✕ O'chirilmadi: " + why(x), false); }
 });
 $("gCancel").addEventListener("click", function () { reset("games"); });
 $("nCancel").addEventListener("click", function () { reset("news"); });
 
-async function save(e, col, errId, get, after) {
-  e.preventDefault(); $(errId).textContent = "";
-  const data = get();
-  try {
-    let id = edit[col];
-    if (id) await db.collection(col).doc(id).update(data);
-    else id = (await db.collection(col).add(Object.assign(data, { created: firebase.firestore.FieldValue.serverTimestamp() }))).id;
-    if (after) await after(id);
-    reset(col); load();
-  } catch (x) {
-    $(errId).textContent = x.code === "permission-denied" ? "Ruxsat yo'q: Firestore qoidalarini tekshiring." : "Xatolik: " + x.message;
-  }
+// ====== O'yin saqlash ======
+async function saveShots(id) {
+  if (!shots.length && !removed.length) return;
+  const bt = db.batch(), col = db.collection("images");
+  removed.forEach(function (r) { bt.delete(col.doc(r)); });
+  shots.forEach(function (s, i) {
+    if (s.id) bt.update(col.doc(s.id), { n: i });
+    else bt.set(col.doc(), { gameId: id, n: i, data: s.data });
+  });
+  await bt.commit();
 }
-$("gameForm").addEventListener("submit", function (e) {
-  if (shotsData.join("").length > 900000) { e.preventDefault(); $("gErr").textContent = "Skrinshotlar hajmi katta, kamroq rasm tanlang."; return; }
-  save(e, "games", "gErr", function () {
-    return {
-      title: $("gTitle").value.trim(), desc: $("gDesc").value.trim(), version: $("gVer").value.trim(), link: $("gLink").value.trim(),
-      status: $("gStatus").value, icon: iconData, releaseDate: $("gDate").value, changelog: $("gChange").value.trim(),
-    };
-  }, function (id) { return db.collection("shots").doc(id).set({ list: shotsData }); });
+$("gameForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const editing = !!edit.games, btn = $("gSubmit");
+  const data = {
+    title: $("gTitle").value.trim(), desc: $("gDesc").value.trim(), version: $("gVer").value.trim(), status: $("gStatus").value,
+    releaseDate: $("gDate").value, changelog: $("gChange").value.trim(), icon: iconData, link: "",
+    links: { android: $("gAndroid").value.trim(), windows: $("gWindows").value.trim(), mac: $("gMac").value.trim() },
+    sizes: { android: $("gAndroidSize").value.trim(), windows: $("gWindowsSize").value.trim(), mac: $("gMacSize").value.trim() },
+    reqs: { android: $("gAndroidReq").value.trim(), windows: $("gWindowsReq").value.trim(), mac: $("gMacReq").value.trim() },
+    featured: $("gFeat").checked, updated: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+  btn.disabled = true;
+  let id = edit.games;
+  try {
+    if (editing) await db.collection("games").doc(id).update(data);
+    else id = (await db.collection("games").add(Object.assign(data, { created: firebase.firestore.FieldValue.serverTimestamp() }))).id;
+  } catch (x) {
+    toast("✕ " + (editing ? "O'yin yangilanmadi: " : "O'yin qo'shilmadi: ") + why(x), false); btn.disabled = false; return;
+  }
+  try { await saveShots(id); } catch (x) {
+    edit.games = id; btn.textContent = "Saqlash"; $("gCancel").hidden = false; btn.disabled = false; load();
+    toast("⚠ O'yin saqlandi, lekin rasmlar saqlanmadi: " + why(x) + ". Qayta \"Saqlash\" bosing.", false); return;
+  }
+  toast("✓ " + (editing ? "O'yin yangilandi: " : "O'yin qo'shildi: ") + data.title, true);
+  reset("games"); load(); btn.disabled = false;
 });
-$("newsForm").addEventListener("submit", function (e) {
-  save(e, "news", "nErr", function () { return { title: $("nTitle").value.trim(), text: $("nText").value.trim() }; });
+
+// ====== Yangilik saqlash ======
+$("newsForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const editing = !!edit.news, data = { title: $("nTitle").value.trim(), text: $("nText").value.trim() };
+  try {
+    if (editing) await db.collection("news").doc(edit.news).update(data);
+    else await db.collection("news").add(Object.assign(data, { created: firebase.firestore.FieldValue.serverTimestamp() }));
+    toast("✓ " + (editing ? "Yangilik yangilandi: " : "Yangilik e'lon qilindi: ") + data.title, true);
+    reset("news"); load();
+  } catch (x) { toast("✕ Yangilik saqlanmadi: " + why(x), false); }
 });
 
 function stats() {
@@ -95,8 +151,7 @@ function stats() {
   }).catch(function () {});
 }
 
-// ====== Rasm yuklash: brauzerda siqiladi va ma'lumotlar bazasiga yoziladi ======
-let iconData = "", shotsData = [];
+// ====== Rasmlar: brauzerda siqiladi, har biri alohida hujjatga yoziladi ======
 function loadImg(file) {
   return new Promise(function (res, rej) {
     const r = new FileReader();
@@ -120,26 +175,37 @@ async function shrink(file, max, type, q, square) {
 }
 function setIcon(v) { iconData = v; const p = $("gIconPrev"); p.src = v || ""; p.hidden = !v; }
 function renderShots() {
-  $("gShotPrev").innerHTML = shotsData.map(function (s, i) {
-    return '<span class="thumb"><img src="' + s + '" alt=""><button type="button" data-rm="' + i + '">×</button></span>';
+  $("gShotPrev").innerHTML = shots.map(function (s, i) {
+    return '<span class="thumb"><img src="' + s.data + '" alt=""><button type="button" data-rm="' + i + '">×</button></span>';
   }).join("");
 }
 function loadShots(id) {
-  shotsData = []; renderShots();
-  db.collection("shots").doc(id).get().then(function (s) { shotsData = (s.exists && s.data().list) || []; renderShots(); }).catch(function () {});
+  shots = []; removed = []; renderShots();
+  db.collection("images").where("gameId", "==", id).get().then(function (s) {
+    shots = s.docs.map(function (d) { return { id: d.id, n: d.data().n || 0, data: d.data().data }; }).sort(function (a, b) { return a.n - b.n; });
+    renderShots();
+  }).catch(function (x) { toast("✕ Rasmlarni yuklab bo'lmadi: " + why(x), false); });
 }
 $("gIconFile").addEventListener("change", async function (e) {
-  const f = e.target.files[0];
-  if (f) setIcon(await shrink(f, 192, "image/png", 0.92, true));
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try { setIcon(await shrink(f, 192, "image/png", 0.92, true)); }
+  catch (x) { toast("✕ Ikonkani o'qib bo'lmadi (JPG, PNG yoki WebP tanlang)", false); }
 });
 $("gShotFile").addEventListener("change", async function (e) {
-  for (const f of e.target.files) {
-    if (shotsData.length >= 6) break;
-    shotsData.push(await shrink(f, 1000, "image/jpeg", 0.72, false));
+  const files = Array.from(e.target.files); e.target.value = "";
+  for (const f of files) {
+    if (shots.length >= 8) { toast("Ko'pi bilan 8 ta rasm qo'shish mumkin", false); break; }
+    try {
+      let d = await shrink(f, 1000, "image/jpeg", 0.72, false);
+      if (d.length > 600000) d = await shrink(f, 800, "image/jpeg", 0.6, false);
+      shots.push({ data: d });
+    } catch (x) { toast("✕ \"" + f.name + "\" rasmini o'qib bo'lmadi (JPG, PNG yoki WebP tanlang)", false); }
   }
-  renderShots(); e.target.value = "";
+  renderShots();
 });
 document.addEventListener("click", function (e) {
-  const b = e.target.closest("[data-rm]");
-  if (b) { shotsData.splice(+b.dataset.rm, 1); renderShots(); }
+  const b = e.target.closest("[data-rm]"); if (!b) return;
+  const i = +b.dataset.rm;
+  if (shots[i] && shots[i].id) removed.push(shots[i].id);
+  shots.splice(i, 1); renderShots();
 });
