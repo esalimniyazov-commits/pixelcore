@@ -15,7 +15,7 @@ const TECH = [
 ];
 // Foydalaniladigan dasturlar
 const SOFTWARE = [
-  { n: "VSCodium", d: "sw.code" },
+  { n: "VSCode", d: "sw.code" },
   { n: "Git & GitHub", d: "sw.git" },
 ];
 // Hamkorlar: [{ n: "Nomi", u: "https://..." }]. Bo'sh bo'lsa, bo'lim sahifada ko'rinmaydi.
