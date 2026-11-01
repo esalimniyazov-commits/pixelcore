@@ -1,1 +1,21 @@
-{"name":"PixelCore Studio","short_name":"PixelCore","start_url":"./","display":"standalone","background_color":"#080b12","theme_color":"#080b12","icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}
+{
+  "id": "/",
+  "name": "PixelCore Studio",
+  "short_name": "PixelCore",
+  "description": "Android, Windows va macOS uchun o'yinlar — PixelCore Studio",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#06040c",
+  "theme_color": "#7c3aed",
+  "lang": "uz",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "O'yinlar", "url": "/games.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] },
+    { "name": "Yangiliklar", "url": "/news.html", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }
+  ]
+}

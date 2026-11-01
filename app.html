@@ -2,36 +2,51 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ilova — PixelCore Studio</title>
-  <script>try{document.documentElement.dataset.theme=localStorage.getItem("theme")||(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark")}catch(e){document.documentElement.dataset.theme="dark"}</script>
-  <link rel="icon" href="icon-192.png">
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>O'yin — PixelCore Studio</title>
+  <meta name="description" content="PixelCore Studio o'yini haqida batafsil ma'lumot.">
+  <meta name="theme-color" content="#7c3aed">
+  <link rel="canonical" href="https://pixelcore-delta.vercel.app/app.html">
+  <link rel="alternate" hreflang="uz" href="https://pixelcore-delta.vercel.app/app.html?lang=uz">
+  <link rel="alternate" hreflang="ru" href="https://pixelcore-delta.vercel.app/app.html?lang=ru">
+  <link rel="alternate" hreflang="en" href="https://pixelcore-delta.vercel.app/app.html?lang=en">
+  <link rel="alternate" hreflang="x-default" href="https://pixelcore-delta.vercel.app/app.html">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PixelCore Studio">
+  <meta property="og:url" content="https://pixelcore-delta.vercel.app/app.html">
+  <meta property="og:title" content="O'yin — PixelCore Studio">
+  <meta property="og:description" content="PixelCore Studio o'yini haqida batafsil ma'lumot.">
+  <meta property="og:image" content="https://pixelcore-delta.vercel.app/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="O'yin — PixelCore Studio">
+  <meta name="twitter:description" content="PixelCore Studio o'yini haqida batafsil ma'lumot.">
+  <meta name="twitter:image" content="https://pixelcore-delta.vercel.app/og.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" style="stop-color:var(--m1)"/><stop offset="1" style="stop-color:var(--m2)"/>
-      </linearGradient>
-    </defs>
-    <symbol id="logo" viewBox="0 0 555 555">
-      <path fill="url(#g)" fill-rule="evenodd" d="M0 0H262V272H0Z M83 83H248V157H150V255H83Z M295 0H555V272H295Z M472 83H307V157H405V255H472Z M0 297H262V555H0Z M83 472H248V398H150V300H83Z M295 297H555V555H295Z M472 472H307V398H405V300H472Z"/>
-      <circle cx="278" cy="279" r="65" style="fill:var(--dot)"/>
-    </symbol>
-  </svg>
-  <header class="nav solid">
-    <a class="brand" href="index.html"><svg><use href="#logo"/></svg><span>PixelCore</span></a>
-    <div class="tools"><select class="icon-btn" id="lang" aria-label="Til"><option value="uz">UZ</option><option value="ru">RU</option><option value="en">EN</option></select><button class="icon-btn" id="theme" aria-label="Mavzuni almashtirish">◐</button><a class="pill" href="index.html#apps">Barcha ilovalar</a></div>
-  </header>
-  <main class="admin"><div id="app"><p class="muted">Yuklanmoqda...</p></div></main>
-  <dialog id="zoom" class="wide"><img id="zimg" alt="" style="max-width:100%;border-radius:10px"><button class="btn ghost sm" id="zc" type="button" style="margin-top:14px;width:100%">Yopish</button></dialog>
+<body data-page="app">
+  <a class="skip" href="#main" data-i18n="a11y.skip">Asosiy mazmunga o'tish</a>
+  <div id="site-header"></div>
+  <main id="main">
+    <div class="wrap" id="app" style="padding-bottom:30px"><p class="muted" data-i18n="common.loading"></p></div>
+    <dialog id="zoom" class="wide"><img id="zimg" alt="" style="width:100%;border-radius:12px"><div class="row" style="margin-top:14px"><button class="btn sm" id="zprev" type="button">←</button><button class="btn sm" id="znext" type="button">→</button><button class="btn sm" id="zc" type="button" style="margin-left:auto" data-i18n="common.close"></button></div></dialog>
+  </main>
+  <div id="site-footer"></div>
+  <noscript><p style="padding:20px;text-align:center">PixelCore Studio JavaScript talab qiladi / requires JavaScript.</p></noscript>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="firebase.js"></script>
-  <script src="i18n.js"></script>
-  <script src="app.js"></script>
+  <script src="links.js"></script>
+  <script src="js/dict.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/core.js"></script>
+  <script src="js/pages.js"></script>
 </body>
 </html>

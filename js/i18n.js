@@ -1,0 +1,27 @@
+"use strict";
+/* Til tizimi. Kalitlar js/dict.js ichida: DICT[kalit] = [uz, ru, en]. */
+let LANG = "uz";
+(function () {
+  const ok = function (v) { return v === "uz" || v === "ru" || v === "en"; };
+  let q = null, s = null;
+  try { q = new URLSearchParams(location.search).get("lang"); s = localStorage.getItem("lang"); } catch (e) {}
+  if (ok(q)) { LANG = q; try { localStorage.setItem("lang", q); } catch (e) {} }
+  else if (ok(s)) LANG = s;
+  else { const n = (navigator.language || "uz").slice(0, 2); LANG = n === "ru" ? "ru" : n === "en" ? "en" : "uz"; }
+  document.documentElement.lang = LANG;
+})();
+function t(key, vars) {
+  const e = DICT[key];
+  if (!e) { if (typeof console !== "undefined") console.warn("i18n: kalit yo'q:", key); return key; }
+  let s = e[LANG === "ru" ? 1 : LANG === "en" ? 2 : 0] || e[0];
+  if (vars) s = s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
+  return s;
+}
+function applyI18n(root) {
+  root = root || document;
+  root.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = t(el.dataset.i18n); });
+  root.querySelectorAll("[data-i18n-html]").forEach(function (el) { el.innerHTML = t(el.dataset.i18nHtml); });
+  root.querySelectorAll("[data-i18n-ph]").forEach(function (el) { el.placeholder = t(el.dataset.i18nPh); });
+  root.querySelectorAll("[data-i18n-aria]").forEach(function (el) { el.setAttribute("aria-label", t(el.dataset.i18nAria)); });
+  root.querySelectorAll("[data-i18n-title]").forEach(function (el) { el.title = t(el.dataset.i18nTitle); });
+}

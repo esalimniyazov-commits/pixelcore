@@ -1,68 +1,54 @@
-# Firebase sozlash (hisob + admin panel uchun, tekin)
+# SETUP — Firebase, Vercel va qo'lda bajariladigan ishlar
 
-GitHub Pages faqat tayyor fayllarni beradi, shuning uchun hisoblar va ma'lumotlar Firebase'da saqlanadi.
+Sandbox'da haqiqiy Firebase hisobingizga kira olmaganim uchun quyidagilarni **siz** bajarasiz. Har biri 1–3 daqiqa.
 
-1. https://console.firebase.google.com ga Google akkaunt bilan kiring → **Add project** → nom bering (masalan, `pixelcore`). Analytics shart emas.
-2. **Build → Authentication → Get started → Email/Password** ni yoqing (Enable).
-3. **Build → Firestore Database → Create database** → joylashuvni tanlang → **Production mode**.
-4. Firestore'ning **Rules** bo'limiga quyidagini qo'ying (`ADMIN_EMAIL@gmail.com` o'rniga o'z emailingiz) va **Publish** bosing:
+## 1. Firestore Security Rules (MAJBURIY)
+1. Firebase Console → loyiha `pixelcore-96f17` → **Firestore Database → Rules**.
+2. Eski qoidalarni **zaxira sifatida bir joyga nusxalab qo'ying**, so'ng `firestore.rules` mazmunini to'liq joylashtiring.
+3. Agar admin emailingiz `esalimniyazov@gmail.com` bo'lmasa, faylda `request.auth.token.email in [...]` ni o'zgartiring (`firebase.js` dagi `ADMIN_EMAILS` ni ham).
+4. **Rules Playground** orqali tekshiring (3-bo'limdagi ro'yxat) va **Publish** bosing.
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isAdmin() {
-      return request.auth != null
-        && request.auth.token.email_verified == true
-        && request.auth.token.email in ['ADMIN_EMAIL@gmail.com'];
-    }
-    match /games/{id} {
-      allow read: if true;
-      allow create, delete: if isAdmin();
-      // admin hammasini o'zgartiradi; boshqalar faqat yuklashlar sonini 1 taga oshiradi
-      allow update: if isAdmin() || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['downloads'])
-        && request.resource.data.get('downloads', 0) == resource.data.get('downloads', 0) + 1);
-    }
-    match /news/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /images/{id} { allow read: if true; allow write: if isAdmin(); }
-    match /reviews/{rid} {
-      allow read: if true;
-      allow create, update: if request.auth != null
-        && rid == request.resource.data.gameId + '_' + request.auth.uid
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.stars is int && request.resource.data.stars >= 1 && request.resource.data.stars <= 5
-        && request.resource.data.text is string && request.resource.data.text.size() <= 500;
-      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
-    }
-    match /feedback/{id} {
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid
-        && request.resource.data.text is string && request.resource.data.text.size() >= 1 && request.resource.data.text.size() <= 1000;
-      allow read, delete: if isAdmin();
-    }
-    match /users/{uid} {
-      allow read: if (request.auth != null && request.auth.uid == uid) || isAdmin();
-      allow write: if request.auth != null && request.auth.uid == uid && request.resource.data.keys().hasOnly(['email', 'favs']);
-    }
-    match /scores/{uid} {
-      allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 150;
-      allow update: if request.auth != null && request.auth.uid == uid
-        && request.resource.data.score is int && request.resource.data.score > resource.data.score && request.resource.data.score <= 150;
-    }
-  }
-}
-```
+Qoidalar ma'lumotlarni o'chirmaydi va o'zgartirmaydi; faqat kimga nima ruxsat berilishini belgilaydi.
 
-5. **Project settings (tishli g'ildirak) → General → Your apps → Web (`</>`)** ni bosing, ilovaga nom bering. Chiqqan `firebaseConfig` ichidagi `apiKey`, `authDomain`, `projectId`, `appId` qiymatlarini `firebase.js` ning tepasiga yozing.
-6. `firebase.js` dagi `ADMIN_EMAILS` ichiga ham o'sha emailni yozing.
-7. **Authentication → Settings → Authorized domains** ga sayt manzilingizni qo'shing: `esalimniyazov-commits.github.io` (`localhost` odatda bor).
-8. Saytda shu email bilan **Ro'yxatdan o'tish** qiling, pochtaga kelgan xatdagi havolani bosib emailni tasdiqlang. Keyin **Kirish → Admin panel**.
+## 2. Authentication
+- **Sign-in method:** Email/Password yoqilgan bo'lsin (allaqachon).
+- **Settings → Authorized domains:** `pixelcore-delta.vercel.app` ni qo'shing (Vercel preview domenlari kerak bo'lsa ularni ham).
+- **Admin hisob:** admin emailingiz bilan ro'yxatdan o'tgan va **emailni tasdiqlagan** bo'lishi shart. Tasdiqlanmagan bo'lsa: kiring → Profil → "Xatni qayta yuborish".
 
-Eslatma: `firebase.js` dagi `apiKey` yashirin kalit emas, ochiq turishi normal. Himoya 4-bandagi qoidalarda.
+## 3. Rules Playground'da tekshirish (tavsiya)
+| Sinov | Kutiladigan natija |
+|---|---|
+| Kirmagan: `get /games/x` | Ruxsat |
+| Kirmagan: `create /games/x` | Rad |
+| Oddiy user: `update /games/x {downloads: +1}` | Ruxsat |
+| Oddiy user: `update /games/x {title:"a"}` | Rad |
+| Oddiy user: `create /users/{uid} {email, username:"ab"}` | Rad (3 belgidan kam) |
+| Oddiy user: `update /users/{uid} {banned:false}` | Rad |
+| Oddiy user: `read /feedback/{boshqaning}` | Rad |
+| Kirmagan: `create /contacts/x` (to'g'ri maydonlar, `created=request.time`) | Ruxsat |
+| Kirmagan: `read /contacts/x` | Rad |
+| Admin (email_verified=true): `write /news/x` | Ruxsat |
 
-Saytni `file://` (faylni ikki marta bosib) emas, VSCodium'dagi **Live Server** kengaytmasi yoki GitHub Pages orqali oching, aks holda kirish ishlamasligi mumkin.
+## 4. Vercel
+1. Loyihani GitHub'ga yuklang → vercel.com → **Add New → Project → Import**.
+2. **Framework Preset: Other**; Build Command va Output Directory — **bo'sh**. Deploy.
+3. `vercel.json` sarlavhalar va `/sitemap.xml → /api/sitemap` yo'naltirishini o'z ichiga oladi. `api/sitemap.js` Vercel Hobby'da bepul ishlaydi (Node 18+).
+4. Deploy'dan so'ng tekshiring: `/sitemap.xml` (o'yin va yangilik sahifalari ro'yxatda bo'lsin), `/robots.txt`, `/manifest.webmanifest`.
+5. Google Search Console'da `https://pixelcore-delta.vercel.app/sitemap.xml` ni yuboring.
 
-Sayt manzilini o'zgartirsangiz (repo nomi `pixelcore` emas bo'lsa), `index.html` dagi `canonical` va `og:image`, shuningdek `sitemap.xml` va `robots.txt` ichidagi manzilni yangilang.
+## 5. Kontentni to'ldirish (admin.html)
+- **O'yinlar:** mavjud o'yinlaringiz o'zgarishsiz ko'rinadi. Yangi maydonlar (janr, cover, video, xususiyatlar, tavsiya etilgan talablar, ru/en tavsif) ixtiyoriy — tahrirlash orqali to'ldiring. `Janr` bo'sh bo'lsa, filtr va "o'xshash o'yinlar" ishlamaydi.
+- **Roadmap, Jamoa, Yangiliklar** — hozircha bo'sh; saytda "hali yo'q" xabari ko'rinadi (soxta kontent qo'shilmagan).
+- **links.js:** `TECH`, `SOFTWARE` (haqiqatan ishlatadiganlaringizni qoldiring; men faqat saytning o'zi ishlatadigan texnologiyalar va SETUPdagi VSCodium'ni yozdim), `PARTNERS` (bo'sh bo'lsa bo'lim yashirin).
 
-Natijalar jadvali o'yin uchun, ya'ni ko'ngilochar: brauzer konsoli orqali 150 gacha ball yozib qo'yish mumkin, qoidalar buni faqat shu chegarada ushlab turadi.
+## 6. Bepul tarif limitlari (Firebase Spark)
+- Kuniga 50 000 o'qish / 20 000 yozish. Har sahifa ochilishida o'yinlar (va kerak bo'lsa yangiliklar) to'liq o'qiladi: ~20 o'yin va kuniga ~1 000 sahifa ko'rish uchun yetarli. Trafik oshsa — o'yinlar ro'yxatini sahifalash yoki keshlash kerak bo'ladi.
+- Rasmlar Firestore hujjatlarida base64 (siqilgan) saqlanadi — Firebase Storage kerak emas (u ham bepul, lekin karta talab qilishi mumkin). Hujjat chegarasi 1 MB: admin panel rasmlarni avtomatik kichraytiradi, skrinshot soni 8 tagacha.
+- Firestore bilan ishlaganda `where` + `orderBy` kombinatsiyasi ishlatilmagan, shuning uchun **maxsus indeks kerak emas**.
+
+## 7. Bu versiyaga kiritilmagan narsalar (halol ro'yxat)
+- **Push-bildirishnomalar:** FCM `vapidKey` + `messagingSenderId` kerak va xabarni Console'dan qo'lda yuborasiz. Sozlamasiz ishlamaydi, shuning uchun soxta tugma qo'shmadim. Kerak bo'lsa alohida qo'shiladi.
+- **Foydalanuvchini Firebase Auth'dan to'liq o'chirish/o'chirib qo'yish:** faqat Admin SDK yoki Console orqali. Admin panelda "bloklash" bor (sharh/izoh/xabar yozolmaydi), hisobni o'zi o'chirsa bo'ladi (Profil → Hisobni o'chirish).
+- **Server tomonda SEO (SSR):** kontent Firestore'dan JavaScript bilan yuklanadi. Google JS'ni bajaradi, lekin Telegram/Facebook havola ko'rinishi (OG) o'yin/yangilik sahifalari uchun umumiy rasm va matn ko'rsatadi.
+- **CSP:** `Content-Security-Policy-Report-Only` sifatida yoqilgan (bloklamaydi). Konsolda ogohlantirish chiqmasligini tekshirib, `vercel.json` da `-Report-Only` ni olib tashlab yoqishingiz mumkin.
+- **Google Fonts** tashqi xizmat (bepul); maxfiylik siyosatida eslatilgan.

@@ -1,0 +1,37 @@
+# CHANGELOG
+
+## 2.0.0 — 2026-10-31
+### Dizayn
+- Yangi dizayn tizimi: qora, to'q binafsha va neon binafsha; piksel zarrachali fon, hover/glow effektlari, sahifalar orasida silliq o'tish (View Transitions + fade), `prefers-reduced-motion` hurmat qilinadi.
+- Logotip, favicon.svg, ikonkalar (maskable bilan), apple-touch-icon va OG rasm yangi ranglarda qayta yaratildi.
+- Eski **yorug' mavzu o'chirildi** (dizayn qora/binafsha ekanligi uchun) — ongli qaror, ishlamay qolgani uchun emas.
+
+### Sahifalar (yangi/yangilangan)
+- Bosh sahifa: Hero, statistika (haqiqiy ma'lumotdan), Featured o'yin, yangi loyihalar, studio haqida, texnologiyalar, hamkorlar (bo'sh bo'lsa yashirin), yangiliklar, roadmap, "Bilasizmi?".
+- `games.html` (qidiruv, janr/platforma/holat filtri, saralash, Popular/Latest), `app.html` (cover, video, galereya + lightbox, xususiyatlar, min/rec talablar, changelog, o'xshash o'yinlar, sharhlar, ulashish).
+- `news.html`, `article.html`, `devlog.html` (kategoriya, qidiruv, izohlar), `about.html` (jamoa, texnologiyalar, dasturlar, press-kit), `roadmap.html`, `contact.html` (aloqa formasi, Bug Report / Taklif / Savol, FAQ), `profile.html`, `404.html`, `offline.html`.
+
+### PixelCore ID
+- Foydalanuvchi nomi, 12 ta piksel-avatar, email tasdiqlash, parolni tiklash, profilni tahrirlash, hisobni o'chirish (o'z ma'lumotlari bilan), sevimlilar, faoliyat tarixi, daraja va yutuqlar (haqiqiy faoliyatdan hisoblanadi, soxtalashtirib bo'lmaydi).
+- **Maxfiylik tuzatildi:** sharhlarda endi email prefiksi emas, foydalanuvchi nomi ko'rsatiladi.
+
+### Admin panel (to'liq qayta yozildi)
+- Dashboard, o'yinlar / yangiliklar / roadmap / jamoa CRUD (uz/ru/en maydonlar), skrinshot va cover, media manager (egasiz rasmlarni topish), sharh va izohlarni moderatsiya, xabarlar (filtr bilan), foydalanuvchilar (bloklash), faoliyat tarixi, qidiruv va filtrlar.
+- Admin huquqi **serverdan** tekshiriladi (faqat admin o'qiy oladigan kolleksiyani o'qish orqali), frontend ro'yxati faqat tugma uchun.
+
+### Xavfsizlik
+- `firestore.rules` qayta yozildi: maydonlar ro'yxati (`hasOnly`), uzunlik chegaralari, bloklangan foydalanuvchi yozolmaydi va blokni o'zi olib tashlay olmaydi, kontaktlar `created == request.time`, statistika faqat +1.
+- Barcha foydalanuvchi matni `esc()` orqali chiqariladi; havolalar `safeUrl()` bilan tekshiriladi; YouTube faqat `youtube-nocookie` va ID regex bilan.
+- Xavfsizlik sarlavhalari (`vercel.json`), CSP (hozircha Report-Only).
+
+### Tarjimalar
+- Qo'lda matn-almashtirish tizimi o'rniga kalit asosidagi tizim (`js/dict.js`, ~380 kalit × 3 til), til `localStorage` va `?lang=` bilan saqlanadi. Kontent uchun `*_ru`, `*_en` maydonlari (bo'sh bo'lsa o'zbekcha ko'rsatiladi). Test tarjimalarning to'liqligini tekshiradi.
+
+### SEO / texnik
+- Barcha URL'lar `pixelcore-delta.vercel.app` ga o'tkazildi (canonical, OG, Twitter, JSON-LD, robots, sitemap). Dinamik `/sitemap.xml` (`api/sitemap.js`), hreflang.
+- Service Worker qayta yozildi: versiyali kesh, offline sahifa, yangilanishni aniqlash ("Yangi versiya tayyor"), o'rnatish tugmasi. Manifest: maskable ikonka, shortcuts.
+- Cookie sozlamalari (zarur / statistika), ixtiyoriy tashriflar hisoblagichi.
+- Global qidiruv (`Ctrl+K` yoki `/`).
+
+### Olib tashlandi (o'rniga yangisi bor)
+`script.js`, `app.js`, `admin.js` (ildizda), eski `i18n.js`, eski statik `sitemap.xml`, eski `SETUP.md`, `pixelcore.code-workspace`. `.git`, `__MACOSX`, `.DS_Store` arxivga kiritilmadi. **Hech qanday Firebase ma'lumoti o'chirilmagan.**

@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
-Sitemap: https://esalimniyazov-commits.github.io/pixelcore/sitemap.xml
+Disallow: /profile.html
+Disallow: /api/
+
+Sitemap: https://pixelcore-delta.vercel.app/sitemap.xml
