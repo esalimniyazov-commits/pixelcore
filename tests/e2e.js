@@ -41,7 +41,7 @@ async function open(ctx, url, errs) {
 (async () => {
   await new Promise(r => srv.listen(4173, r)); const B = "http://localhost:4173/";
   const browser = await chromium.launch();
-  const PAGES = ["index.html", "games.html", "app.html?id=g1", "news.html", "devlog.html", "article.html?id=n1", "about.html", "roadmap.html", "contact.html", "profile.html", "admin.html", "privacy.html", "404.html", "offline.html", "nope-missing.html"];
+  const PAGES = ["index.html", "games.html", "app.html?id=g1", "news.html", "article.html?id=n1", "about.html", "services.html", "contact.html", "profile.html", "admin.html", "privacy.html", "404.html", "offline.html", "nope-missing.html"];
 
   console.log("\n[1] Barcha sahifalar xatosiz ochiladi, kalitlar tarjima qilingan, gorizontal scroll yo'q (3 til × desktop/mobil)");
   for (const lang of ["uz", "ru", "en"]) for (const [vp, w, h] of [["desktop", 1280, 800], ["mobil", 375, 740]]) {
@@ -70,7 +70,7 @@ async function open(ctx, url, errs) {
   ok(await pg.locator("#feat h3").textContent() === "MindIQ", "Featured o'yin ko'rsatildi");
   ok(await pg.locator("#newGames .card").count() === 3, "yangi loyihalar 3 ta");
   ok(await pg.locator("#newsList .card").count() === 3, "oxirgi yangiliklar 3 ta");
-  ok(await pg.locator("#rmList .rmi").count() === 2, "roadmap preview: faqat tugallanmagan 2 ta");
+  ok(await pg.locator("#srvList .srv").count() === 3, "bosh sahifada xizmatlar bo'limi (3 ta karta)");
   ok(await pg.locator("#partSec").isHidden(), "Hamkorlar bo'limi bo'sh bo'lgani uchun yashirin");
   ok((await pg.evaluate(() => window.__xss)) === undefined, "XSS: zararli sarlavha ishga tushmadi");
   await pg.close();
@@ -99,6 +99,27 @@ async function open(ctx, url, errs) {
   await pg.click(".shot >> nth=0"); ok(await pg.locator("#zoom").evaluate(d => d.open), "screenshot kattalashtiriladi"); await pg.click("#zc");
   await pg.close(); pg = await open(ctx, B + "app.html?id=nonexistent", errs); ok(await pg.locator(".empty").count() === 1, "mavjud bo'lmagan o'yin: xabar chiqadi"); await pg.close();
   pg = await open(ctx, B + "app.html?id=g3", errs); ok((await pg.evaluate(() => window.__xss)) === undefined, "XSS: o'yin sahifasida ham xavfsiz"); await pg.close();
+
+  console.log("\n[3b] Xizmatlar sahifasi");
+  pg = await open(ctx, B + "services.html", errs);
+  ok(await pg.locator("#srvList .srv").count() === 6, "6 ta xizmat kartasi (sayt, bot, taqdimot, maqola, test, hujjat)");
+  const titles = (await pg.locator("#srvList .srv h3").allTextContents()).join("|");
+  ok(/Telegram bot/.test(titles) && /Presentations/.test(titles) && /Tests/.test(titles) && /Document/.test(titles) && /Articles/.test(titles), "barcha xizmat nomlari ko'rinadi");
+  const prices = await pg.locator("#srvList .srv-price b").allTextContents();
+  ok(prices[0] === "from 700,000 UZS" && prices[2] === "from 30,000 UZS / slide" && prices[4] === "from 2,000 UZS / question", "narxlar to'g'ri formatda (" + prices.slice(0, 5).join("; ") + ")");
+  ok((await pg.locator('#srvList a[data-link="support"]').first().getAttribute("href")) === "https://t.me/esalimniyazov", "buyurtma tugmasi Telegram'ga olib boradi");
+  ok(await pg.locator(".ai-banner").isVisible() && (await pg.locator(".ai-banner").textContent()).includes("AI"), "AI haqidagi blok ko'rinadi");
+  ok(await pg.locator("#pkg_web .pkg").count() === 3 && await pg.locator("#pkg_bot .pkg").count() === 3 && await pg.locator(".pkg.hot").count() === 2, "narx paketlari: sayt 3 ta, bot 3 ta, 2 tasi 'Ommabop'");
+  ok((await pg.locator("#pkg_web .pkg-price").allTextContents()).join("|") === "from 700,000 UZS|from 1,500,000 UZS|from 3,000,000 UZS", "sayt paketlari narxi");
+  ok(await pg.locator("#portSec").isVisible() && await pg.locator("#portList .card").count() === 1 && (await pg.locator("#portList a.more").getAttribute("href")) === "https://pixelcore-delta.vercel.app/", "portfolio bo'limi (haqiqiy ish) ko'rinadi");
+  ok(await pg.locator(".steps li").count() === 4 && await pg.locator(".faq details").count() === 4, "jarayon bosqichlari va 4 ta savol");
+  await pg.close();
+  pg = await open(ctx, B + "contact.html?service=bot", errs);
+  ok((await pg.inputValue("#ctText")).startsWith("I'd like to order a Telegram bot"), "xizmatdan kelganda aloqa formasi oldindan to'ldiriladi"); await pg.close();
+  pg = await open(ctx, B + "contact.html?service=web&pkg=web-std", errs);
+  ok((await pg.inputValue("#ctText")).startsWith("Package: Standard. I'd like to order a website"), "paket tanlanganda forma paket nomi bilan to'ldiriladi"); await pg.close();
+  ok(!fs.existsSync(path.join(root, "roadmap.html")) && !fs.existsSync(path.join(root, "devlog.html")), "roadmap va devlog sahifalari olib tashlangan");
+  const nav = fs.readFileSync(path.join(root, "js/core.js"), "utf8"); ok(!/roadmap|devlog/i.test(nav.slice(nav.indexOf("const NAV"), nav.indexOf("const ICON_SEARCH"))), "menyuda roadmap/devlog yo'q");
 
   console.log("\n[4] Ro'yxatdan o'tish, profil, sharh, izoh, fikr-mulohaza");
   pg = await open(ctx, B + "app.html?id=g1", errs);
@@ -160,8 +181,6 @@ async function open(ctx, url, errs) {
   ok(await pg.locator("#list_games .item").count() === cnt0 - 1, "o'yin o'chirildi");
   await pg.click('[data-tab="news"]'); await pg.fill("#f_news_title", "News UZ"); await pg.fill("#f_news_title_en", "News EN"); await pg.fill("#f_news_text", "Body"); await pg.selectOption("#f_news_category", "update"); await pg.click("#sub_news"); await pg.waitForTimeout(400);
   dump = await pg.evaluate(() => window.__fkDump()); ok(Object.values(dump.news).some(n => n.title_en === "News EN" && n.category === "update"), "yangilik qo'shildi (kategoriya, EN)");
-  await pg.click('[data-tab="roadmap"]'); await pg.fill("#f_roadmap_title", "Beta"); await pg.selectOption("#f_roadmap_status", "progress"); await pg.fill("#f_roadmap_n", "9"); await pg.click("#sub_roadmap"); await pg.waitForTimeout(400);
-  dump = await pg.evaluate(() => window.__fkDump()); ok(Object.values(dump.roadmap).some(r => r.title === "Beta" && r.n === 9), "roadmap elementi qo'shildi");
   await pg.click('[data-tab="team"]'); await pg.fill("#f_team_name", "Alice"); await pg.fill("#f_team_role", "Artist"); await pg.click("#sub_team"); await pg.waitForTimeout(400);
   dump = await pg.evaluate(() => window.__fkDump()); ok(Object.values(dump.team).some(m => m.name === "Alice"), "jamoa a'zosi qo'shildi");
   await pg.click('[data-tab="comments"]'); ok(await pg.locator("#list_reviews .item").count() === 1 && await pg.locator("#list_comments .item").count() === 1, "sharh va izohlar boshqaruvda ko'rinadi");

@@ -68,17 +68,8 @@ function getNews() {
     return db.collection("news").orderBy("created", "desc").limit(60).get().then(function (s) { return s.docs.map(function (d) { return { id: d.id, n: d.data() }; }); });
   });
 }
-function getRoadmap() {
-  return memo("roadmap", function () {
-    if (!db) return Promise.resolve([]);
-    return db.collection("roadmap").get().then(function (s) {
-      return s.docs.map(function (d) { return { id: d.id, r: d.data() }; }).sort(function (a, b) { return (a.r.n || 0) - (b.r.n || 0); });
-    });
-  });
-}
-
 /* ---------- Layout ---------- */
-const NAV = [["home", "index.html"], ["games", "games.html"], ["news", "news.html"], ["devlog", "devlog.html"], ["roadmap", "roadmap.html"], ["about", "about.html"], ["contact", "contact.html"]];
+const NAV = [["home", "index.html"], ["games", "games.html"], ["news", "news.html"], ["services", "services.html"], ["about", "about.html"], ["contact", "contact.html"]];
 const ICON_SEARCH = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
 const ICON_MENU = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 const DEFS = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--m1)"/><stop offset="1" style="stop-color:var(--m2)"/></linearGradient></defs><symbol id="logo" viewBox="0 0 555 555"><path fill="url(#g)" fill-rule="evenodd" d="M0 0H262V272H0Z M83 83H248V157H150V255H83Z M295 0H555V272H295Z M472 83H307V157H405V255H472Z M0 297H262V555H0Z M83 472H248V398H150V300H83Z M295 297H555V555H295Z M472 472H307V398H405V300H472Z"/><circle cx="278" cy="279" r="65" style="fill:var(--dot)"/></symbol></svg><canvas id="bgc" aria-hidden="true"></canvas>';
@@ -96,7 +87,7 @@ function buildLayout() {
     '<button class="ib burger" id="burger" type="button" aria-expanded="false" aria-controls="mnav" aria-label="' + esc(t("nav.menu")) + '">' + ICON_MENU + "</button></div></div></header>";
   const f = $("site-footer");
   if (f) f.innerHTML = '<footer><div class="wrap"><div class="fgrid"><div><a class="brand" href="index.html"><svg><use href="#logo"/></svg><span>PixelCore Studio</span></a><p>' + esc(t("foot.tag")) + "</p></div>" +
-    "<div><h4>" + esc(t("foot.explore")) + '</h4><a href="games.html">' + esc(t("nav.games")) + '</a><a href="news.html">' + esc(t("nav.news")) + '</a><a href="devlog.html">' + esc(t("nav.devlog")) + '</a><a href="roadmap.html">' + esc(t("nav.roadmap")) + "</a></div>" +
+    "<div><h4>" + esc(t("foot.explore")) + '</h4><a href="games.html">' + esc(t("nav.games")) + '</a><a href="news.html">' + esc(t("nav.news")) + '</a><a href="services.html">' + esc(t("nav.services")) + "</a></div>" +
     "<div><h4>" + esc(t("foot.studio")) + '</h4><a href="about.html">' + esc(t("nav.about")) + '</a><a href="about.html#team">' + esc(t("about.team")) + '</a><a href="about.html#tech">' + esc(t("about.tech")) + '</a><a href="contact.html">' + esc(t("nav.contact")) + "</a></div>" +
     "<div><h4>" + esc(t("foot.follow")) + '</h4><a data-link="telegram" target="_blank" rel="noopener">Telegram</a><a data-link="instagram" target="_blank" rel="noopener">Instagram</a><a data-link="support" target="_blank" rel="noopener">' + esc(t("contact.support")) + "</a></div></div>" +
     '<div class="fbot"><span>© ' + new Date().getFullYear() + ' PixelCore Studio</span><span><a href="privacy.html">' + esc(t("foot.privacy")) + '</a> · <button class="link-btn" id="ckOpen" type="button">' + esc(t("cookie.prefs")) + '</button> · <button class="link-btn" id="installBtn" type="button" hidden>' + esc(t("pwa.install")) + "</button></span></div></div></footer>";
@@ -309,7 +300,7 @@ function initBg() {
 }
 
 /* ---------- Ishga tushirish ---------- */
-const META = { home: 1, games: 1, news: 1, devlog: 1, roadmap: 1, about: 1, contact: 1, profile: 1, admin: 1 };
+const META = { home: 1, games: 1, news: 1, services: 1, about: 1, contact: 1, profile: 1, admin: 1 };
 function boot() {
   applyI18n(document);
   buildLayout(); applyI18n(document);

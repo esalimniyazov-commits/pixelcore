@@ -23,10 +23,6 @@ const SCH = {
     cols: "news", order: "created", title: function (d) { return tr(d, "title"); }, sub: function (d) { return t("cat." + (d.category || "news")) + " · " + dateStr(d.created); },
     fields: [{ n: "title", k: "ml", req: 1, l: "a.f.title" }, { n: "category", k: "select", opts: CATS, tl: "cat.", l: "a.f.category" }, { n: "text", k: "mlarea", req: 1, l: "a.f.text" }, { n: "cover", k: "img", w: 960, h: 540, type: "image/jpeg", q: 0.72, l: "a.f.cover", wide: 1 }],
   },
-  roadmap: {
-    cols: "roadmap", title: function (d) { return tr(d, "title"); }, sub: function (d) { return t("rm." + d.status) + (d.period ? " · " + d.period : ""); },
-    fields: [{ n: "title", k: "ml", req: 1, l: "a.f.title" }, { n: "desc", k: "mlarea", l: "a.f.desc" }, { n: "status", k: "select", opts: ["planned", "progress", "done"], tl: "rm.", l: "a.f.status" }, { n: "period", k: "text", l: "a.f.period", ph: "2026 Q4" }, { n: "n", k: "num", l: "a.f.order" }],
-  },
   team: {
     cols: "team", title: function (d) { return d.name; }, sub: function (d) { return tr(d, "role"); },
     fields: [{ n: "name", k: "text", req: 1, l: "a.f.name" }, { n: "role", k: "ml", l: "a.f.role" }, { n: "bio", k: "mlarea", l: "a.f.bio" }, { n: "link", k: "url", l: "a.f.profile" }, { n: "n", k: "num", l: "a.f.order" }, { n: "avatar", k: "img", w: 192, h: 192, type: "image/jpeg", q: 0.85, l: "a.f.avatar" }],
@@ -203,7 +199,7 @@ async function loadActivity() {
 }
 async function loadDash() {
   try {
-    const cols = ["games", "news", "users", "reviews", "comments", "feedback", "contacts", "roadmap"];
+    const cols = ["games", "news", "users", "reviews", "comments", "feedback", "contacts"];
     const r = await Promise.all(cols.map(function (c) { return db.collection(c).get(); })), sz = {}; cols.forEach(function (c, i) { sz[c] = r[i]; });
     const site = await db.collection("stats").doc("site").get().catch(function () { return null; });
     let dl = 0; const gl = sz.games.docs.map(function (d) { dl += d.data().downloads || 0; return d.data(); }).sort(function (a, b) { return (b.downloads || 0) - (a.downloads || 0); });
@@ -216,19 +212,19 @@ async function loadDash() {
 
 /* ---------- ishga tushirish ---------- */
 function mountPanel() {
-  const tabs = [["dash", "a.t.dash"], ["games", "a.t.games"], ["news", "a.t.news"], ["roadmap", "a.t.roadmap"], ["team", "a.t.team"], ["comments", "a.t.comments"], ["reports", "a.t.reports"], ["users", "a.t.users"], ["media", "a.t.media"], ["activity", "a.t.activity"]];
+  const tabs = [["dash", "a.t.dash"], ["games", "a.t.games"], ["news", "a.t.news"], ["team", "a.t.team"], ["comments", "a.t.comments"], ["reports", "a.t.reports"], ["users", "a.t.users"], ["media", "a.t.media"], ["activity", "a.t.activity"]];
   const crud = function (n) { return '<section class="panel"><h2>' + esc(t("a.new")) + "</h2>" + formHtml(n) + '</section><section class="panel" style="margin-top:16px"><h2>' + esc(t("a.list")) + '</h2><input class="field" id="sq_' + n + '" type="search" placeholder="' + esc(t("a.search")) + '" style="margin-bottom:12px"><div id="list_' + n + '"></div></section>'; };
   const filt = function (c, types) { return '<div class="afilters"><input class="field" id="q_' + c + '" type="search" placeholder="' + esc(t("a.search")) + '">' + (types ? '<select class="field" id="t_' + c + '"><option value="">' + esc(t("common.all")) + "</option>" + types.map(function (x) { return '<option value="' + x + '">' + esc(DICT["fbt." + x] ? t("fbt." + x) : x) + "</option>"; }).join("") + "</select>" : "") + '</div><div id="list_' + c + '"></div>'; };
   $("panel").innerHTML = '<div class="adm"><div class="tabs" role="tablist">' + tabs.map(function (x, i) { return '<button type="button" role="tab" data-tab="' + x[0] + '" class="' + (i ? "" : "on") + '">' + esc(t(x[1])) + "</button>"; }).join("") + "</div><div>" +
     '<div class="apanel on" id="p_dash"><div class="stats" id="stats" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))"></div><p class="muted" style="font-size:14px">' + esc(t("a.viewsNote")) + '</p><h3 style="margin:22px 0 10px">' + esc(t("a.top")) + '</h3><div id="topGames"></div></div>' +
-    '<div class="apanel" id="p_games">' + crud("games") + '<section class="panel" style="margin-top:16px"><h2>' + esc(t("a.t.media")) + '</h2><div id="list_media"></div></section></div><div class="apanel" id="p_news">' + crud("news") + '</div><div class="apanel" id="p_roadmap">' + crud("roadmap") + '</div><div class="apanel" id="p_team">' + crud("team") + "</div>" +
+    '<div class="apanel" id="p_games">' + crud("games") + '<section class="panel" style="margin-top:16px"><h2>' + esc(t("a.t.media")) + '</h2><div id="list_media"></div></section></div><div class="apanel" id="p_news">' + crud("news") + '</div><div class="apanel" id="p_team">' + crud("team") + "</div>" +
     '<div class="apanel" id="p_comments"><h3>' + esc(t("a.reviews")) + "</h3>" + filt("reviews") + '<h3 style="margin-top:24px">' + esc(t("a.comments")) + "</h3>" + filt("comments", ["news", "game"]) + "</div>" +
     '<div class="apanel" id="p_reports"><h3>' + esc(t("a.feedback")) + "</h3>" + filt("feedback", ["bug", "suggestion", "question"]) + '<h3 style="margin-top:24px">' + esc(t("a.contacts")) + "</h3>" + filt("contacts") + "</div>" +
     '<div class="apanel" id="p_users"><p class="muted">' + esc(t("a.usersNote")) + "</p>" + filt("users") + '</div><div class="apanel" id="p_media"><div id="list_media2"></div></div><div class="apanel" id="p_activity">' + filt("activity") + "</div></div></div>";
   // media paneli o'yinlar bo'limidagi ro'yxatni ko'rsatadi
   $("p_media").innerHTML = '<section class="panel"><h2>' + esc(t("a.t.media")) + '</h2><p class="muted">' + esc(t("a.mediaNote")) + '</p><div id="list_media_big"></div></section>';
   qsa(".tabs button").forEach(function (b) { b.addEventListener("click", function () { qsa(".tabs button").forEach(function (x) { x.classList.toggle("on", x === b); }); qsa(".apanel").forEach(function (p) { p.classList.toggle("on", p.id === "p_" + b.dataset.tab); }); const tb = b.dataset.tab; if (tb === "media") { loadMedia().then(function () { $("list_media_big").innerHTML = $("list_media").innerHTML; }); } else if (tb === "activity") loadActivity(); else if (tb === "reports") loadReports(); else if (tb === "comments") loadComments(); else if (tb === "users") loadUsers(); else if (tb === "dash") loadDash(); }); });
-  ["games", "news", "roadmap", "team"].forEach(function (n) {
+  ["games", "news", "team"].forEach(function (n) {
     $("form_" + n).addEventListener("submit", function (e) { submitCrud(n, e); }); $("cancel_" + n).addEventListener("click", function () { resetForm(n); });
     $("sq_" + n).addEventListener("input", function () { filterRows($("list_" + n), this.value.toLowerCase()); });
     fillForm(n, null);
@@ -262,7 +258,7 @@ function mountPanel() {
     const bn = e.target.closest("[data-ban]");
     if (bn) { try { await db.collection("users").doc(bn.dataset.ban).update({ banned: bn.dataset.v === "1" ? true : FV().delete() }); logAct((bn.dataset.v === "1" ? "ban " : "unban ") + "user", bn.dataset.ban); loadUsers(); } catch (x) { toast(why(x), "err"); } }
   });
-  ["games", "news", "roadmap", "team"].forEach(loadCrud); loadDash(); loadReports(); loadComments(); loadUsers(); loadMedia(); loadActivity();
+  ["games", "news", "team"].forEach(loadCrud); loadDash(); loadReports(); loadComments(); loadUsers(); loadMedia(); loadActivity();
 }
 PAGES.admin = function () {
   const gate = $("gate");

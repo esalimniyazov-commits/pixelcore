@@ -12,13 +12,13 @@ for (const f of files) {
 }
 // dinamik oilalar
 ["rel","dev","soon"].forEach(k => used.add("st." + k)); ["news","update","devlog","event"].forEach(k => used.add("cat." + k));
-["planned","progress","done"].forEach(k => used.add("rm." + k)); for (let i = 0; i < 6; i++) used.add("fact." + i);
+for (let i = 0; i < 6; i++) used.add("fact." + i);
 ["bug","suggestion","question","Xato","G'oya","Savol"].forEach(k => used.add("fbt." + k));
 ["joined","verified","fav1","fav5","rev1","rev5","cm1","rep1"].forEach(k => { used.add("ach." + k); used.add("ach." + k + ".d"); });
-["home","games","news","devlog","roadmap","about","contact","profile","admin"].forEach(p => { used.add("meta." + p + ".t"); used.add("meta." + p + ".d"); if (!["profile","admin"].includes(p)) used.add("nav." + p); });
+["home","games","news","services","about","contact","profile","admin"].forEach(p => { used.add("meta." + p + ".t"); used.add("meta." + p + ".d"); if (!["profile","admin"].includes(p)) used.add("nav." + p); });
 ["auth/invalid-credential","auth/email-already-in-use","auth/weak-password","auth/invalid-email","auth/too-many-requests","auth/network-request-failed","auth/requires-recent-login"].forEach(k => used.add("auth.e." + k));
 ["games","downloads","users","views","news","reviews","comments","bugs","feedback","contacts"].forEach(k => used.add("a.s." + k));
-["dash","games","news","roadmap","team","comments","reports","users","media","activity"].forEach(k => used.add("a.t." + k));
+["dash","games","news","team","comments","reports","users","media","activity"].forEach(k => used.add("a.t." + k));
 ["permission-denied","unavailable","resource-exhausted","invalid-argument"].forEach(k => used.add("a.e." + k));
 used.delete("v1.0.0"); // placeholder, kalit emas
 const bad = [];

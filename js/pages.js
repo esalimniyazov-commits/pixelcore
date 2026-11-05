@@ -26,8 +26,19 @@ function gameCard(id, g) {
 function newsCard(id, n) {
   return '<article class="card post"><a class="cover" href="article.html?id=' + id + '" aria-label="' + esc(tr(n, "title")) + '">' + (n.cover ? '<img class="cv" loading="lazy" src="' + esc(safeUrl(n.cover)) + '" alt="">' : '<span class="ph">N</span>') + '</a><div class="body" style="padding-top:18px"><div class="tags"><span>' + esc(t("cat." + (n.category || "news"))) + "</span></div><time>" + esc(dateStr(n.created)) + '</time><h3><a href="article.html?id=' + id + '">' + esc(tr(n, "title")) + "</a></h3><p>" + esc(tr(n, "text")) + "</p></div></article>";
 }
-function rmItem(r) {
-  return '<div class="rmi">' + (r.period ? "<time>" + esc(r.period) + "</time>" : "") + "<h4>" + esc(tr(r, "title")) + "</h4>" + (tr(r, "desc") ? "<p>" + esc(tr(r, "desc")) + "</p>" : "") + "</div>";
+function fmtN(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, LANG === "en" ? "," : " "); }
+function priceText(x) { return x.from ? t("price.from", { n: fmtN(x.from) }) + (x.per ? " / " + t(x.per) : "") : (x.price || t("srv.priceAsk")); }
+function srvCard(x) {
+  const f = (x.f || []).map(function (k) { return "<li>" + esc(tx(k)) + "</li>"; }).join("");
+  return '<article class="card srv"><div class="body"><div class="srv-ic" aria-hidden="true">' + x.icon + "</div><h3>" + esc(tx(x.t)) + "</h3><p>" + esc(tx(x.d)) + '</p><ul class="feats">' + f + '</ul><div class="srv-price"><small>' + esc(t("srv.price")) + "</small><b>" + esc(priceText(x)) + '</b></div><div class="row"><a class="btn primary" data-link="support" target="_blank" rel="noopener">' + esc(t("srv.order")) + '</a><a class="btn" href="contact.html?service=' + encodeURIComponent(x.id) + '#ct">' + esc(t("srv.msg")) + "</a></div></div></article>";
+}
+function pkgCard(group, p) {
+  return '<article class="card pkg' + (p.hot ? " hot" : "") + '"><div class="body">' + (p.hot ? '<span class="badge">' + esc(t("pkg.hot")) + "</span>" : "") + "<h3>" + esc(tx(p.n)) + '</h3><div class="pkg-price">' + esc(priceText({ from: p.price })) + '</div><ul class="feats">' + p.f.map(function (k) { return "<li>" + esc(tx(k)) + "</li>"; }).join("") + '</ul><a class="btn ' + (p.hot ? "primary" : "") + '" href="contact.html?service=' + group + "&pkg=" + encodeURIComponent(p.id) + '#ct">' + esc(t("pkg.choose")) + "</a></div></article>";
+}
+function portCard(x) {
+  const img = /^https?:/.test(x.img || "") ? safeUrl(x.img) : (/^[\w\/.\-]+$/.test(x.img || "") ? x.img : "");
+  const u = safeUrl(x.u || "");
+  return '<article class="card post"><a class="cover" href="' + esc(u) + '" target="_blank" rel="noopener" aria-label="' + esc(tx(x.t)) + '">' + (img ? '<img class="cv" loading="lazy" src="' + esc(img) + '" alt="">' : '<span class="ph">' + initials(tx(x.t)) + "</span>") + '</a><div class="body" style="padding-top:18px"><div class="tags"><span>' + esc(t("port.tag." + (x.tag || "web"))) + "</span></div><h3>" + esc(tx(x.t)) + "</h3><p>" + esc(tx(x.d)) + '</p><a class="more" href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(t("port.view")) + "</a></div></article>";
 }
 function renderFeat(games) {
   const el = $("feat"); if (!el) return; const sec = $("featSec");
@@ -54,7 +65,7 @@ function fillFact() {
 PAGES.home = async function () {
   $("logoBtn").addEventListener("click", function () { $("logoBtn").classList.toggle("spin"); });
   fillFact();
-  const r = await Promise.all([getGames(), getNews(), getRoadmap()]), games = r[0], news = r[1], rm = r[2];
+  const r = await Promise.all([getGames(), getNews()]), games = r[0], news = r[1];
   const rel = games.filter(function (o) { return statusInfo(o.g.status).k === "rel"; });
   const plats = new Set(); games.forEach(function (o) { gamePlats(o.g).forEach(function (p) { plats.add(p[0]); }); });
   let dl = 0; games.forEach(function (o) { dl += o.g.downloads || 0; });
@@ -65,8 +76,7 @@ PAGES.home = async function () {
   techList(TECH, "techList");
   if (PARTNERS.length) { put("partList", PARTNERS.map(function (p) { return '<a href="' + esc(safeUrl(p.u)) + '" target="_blank" rel="noopener">' + esc(p.n) + "</a>"; }).join("")); $("partSec").hidden = false; }
   put("newsList", news.length ? news.slice(0, 3).map(function (o) { return newsCard(o.id, o.n); }).join("") : empty("news.none"));
-  const act = rm.filter(function (o) { return o.r.status !== "done"; }).slice(0, 3);
-  put("rmList", act.length ? act.map(function (o) { return rmItem(o.r); }).join("") : empty("roadmap.none"));
+  put("srvList", SERVICES.slice(0, 3).map(srvCard).join(""));
   bindLinks(document); paintFavs();
 };
 
@@ -200,7 +210,7 @@ function commentsBlock(boxId, targetType, targetId) {
 }
 
 /* ---------- Yangiliklar / Devlog ---------- */
-const CATS = ["news", "update", "devlog", "event"];
+const CATS = ["news", "update", "event"];
 async function newsPage(fixed) {
   const all = await getNews(); let cat = fixed || "", shown = 12;
   const chips = $("chips");
@@ -217,7 +227,6 @@ async function newsPage(fixed) {
   view();
 }
 PAGES.news = function () { return newsPage(""); };
-PAGES.devlog = function () { return newsPage("devlog"); };
 PAGES.article = async function () {
   const id = new URLSearchParams(location.search).get("id"), box = $("art");
   if (!db || !id) { box.innerHTML = empty("news.notfound"); return; }
@@ -248,18 +257,12 @@ PAGES.about = async function () {
   }).join("") : empty("team.none"));
 };
 
-/* ---------- Roadmap ---------- */
-PAGES.roadmap = async function () {
-  const rm = await getRoadmap(), S = ["planned", "progress", "done"];
-  function view(f) {
-    put("rm", S.filter(function (s) { return !f || f === s; }).map(function (s) {
-      const items = rm.filter(function (o) { return o.r.status === s; });
-      return '<div class="col"><h3>' + esc(t("rm." + s)) + "<small>" + items.length + "</small></h3>" + (items.map(function (o) { return rmItem(o.r); }).join("") || '<p class="muted">' + esc(t("rm.empty")) + "</p>") + "</div>";
-    }).join(""));
-    $("rm").style.gridTemplateColumns = f ? "1fr" : "";
-  }
-  $("chips").addEventListener("click", function (e) { const b = e.target.closest("button"); if (!b) return; qsa("button", $("chips")).forEach(function (x) { x.classList.toggle("on", x === b); }); view(b.dataset.s); });
-  if (!rm.length) put("rm", empty("roadmap.none")); else view("");
+/* ---------- Xizmatlar ---------- */
+PAGES.services = function () {
+  put("srvList", SERVICES.map(srvCard).join(""));
+  PACKAGES.forEach(function (g) { put("pkg_" + g.group, g.items.map(function (p) { return pkgCard(g.group, p); }).join("")); });
+  if (PORTFOLIO.length) { put("portList", PORTFOLIO.map(portCard).join("")); $("portSec").hidden = false; }
+  bindLinks(document);
 };
 
 /* ---------- Aloqa, bug report, takliflar ---------- */
@@ -269,6 +272,11 @@ PAGES.contact = async function () {
   $("fbGame").innerHTML = '<option value="">' + esc(t("fb.anyGame")) + "</option>" + games.map(function (o) { return '<option value="' + o.id + '">' + esc(o.g.title) + "</option>"; }).join("");
   if (["bug", "suggestion", "question"].indexOf(P.get("type")) >= 0) $("fbType").value = P.get("type");
   if (P.get("game")) $("fbGame").value = P.get("game");
+  const sv = P.get("service"), pk = "srv.prefill." + sv;
+  if (sv && DICT[pk]) {
+    const pid = P.get("pkg"), pkg = pid && [].concat.apply([], PACKAGES.map(function (g) { return g.items; })).find(function (p) { return p.id === pid; });
+    $("ctText").value = (pkg ? t("srv.prefill.pkg", { p: tx(pkg.n) }) : "") + t(pk);
+  }
   onUser(function () { $("fbLogin").hidden = !!USER; });
   $("fbForm").addEventListener("submit", async function (e) {
     e.preventDefault(); const m = $("fbMsg"); m.className = "err"; m.textContent = "";

@@ -4,7 +4,7 @@
 const SITE = "https://pixelcore-delta.vercel.app";
 const PROJECT = "pixelcore-96f17";
 const API_KEY = "AIzaSyClr3ZX4QOL_7dQkqg27oQJdrlnVcskobc";
-const STATIC = ["", "games.html", "news.html", "devlog.html", "roadmap.html", "about.html", "contact.html", "privacy.html"];
+const STATIC = ["", "games.html", "news.html", "services.html", "about.html", "contact.html", "privacy.html"];
 
 async function list(col, fetchFn) {
   const out = []; let token = "";

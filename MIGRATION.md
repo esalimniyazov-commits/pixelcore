@@ -18,7 +18,8 @@
 | `feedback` | o'zgarishsiz | Eski turlar (`Xato`, `G'oya`, `Savol`) ham ko'rsatiladi. Yangi turlar: `bug`, `suggestion`, `question`. |
 | `users` | o'zgarishsiz | `{email, favs}` + yangi `username`, `avatar`, `created`. Birinchi kirishda `created`/`avatar` avtomatik qo'shiladi. `banned` faqat admin yozadi. |
 | `scores` | qoidalarda saqlangan | UI yo'q (eski kodda ham yo'q edi). |
-| **yangi** | `roadmap`, `team`, `comments`, `contacts`, `stats/site`, `activity` | admin panelidan to'ldiriladi. |
+| **yangi** | `team`, `comments`, `contacts`, `stats/site`, `activity` | admin panelidan to'ldiriladi. |
+| `roadmap` | 2.1 dan ishlatilmaydi | agar yozgan bo'lsangiz, ma'lumot bazada qoladi, saytda ko'rinmaydi. |
 
 ## Eski foydalanuvchilar
 Parol/akkauntlar o'zgarmaydi. Eski foydalanuvchi birinchi kirganda profil hujjati yangilanadi (nom yo'q bo'lsa email prefiksi ko'rsatiladi; Profil sahifasida o'zgartiradi).

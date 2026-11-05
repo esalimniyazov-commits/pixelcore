@@ -1,6 +1,6 @@
 # PixelCore Studio 2.0
 
-Mustaqil o'yin studiyasi sayti: **o'yinlar katalogi, yangiliklar/devlog, roadmap, PixelCore ID (profil), admin panel, PWA, 3 tilli (uz/ru/en)**.
+Mustaqil o'yin studiyasi sayti: **o'yinlar katalogi, yangiliklar, xizmatlar (sayt va Telegram bot buyurtmasi), PixelCore ID (profil), admin panel, PWA, 3 tilli (uz/ru/en)**.
 Toza HTML + CSS + JavaScript, backend sifatida mavjud **Firebase** (Auth + Firestore). Build bosqichi yo'q, faqat bepul xizmatlar (Vercel Hobby, Firebase Spark).
 
 Domen: https://pixelcore-delta.vercel.app/
@@ -15,11 +15,11 @@ Mahalliy ko'rish: `npx serve .` yoki VSCodium'da Live Server (Service Worker faq
 
 ## Tuzilma
 ```
-index.html games.html app.html news.html devlog.html article.html about.html
-roadmap.html contact.html profile.html admin.html privacy.html 404.html offline.html
+index.html games.html app.html news.html article.html about.html
+services.html contact.html profile.html admin.html privacy.html 404.html offline.html
 style.css                 — butun dizayn tizimi (qora / to'q binafsha / neon binafsha)
 firebase.js               — Firebase sozlamasi (MAVJUD loyiha), ADMIN_EMAILS (faqat tugma uchun)
-links.js                  — havolalar, TECH / SOFTWARE / PARTNERS ro'yxatlari (o'zingiz tahrirlaysiz)
+links.js                  — havolalar, TECH / SOFTWARE / PARTNERS va SERVICES (xizmatlar, narxlar) ro'yxatlari — o'zingiz tahrirlaysiz
 js/dict.js                — barcha tarjimalar [uz, ru, en]
 js/i18n.js  js/core.js    — til tizimi; layout, auth, qidiruv, cookie, PWA, fon animatsiyasi
 js/pages.js               — barcha ommaviy sahifalar mantiqi
@@ -41,4 +41,12 @@ tools/gen-pages.py        — HTML sahifalarni bir qolipdan qayta yaratadi (ixti
 
 ## Ma'lumotlar modeli (Firestore)
 `games`, `images`, `news`, `reviews`, `feedback`, `users`, `scores` — **mavjud**, tuzilmasi saqlangan (yangi maydonlar ixtiyoriy).
-Yangi: `roadmap`, `team`, `comments`, `contacts`, `stats/site`, `activity`. Batafsil: [MIGRATION.md](MIGRATION.md).
+Yangi: `team`, `comments`, `contacts`, `stats/site`, `activity`. (`roadmap` kolleksiyasi 2.1 dan beri ishlatilmaydi.) Batafsil: [MIGRATION.md](MIGRATION.md).
+
+## Xizmatlar, narxlar, paketlar, portfolio — `links.js`
+Hammasi `links.js` faylida (o'zgartirgach `git push`, Firebase'da hech narsa kerak emas):
+- **`SERVICES`** — 6 ta xizmat. Narx: `from: 700000` ("dan" narx, so'mda), birlik: `per: "unit.slide"`. `from` bo'lmasa "Kelishiladi" chiqadi. Narx avtomatik tilga moslab ko'rsatiladi ("700 000 so'mdan" / "от 700 000 сум" / "from 700,000 UZS").
+- **`PACKAGES`** — sayt va bot paketlari (nomi, narxi, imkoniyatlar ro'yxati, `hot: true` = "Ommabop").
+- **`PORTFOLIO`** — ishlaringiz. Faqat **haqiqiy** ishlarni qo'shing (`{ t, d, u, img, tag }`); ro'yxat bo'sh bo'lsa, bo'lim ko'rinmaydi.
+- Matnlar `js/dict.js` dagi `srv.*`, `pkg.*`, `pw.*`, `pb.*`, `port.*` kalitlarida (uch tilda). `t`, `d`, `f` ga oddiy matn yozsangiz ham bo'ladi (bitta tilda chiqadi).
+- Narxlar qanday belgilangani va manbalar: [PRICING_NOTES.md](PRICING_NOTES.md).

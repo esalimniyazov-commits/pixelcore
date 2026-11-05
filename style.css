@@ -183,3 +183,15 @@ footer{margin-top:60px;border-top:1px solid var(--line);background:rgba(8,5,15,.
 }
 @media(max-width:560px){.nav .wrap{gap:8px}.tools{gap:6px}.brand span{display:none}.pill{max-width:104px;padding:0 12px}.ib{min-width:40px;padding:0 8px}.fgrp,.fgrp.three,.kv{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.stats{gap:10px}.stat{padding:16px}.grid,.news{grid-template-columns:1fr}.avs{grid-template-columns:repeat(4,1fr)}.item{flex-direction:column;align-items:flex-start}.dls .btn{flex:1}.filters{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.sec{opacity:1;transform:none}}
+
+/* Xizmatlar */
+.srv .body{padding:26px;gap:14px}.srv-ic{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:rgba(124,58,237,.2);border:1px solid var(--v2);box-shadow:var(--glow)}
+.srv p{display:block;-webkit-line-clamp:unset;font-size:16px}.srv .feats{grid-template-columns:1fr}.srv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px}
+.srv-price{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:12px 14px;border:1px dashed var(--v2);border-radius:12px}.srv-price small{color:var(--muted)}.srv-price b{font:700 18px Sora,Inter,system-ui,sans-serif;color:var(--v4)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;list-style:none;padding:0;margin:0;counter-reset:s}.steps li{counter-increment:s;padding:18px 18px 18px 66px;position:relative;border:1px solid var(--line);border-radius:14px;background:rgba(18,11,31,.6)}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:16px;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font:800 16px Sora,Inter,system-ui,sans-serif;background:linear-gradient(135deg,var(--v1),var(--v2))}.steps b{display:block;font-family:Sora,Inter,system-ui,sans-serif}.steps span{color:var(--muted);font-size:14.5px}
+
+.ai-banner{display:flex;gap:20px;align-items:center;border-color:var(--v2);background:linear-gradient(135deg,rgba(124,58,237,.25),rgba(18,11,31,.85));box-shadow:var(--glow)}.ai-banner h2{font-size:clamp(20px,2.6vw,28px);margin-bottom:6px}.ai-banner .lead{margin:0;font-size:16px}.ai-banner .badge{flex:none;font-size:15px;padding:10px 16px}
+.pkg-h{margin:34px 0 14px;font-size:22px}.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}.pkg .body{padding:24px;gap:14px}.pkg.hot{border-color:var(--v1);box-shadow:var(--glow)}
+.pkg-price{font:800 clamp(22px,2.6vw,28px) Sora,Inter,system-ui,sans-serif;background:linear-gradient(120deg,var(--v4),var(--v1));-webkit-background-clip:text;background-clip:text;color:transparent}.pkg .feats{grid-template-columns:1fr}.pkg .btn{margin-top:auto}.pkg-note{font-size:14.5px;margin:12px 0 0}
+@media(max-width:560px){.ai-banner{flex-direction:column;align-items:flex-start}}

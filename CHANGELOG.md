@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2.2.0 — 2026-11-03
+- **Xizmatlar 6 taga yetdi:** veb-sayt, Telegram bot, taqdimot, maqola/matn, test tuzish, hujjat ishlari. Narxlar "dan" ko'rinishida, tilga moslab.
+- **"Barcha xizmatlar AI yordamida" bloki** va unga mos savol-javob.
+- **Narx paketlari:** veb-sayt (3 ta) va Telegram bot (3 ta), "Ommabop" belgisi, domen/hosting haqida izoh. Paket tanlanganda aloqa formasi paket nomi bilan to'ldiriladi.
+- **Portfolio ("Ishlarimiz"):** `links.js` dagi `PORTFOLIO` dan; hozir faqat shu saytning o'zi (haqiqiy ish). Bo'sh bo'lsa bo'lim yashirin.
+- Narxlarni belgilash uchun O'zbekiston bozori ko'rib chiqildi: [PRICING_NOTES.md](PRICING_NOTES.md).
+
+## 2.1.0 — 2026-11-03
+- **Yangi: Xizmatlar sahifasi** (`services.html`): veb-sayt va Telegram bot yaratish xizmatlari, narx bloki ("Kelishiladi" yoki `links.js` dagi narx), buyurtma tugmasi (Telegram), jarayon bosqichlari, afzalliklar, savollar. Bosh sahifada ham qisqa blok. Aloqa formasi xizmatdan kelganda oldindan to'ldiriladi (`contact.html?service=web|bot`).
+- **Olib tashlandi:** Roadmap va Devlog sahifalari, menyu/footer havolalari, bosh sahifadagi roadmap bloki, admin paneldagi Roadmap bo'limi. Eski havolalar `vercel.json` orqali yo'naltiriladi (`/roadmap.html` → `/services.html`, `/devlog.html` → `/news.html`). `roadmap` kolleksiyasidagi ma'lumotlar bazada qoladi (o'chirilmagan), qoidalarni qayta joylashtirish shart emas.
+- Eski "devlog" kategoriyali yangiliklar o'chmaydi: "Hammasi" ro'yxatida ko'rinadi.
+- Sitemap va Service Worker keshi yangilandi.
+
 ## 2.0.0 — 2026-10-31
 ### Dizayn
 - Yangi dizayn tizimi: qora, to'q binafsha va neon binafsha; piksel zarrachali fon, hover/glow effektlari, sahifalar orasida silliq o'tish (View Transitions + fade), `prefers-reduced-motion` hurmat qilinadi.

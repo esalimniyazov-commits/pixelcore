@@ -38,7 +38,8 @@ Qoidalar ma'lumotlarni o'chirmaydi va o'zgartirmaydi; faqat kimga nima ruxsat be
 
 ## 5. Kontentni to'ldirish (admin.html)
 - **O'yinlar:** mavjud o'yinlaringiz o'zgarishsiz ko'rinadi. Yangi maydonlar (janr, cover, video, xususiyatlar, tavsiya etilgan talablar, ru/en tavsif) ixtiyoriy — tahrirlash orqali to'ldiring. `Janr` bo'sh bo'lsa, filtr va "o'xshash o'yinlar" ishlamaydi.
-- **Roadmap, Jamoa, Yangiliklar** — hozircha bo'sh; saytda "hali yo'q" xabari ko'rinadi (soxta kontent qo'shilmagan).
+- **Jamoa, Yangiliklar** — hozircha bo'sh; saytda "hali yo'q" xabari ko'rinadi (soxta kontent qo'shilmagan).
+- **Xizmatlar:** matn va narxlar `links.js` (`SERVICES`) va `js/dict.js` (`srv.*`) da; o'zgartirgach `git push`. Narx ko'rsatilmasa "Kelishiladi" chiqadi. Buyurtma tugmasi `LINKS.support` (Telegram) ga olib boradi.
 - **links.js:** `TECH`, `SOFTWARE` (haqiqatan ishlatadiganlaringizni qoldiring; men faqat saytning o'zi ishlatadigan texnologiyalar va SETUPdagi VSCodium'ni yozdim), `PARTNERS` (bo'sh bo'lsa bo'lim yashirin).
 
 ## 6. Bepul tarif limitlari (Firebase Spark)
