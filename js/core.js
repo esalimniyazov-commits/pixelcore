@@ -44,7 +44,7 @@ function avatarSvg(seed, cls) {
   }
   return '<svg class="' + (cls || "") + '" viewBox="0 0 5 5" shape-rendering="crispEdges" aria-hidden="true"><rect width="5" height="5" fill="#160d28"/>' + r + "</svg>";
 }
-function bindLinks(root) { qsa("[data-link]", root).forEach(function (a) { a.href = LINKS[a.dataset.link] || "#"; }); }
+function bindLinks(root) { qsa("[data-link]", root).forEach(function (a) { a.href = safeUrl(LINKS[a.dataset.link]); }); }
 function setMeta(title, desc) {
   document.title = title;
   const set = function (sel, v) { const m = qs(sel); if (m && v) m.setAttribute("content", v); };
@@ -89,7 +89,7 @@ function buildLayout() {
   if (f) f.innerHTML = '<footer><div class="wrap"><div class="fgrid"><div><a class="brand" href="index.html"><svg><use href="#logo"/></svg><span>PixelCore Studio</span></a><p>' + esc(t("foot.tag")) + "</p></div>" +
     "<div><h4>" + esc(t("foot.explore")) + '</h4><a href="games.html">' + esc(t("nav.games")) + '</a><a href="news.html">' + esc(t("nav.news")) + '</a><a href="services.html">' + esc(t("nav.services")) + "</a></div>" +
     "<div><h4>" + esc(t("foot.studio")) + '</h4><a href="about.html">' + esc(t("nav.about")) + '</a><a href="about.html#team">' + esc(t("about.team")) + '</a><a href="about.html#tech">' + esc(t("about.tech")) + '</a><a href="contact.html">' + esc(t("nav.contact")) + "</a></div>" +
-    "<div><h4>" + esc(t("foot.follow")) + '</h4><a data-link="telegram" target="_blank" rel="noopener">Telegram</a><a data-link="instagram" target="_blank" rel="noopener">Instagram</a><a data-link="support" target="_blank" rel="noopener">' + esc(t("contact.support")) + "</a></div></div>" +
+    "<div><h4>" + esc(t("foot.follow")) + '</h4><a data-link="telegram" target="_blank" rel="noopener">Telegram</a><a data-link="instagram" target="_blank" rel="noopener">Instagram</a>' + (LINKS.youtube ? '<a data-link="youtube" target="_blank" rel="noopener">YouTube</a>' : "") + '<a data-link="support" target="_blank" rel="noopener">' + esc(t("contact.support")) + "</a></div></div>" +
     '<div class="fbot"><span>© ' + new Date().getFullYear() + ' PixelCore Studio</span><span><a href="privacy.html">' + esc(t("foot.privacy")) + '</a> · <button class="link-btn" id="ckOpen" type="button">' + esc(t("cookie.prefs")) + '</button> · <button class="link-btn" id="installBtn" type="button" hidden>' + esc(t("pwa.install")) + "</button></span></div></div></footer>";
   document.body.insertAdjacentHTML("beforeend",
     '<dialog id="authDlg" aria-labelledby="authT"><h2 id="authT" class="sr-only" hidden></h2><div id="guest"><div class="seg" role="tablist"><button type="button" data-mode="login" class="on">' + esc(t("auth.login")) + '</button><button type="button" data-mode="register">' + esc(t("auth.register")) + "</button></div>" +
@@ -299,13 +299,39 @@ function initBg() {
   })(0);
 }
 
+
+/* ---------- Xizmatlar reklamasi (o'zimizning xizmatlar, uchinchi tomon reklamasi emas) ----------
+   Bezovta qilmaslik uchun: kechikish bilan chiqadi, sessiyada 1 marta, yopilsa N kun chiqmaydi,
+   cookie paneli yoki dialog ochiq bo'lsa kutadi, xizmatlar/aloqa/admin/profil sahifalarida chiqmaydi. */
+function initPromo() {
+  const cfg = Object.assign({ enabled: true, delaySec: 12, hideDays: 3 }, typeof PROMO !== "undefined" ? PROMO : {});
+  if (!cfg.enabled || ["services", "contact", "admin", "profile", "privacy", "404", "offline"].indexOf(PAGE) >= 0 || typeof SERVICES === "undefined" || !SERVICES.length) return;
+  try { if (Date.now() < (+localStorage.getItem("pc-promo-off") || 0) || sessionStorage.getItem("pc-promo-shown")) return; } catch (e) {}
+  const off = function (days) { try { localStorage.setItem("pc-promo-off", String(Date.now() + days * 864e5)); } catch (e) {} };
+  const start = Date.now();
+  const timer = setInterval(function () {
+    if (Date.now() - start < cfg.delaySec * 1000 || document.hidden || $("ckBar") || qsa("dialog[open]").length) return;
+    clearInterval(timer); show();
+  }, 1000);
+  function show() {
+    try { sessionStorage.setItem("pc-promo-shown", "1"); } catch (e) {}
+    const x = SERVICES[Math.floor(Math.random() * SERVICES.length)];
+    document.body.insertAdjacentHTML("beforeend", '<aside class="promo" id="promo" aria-label="' + esc(t("promo.badge")) + '"><button class="promo-x" type="button" aria-label="' + esc(t("promo.close")) + '">×</button><span class="srv-ic" aria-hidden="true">' + x.icon + "</span><div><small>" + esc(t("promo.badge")) + "</small><b>" + esc(tx(x.t)) + "</b><p>" + esc(t("promo.lead")) + " <strong>" + esc(priceText(x)) + '</strong></p><div class="row"><a class="btn primary sm" href="services.html">' + esc(t("promo.cta")) + '</a><a class="btn sm" data-link="support" target="_blank" rel="noopener">' + esc(t("promo.tg")) + "</a></div></div></aside>");
+    const p = $("promo"); bindLinks(p);
+    const close = function (d) { off(d); p.remove(); };
+    qs(".promo-x", p).addEventListener("click", function () { close(cfg.hideDays); });
+    qsa("a", p).forEach(function (a) { a.addEventListener("click", function () { off(14); }); });
+    p.addEventListener("keydown", function (e) { if (e.key === "Escape") close(cfg.hideDays); });
+  }
+}
+
 /* ---------- Ishga tushirish ---------- */
 const META = { home: 1, games: 1, news: 1, services: 1, about: 1, contact: 1, profile: 1, admin: 1 };
 function boot() {
   applyI18n(document);
   buildLayout(); applyI18n(document);
   if (META[PAGE]) setMeta(t("meta." + PAGE + ".t"), t("meta." + PAGE + ".d"));
-  initAuth(); setMode("login"); initSearch(); initCookies(); initPwa(); initBg(); countView();
+  initAuth(); setMode("login"); initSearch(); initCookies(); initPwa(); initBg(); countView(); initPromo();
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver(function (items) { items.forEach(function (it) { if (it.isIntersecting) { it.target.classList.add("in"); io.unobserve(it.target); } }); }, { threshold: 0.08 });
     qsa(".sec").forEach(function (s) { io.observe(s); });

@@ -1,13 +1,13 @@
 # TEST_REPORT — PixelCore Studio 2.0
 
-Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlog olib tashlangan). **Muhim:** sandbox'da internet yo'q edi, shuning uchun sayt **haqiqiy Firebase'ga ulanmasdan**, test uchun yozilgan *soxta Firebase* (`tests/fake-firebase.js`) bilan, haqiqiy Chromium (Playwright) brauzerida sinaldi. Bu sayt mantig'ini (UI, oqimlar, tillar, filtrlar, admin CRUD, SW) tekshiradi, lekin **Firebase Security Rules va Firebase serverining haqiqiy xatti-harakatini tekshirmaydi.**
+Sana: 2026-11-03 (2.3: reklama oynasi, fixed-joylashuv va mobil chet bo'sh joy xatolari tuzatildi). **Muhim:** sandbox'da internet yo'q edi, shuning uchun sayt **haqiqiy Firebase'ga ulanmasdan**, test uchun yozilgan *soxta Firebase* (`tests/fake-firebase.js`) bilan, haqiqiy Chromium (Playwright) brauzerida sinaldi. Bu sayt mantig'ini (UI, oqimlar, tillar, filtrlar, admin CRUD, SW) tekshiradi, lekin **Firebase Security Rules va Firebase serverining haqiqiy xatti-harakatini tekshirmaydi.**
 
 ## Natija
 | Test | Natija |
 |---|---|
 | `node tests/check-i18n.js` — ishlatilgan har bir kalit uch tilda mavjud, bo'sh/mos kelmaydigan o'rinbosar yo'q | ✅ o'tdi |
 | `node tests/sitemap.test.js` — `api/sitemap.js` (Firestore REST javobi soxta) | ✅ 5/5 |
-| `node tests/e2e.js` — brauzer testlari | ✅ **111/111** |
+| `node tests/e2e.js` — brauzer testlari | ✅ **129/129** |
 | Barcha JS fayllar `node --check` | ✅ |
 
 ## Tekshirilgan (E2E, haqiqiy Chromium'da)
@@ -49,6 +49,9 @@ Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlo
 - Dinamik sahifalar uchun ijtimoiy tarmoq OG ko'rinishi umumiy (SSR yo'q).
 - Push-bildirishnomalar amalga oshirilmagan (SETUP.md 7-bo'lim).
 
+- **Reklama oynasi:** darhol chiqmaydi, 12 soniyadan keyin chiqadi va ekranning ko'rinadigan qismida turadi, xizmat nomi/narxi/tugmalar, xizmatlar sahifasida va cookie paneli ochiqligida chiqmaydi, yopilsa 3 kunga yashirinadi va boshqa sahifada ham chiqmaydi. Cookie paneli ham ekran ichida ekani tekshiriladi.
+- **Mobil:** kontent ekran chetiga yopishmaydi (3 til).
+
 ## To'liq E2E chiqishi
 ```
 
@@ -59,18 +62,21 @@ Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlo
   ✓ [uz/mobil] JS/konsol xatolari yo'q 
   ✓ [uz/mobil] tarjima qilinmagan kalit ko'rinmaydi 
   ✓ [uz/mobil] gorizontal scroll yo'q 
+  ✓ [uz/mobil] kontent ekran chetiga yopishmagan (yon bo'sh joy bor) 
   ✓ [ru/desktop] JS/konsol xatolari yo'q 
   ✓ [ru/desktop] tarjima qilinmagan kalit ko'rinmaydi 
   ✓ [ru/desktop] gorizontal scroll yo'q 
   ✓ [ru/mobil] JS/konsol xatolari yo'q 
   ✓ [ru/mobil] tarjima qilinmagan kalit ko'rinmaydi 
   ✓ [ru/mobil] gorizontal scroll yo'q 
+  ✓ [ru/mobil] kontent ekran chetiga yopishmagan (yon bo'sh joy bor) 
   ✓ [en/desktop] JS/konsol xatolari yo'q 
   ✓ [en/desktop] tarjima qilinmagan kalit ko'rinmaydi 
   ✓ [en/desktop] gorizontal scroll yo'q 
   ✓ [en/mobil] JS/konsol xatolari yo'q 
   ✓ [en/mobil] tarjima qilinmagan kalit ko'rinmaydi 
   ✓ [en/mobil] gorizontal scroll yo'q 
+  ✓ [en/mobil] kontent ekran chetiga yopishmagan (yon bo'sh joy bor) 
 
 [2] Bosh sahifa va katalog
   ✓ statistika 4 ta, haqiqiy ma'lumotdan
@@ -120,6 +126,11 @@ Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlo
   ✓ roadmap va devlog sahifalari olib tashlangan
   ✓ menyuda roadmap/devlog yo'q
 
+[3c] YouTube havolasi (Bizni kuzating)
+  ✓ YouTube havolasi kiritilmagan bo'lsa, hech qayerda ko'rinmaydi
+  ✓ Aloqa sahifasida YouTube kartasi chiqadi va to'g'ri havolaga olib boradi
+  ✓ Footer'dagi 'Kuzating' ustunida YouTube havolasi bor
+
 [4] Ro'yxatdan o'tish, profil, sharh, izoh, fikr-mulohaza
   ✓ qisqa foydalanuvchi nomi rad etildi
   ✓ ro'yxatdan o'tgach, headerda foydalanuvchi nomi
@@ -159,6 +170,7 @@ Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlo
 
 [6] Til saqlanishi, cookie, qidiruv, mobil menyu
   ✓ cookie paneli ko'rinadi
+  ✓ cookie paneli ekran ichida (position:fixed to'g'ri ishlaydi)
   ✓ til RU ga almashdi
   ✓ boshqa sahifaga o'tganda til saqlandi
   ✓ tagline ko'rinadi
@@ -172,6 +184,19 @@ Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlo
   ✓ mobil: menyu ochiladi
   ✓ mobil: tugmalar kamida 38px 
 
+[6b] Reklama oynasi (xizmatlar)
+  ✓ reklama darhol chiqmaydi (kechikish bor)
+  ✓ 12 soniyadan keyin reklama avtomatik chiqadi
+  ✓ reklama ekranning ko'rinadigan qismida (pastki chap burchak)
+  ✓ reklamada xizmat nomi ko'rsatilgan: Telegram bot development
+  ✓ reklama tugmalari: xizmatlar sahifasi va Telegram
+  ✓ reklamada narx ko'rsatilgan
+  ✓ xizmatlar sahifasida reklama chiqmaydi
+  ✓ cookie paneli ochiq turganda reklama chiqmaydi
+  ✓ yopish tugmasi reklamani yopadi
+  ✓ yopilgach 3 kun qayta chiqmaslik belgilandi
+  ✓ yopilgandan keyin boshqa sahifada ham chiqmaydi
+
 [7] Service Worker / PWA (haqiqiy brauzerda)
   ✓ Service Worker ro'yxatdan o'tdi
   ✓ kesh to'ldirildi (19 fayl)
@@ -179,5 +204,5 @@ Sana: 2026-11-03 (2.2: 6 ta xizmat, paketlar, portfolio, AI bloki; Roadmap/Devlo
   ✓ oflayn: oldin ochilgan sahifa keshdan ochiladi
   ✓ oflayn: ochilmagan sahifa uchun offline.html ko'rsatiladi
 
-NATIJA: 111 o'tdi, 0 muvaffaqiyatsiz
+NATIJA: 129 o'tdi, 0 muvaffaqiyatsiz
 ```

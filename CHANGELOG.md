@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2.3.1 — 2026-11-03
+- **YouTube** havolasi "Bizni kuzating" bo'limlariga qo'shildi (sayt pastki qismi va Aloqa sahifasi). `links.js` dagi `LINKS.youtube` ga kanal havolasini yozasiz; bo'sh bo'lsa, hech qayerda ko'rinmaydi.
+- Havolalar `safeUrl` orqali tekshiriladi (faqat http/https).
+- Service Worker versiyasi `pc-v2.3.1` ga oshirildi: foydalanuvchilarga "Yangi versiya tayyor" xabari chiqadi.
+
+## 2.3.0 — 2026-11-03
+- **Yangi: xizmatlar reklamasi** — xizmatlaringizni (tasodifiy bittasini) ko'rsatadigan kichik oyna. 12 soniyadan keyin chiqadi, sessiyada 1 marta, yopilsa 3 kun chiqmaydi, cookie paneli ochiq bo'lsa kutadi, xizmatlar/aloqa/profil/admin sahifalarida chiqmaydi. Sozlash va o'chirish: `links.js` → `PROMO`. Bu o'zimizning xizmatlar reklamasi, uchinchi tomon reklamasi emas (pul keltirmaydi, mijoz keltiradi).
+- **Tuzatildi (jiddiy):** sahifa ochilishidagi animatsiya `position: fixed` elementlarni (cookie paneli, reklama, xabarlar, fon animatsiyasi) ekran o'rniga butun sahifaga nisbatan joylashtirib qo'ygan edi — cookie paneli ko'rinmay qolishi mumkin edi. Animatsiya faqat xiralashuvga o'zgartirildi, testga qo'shildi.
+- **Tuzatildi:** `.sec` va `.page-top` yon bo'sh joyni (padding) o'chirib yuborgan, telefonda matn ekran chetiga yopishib qolgan. Mobil testga qo'shildi.
+- Maxfiylik siyosati va cookie matniga reklama oynasi yopilgani saqlanishi qo'shildi.
+
 ## 2.2.0 — 2026-11-03
 - **Xizmatlar 6 taga yetdi:** veb-sayt, Telegram bot, taqdimot, maqola/matn, test tuzish, hujjat ishlari. Narxlar "dan" ko'rinishida, tilga moslab.
 - **"Barcha xizmatlar AI yordamida" bloki** va unga mos savol-javob.

@@ -22,6 +22,7 @@ const SEED = {
   roadmap: { r1: { title: "Android release", status: "done", period: "2026 Q3", n: 1 }, r2: { title: "Windows build", title_ru: "Сборка Windows", status: "progress", n: 2 }, r3: { title: "macOS port", status: "planned", n: 3 } },
   team: { m1: { name: "Test Dev", role: "Developer", bio: "Bio", n: 1 } },
 };
+const SERVICE_TITLES = ['Website', 'Telegram bot', 'Presentations', 'Articles', 'Tests', 'Document'];
 let pass = 0, fail = 0; const failures = [];
 const ok = (c, m) => { if (c) { pass++; console.log("  ✓", m); } else { fail++; failures.push(m); console.log("  ✗ FAIL:", m); } };
 const KEYLIKE = /(^|\s)(?:[a-z0-9]+\.){1,2}[a-zA-Z0-9]+(?=\s|$)/;
@@ -47,17 +48,19 @@ async function open(ctx, url, errs) {
   for (const lang of ["uz", "ru", "en"]) for (const [vp, w, h] of [["desktop", 1280, 800], ["mobil", 375, 740]]) {
     const ctx = await newCtx(browser, { viewport: { width: w, height: h } });
     await ctx.addInitScript(l => localStorage.setItem("lang", l), lang);
-    const errs = [], bad = [], wide = [];
+    const errs = [], bad = [], wide = [], tight = [];
     for (const p of PAGES) {
       const page = await open(ctx, B + p, errs); await page.waitForTimeout(150);
       const txt = await page.evaluate(() => Array.from(document.querySelectorAll("body *")).filter(e => e.children.length === 0 && e.offsetParent !== null && !["SCRIPT", "STYLE", "OPTION"].includes(e.tagName)).map(e => e.textContent.trim()).filter(Boolean));
       txt.filter(s => KEYLIKE.test(s) && /^[a-z0-9.]+$/.test(s) && !/\.(png|js|html|css)$/.test(s) && !/^v\d/.test(s)).forEach(s => bad.push(p + ": " + s));
       const sw = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (sw > 1) wide.push(p + " (+" + sw + "px)");
+      if (vp === "mobil") { const edge = await page.evaluate(() => Array.from(document.querySelectorAll("main h1, main .card, main .stat, main .panel, main .sec-head h2")).filter(e => e.offsetParent && !e.closest("[hidden]")).map(e => Math.round(e.getBoundingClientRect().left)).filter(l => l < 12).length); if (edge) tight.push(p + " (" + edge + " element chetga yopishgan)"); }
       await page.close();
     }
     ok(errs.length === 0, `[${lang}/${vp}] JS/konsol xatolari yo'q ${errs.length ? JSON.stringify(errs.slice(0, 3)) : ""}`);
     ok(bad.length === 0, `[${lang}/${vp}] tarjima qilinmagan kalit ko'rinmaydi ${bad.length ? JSON.stringify(bad.slice(0, 5)) : ""}`);
     ok(wide.length === 0, `[${lang}/${vp}] gorizontal scroll yo'q ${wide.length ? JSON.stringify(wide) : ""}`);
+    if (vp === "mobil") ok(tight.length === 0, `[${lang}/${vp}] kontent ekran chetiga yopishmagan (yon bo'sh joy bor) ${tight.length ? JSON.stringify(tight) : ""}`);
     await ctx.close();
   }
 
@@ -120,6 +123,17 @@ async function open(ctx, url, errs) {
   ok((await pg.inputValue("#ctText")).startsWith("Package: Standard. I'd like to order a website"), "paket tanlanganda forma paket nomi bilan to'ldiriladi"); await pg.close();
   ok(!fs.existsSync(path.join(root, "roadmap.html")) && !fs.existsSync(path.join(root, "devlog.html")), "roadmap va devlog sahifalari olib tashlangan");
   const nav = fs.readFileSync(path.join(root, "js/core.js"), "utf8"); ok(!/roadmap|devlog/i.test(nav.slice(nav.indexOf("const NAV"), nav.indexOf("const ICON_SEARCH"))), "menyuda roadmap/devlog yo'q");
+
+  console.log("\n[3c] YouTube havolasi (Bizni kuzating)");
+  pg = await open(ctx, B + "contact.html", errs);
+  ok(await pg.locator("#ytCard").isHidden() && await pg.locator('footer a[data-link="youtube"]').count() === 0, "YouTube havolasi kiritilmagan bo'lsa, hech qayerda ko'rinmaydi"); await pg.close();
+  {
+    const yc = await newCtx(browser), yurl = "https://www.youtube.com/@PixelCore";
+    await yc.route(/\/links\.js$/, r => r.fulfill({ contentType: "text/javascript", body: fs.readFileSync(path.join(root, "links.js"), "utf8").replace('youtube: ""', 'youtube: "' + yurl + '"') }));
+    const yp = await open(yc, B + "contact.html", errs);
+    ok(await yp.locator("#ytCard").isVisible() && (await yp.locator("#ytCard").getAttribute("href")) === yurl, "Aloqa sahifasida YouTube kartasi chiqadi va to'g'ri havolaga olib boradi");
+    ok((await yp.locator('footer a[data-link="youtube"]').getAttribute("href")) === yurl, "Footer'dagi 'Kuzating' ustunida YouTube havolasi bor"); await yc.close();
+  }
 
   console.log("\n[4] Ro'yxatdan o'tish, profil, sharh, izoh, fikr-mulohaza");
   pg = await open(ctx, B + "app.html?id=g1", errs);
@@ -195,6 +209,8 @@ async function open(ctx, url, errs) {
   console.log("\n[6] Til saqlanishi, cookie, qidiruv, mobil menyu");
   ctx = await newCtx(browser); pg = await open(ctx, B, errs);
   ok(await pg.locator("#ckBar").count() === 1, "cookie paneli ko'rinadi");
+  await pg.waitForTimeout(600);
+  ok(await pg.evaluate(() => { const r = document.getElementById("ckBar").getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1; }), "cookie paneli ekran ichida (position:fixed to'g'ri ishlaydi)");
   await Promise.all([pg.waitForNavigation(), pg.selectOption("#lang", "ru")]); await pg.waitForTimeout(300);
   ok((await pg.locator("h1").first().textContent()).includes("Мы создаём"), "til RU ga almashdi");
   await pg.click('#mnav a[href="games.html"]'); await pg.waitForLoadState("load"); await pg.waitForTimeout(300);
@@ -212,6 +228,28 @@ async function open(ctx, url, errs) {
   ok(await pg.locator("#mnav.open").count() === 1 && await pg.locator('#mnav a[href="games.html"]').isVisible(), "mobil: menyu ochiladi");
   const small = await pg.evaluate(() => Array.from(document.querySelectorAll("button, a.btn, .ib, select, input")).filter(e => e.offsetParent && (e.getBoundingClientRect().height < 38 || e.getBoundingClientRect().width < 38) && !e.closest("[hidden]") && e.type !== "checkbox" && !/ckSet|ckNec|link-btn/.test(e.className + e.id)).map(e => e.outerHTML.slice(0, 60)));
   ok(small.length === 0, "mobil: tugmalar kamida 38px " + (small.length ? JSON.stringify(small.slice(0, 3)) : "")); await mc.close();
+
+  console.log("\n[6b] Reklama oynasi (xizmatlar)");
+  {
+    const mkctx = async (consent) => { const c = await newCtx(browser); if (consent) await c.addInitScript(() => localStorage.setItem("pc-consent", '{"stat":false}')); return c; };
+    const c1 = await mkctx(true), c2 = await mkctx(false);
+    const pA = await open(c1, B, errs), pS = await open(c1, B + "services.html", errs), pN = await open(c2, B, errs);
+    await pA.waitForTimeout(2000); ok(await pA.locator("#promo").count() === 0, "reklama darhol chiqmaydi (kechikish bor)");
+    await pA.waitForTimeout(12500);
+    ok(await pA.locator("#promo").isVisible(), "12 soniyadan keyin reklama avtomatik chiqadi");
+    ok(await pA.evaluate(() => { const r = document.getElementById("promo").getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight + 1 && r.left >= 0 && r.right <= innerWidth + 1; }), "reklama ekranning ko'rinadigan qismida (pastki chap burchak)");
+    const ttl = await pA.locator("#promo b").textContent();
+    ok(SERVICE_TITLES.some(x => ttl.includes(x)), "reklamada xizmat nomi ko'rsatilgan: " + ttl);
+    ok((await pA.locator('#promo a.primary').getAttribute("href")) === "services.html" && (await pA.locator('#promo a[data-link="support"]').getAttribute("href")) === "https://t.me/esalimniyazov", "reklama tugmalari: xizmatlar sahifasi va Telegram");
+    ok(/from [\d,]+ UZS/.test(await pA.locator("#promo p").textContent()), "reklamada narx ko'rsatilgan");
+    ok(await pS.locator("#promo").count() === 0, "xizmatlar sahifasida reklama chiqmaydi");
+    ok(await pN.locator("#promo").count() === 0 && await pN.locator("#ckBar").count() === 1, "cookie paneli ochiq turganda reklama chiqmaydi");
+    await pA.click(".promo-x"); ok(await pA.locator("#promo").count() === 0, "yopish tugmasi reklamani yopadi");
+    ok((await pA.evaluate(() => +localStorage.getItem("pc-promo-off"))) > Date.now() + 2 * 864e5, "yopilgach 3 kun qayta chiqmaslik belgilandi");
+    const pC = await open(c1, B + "games.html", errs); await pC.waitForTimeout(13500);
+    ok(await pC.locator("#promo").count() === 0, "yopilgandan keyin boshqa sahifada ham chiqmaydi");
+    await c1.close(); await c2.close();
+  }
 
   console.log("\n[7] Service Worker / PWA (haqiqiy brauzerda)");
   const pc = await browser.newContext({ viewport: { width: 1280, height: 800 } });

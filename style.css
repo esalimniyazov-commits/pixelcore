@@ -6,8 +6,9 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:400 16.5px/1.65 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column;animation:pgin .45s ease both}
-@keyframes pgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16.5px/1.65 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden;min-height:100vh;display:flex;flex-direction:column;animation:pgin .4s ease}
+/* Muhim: body'da transform animatsiyasi bo'lmasin, aks holda position:fixed elementlar (cookie, reklama, toast) ekranga emas, butun sahifaga nisbatan joylashadi */
+@keyframes pgin{from{opacity:0}to{opacity:1}}
 @view-transition{navigation:auto}
 body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
   background:radial-gradient(900px 500px at 85% -10%,rgba(124,58,237,.28),transparent 60%),radial-gradient(700px 500px at -10% 30%,rgba(168,85,247,.14),transparent 60%),
@@ -61,11 +62,11 @@ h1 em{font-style:normal;background:linear-gradient(120deg,var(--v3),var(--v1) 60
 @keyframes spin{to{transform:rotate(360deg)}}@keyframes float{50%{transform:translateY(-12px)}}
 
 /* Bo'limlar */
-.sec{padding:clamp(44px,7vw,84px) 0;opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}.sec.in,.no-io .sec{opacity:1;transform:none}
+.sec{padding-top:clamp(44px,7vw,84px);padding-bottom:clamp(44px,7vw,84px);opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}.sec.in,.no-io .sec{opacity:1;transform:none}
 .sec-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
 .sec h2,.page-h{font-weight:800;font-size:clamp(26px,3.4vw,40px)}.sec-head p{color:var(--muted);margin:6px 0 0;max-width:560px}
 .more{color:var(--v3);font-weight:600;font-size:15px}.more:hover{text-decoration:underline}
-.page-top{padding:clamp(34px,6vw,70px) 0 10px}.page-top p{color:var(--muted);max-width:640px;margin:10px 0 0}
+.page-top{padding-top:clamp(34px,6vw,70px);padding-bottom:10px}.page-top p{color:var(--muted);max-width:640px;margin:10px 0 0}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .stat{padding:22px;border-radius:var(--r);border:1px solid var(--line);background:linear-gradient(160deg,rgba(124,58,237,.14),rgba(18,11,31,.6))}
 .stat b{display:block;font:800 clamp(26px,3.4vw,38px) Sora,Inter,system-ui,sans-serif;background:linear-gradient(120deg,var(--v4),var(--v1));-webkit-background-clip:text;background-clip:text;color:transparent}.stat span{color:var(--muted);font-size:14.5px}
@@ -195,3 +196,11 @@ footer{margin-top:60px;border-top:1px solid var(--line);background:rgba(8,5,15,.
 .pkg-h{margin:34px 0 14px;font-size:22px}.pkg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:18px}.pkg .body{padding:24px;gap:14px}.pkg.hot{border-color:var(--v1);box-shadow:var(--glow)}
 .pkg-price{font:800 clamp(22px,2.6vw,28px) Sora,Inter,system-ui,sans-serif;background:linear-gradient(120deg,var(--v4),var(--v1));-webkit-background-clip:text;background-clip:text;color:transparent}.pkg .feats{grid-template-columns:1fr}.pkg .btn{margin-top:auto}.pkg-note{font-size:14.5px;margin:12px 0 0}
 @media(max-width:560px){.ai-banner{flex-direction:column;align-items:flex-start}}
+
+/* Reklama oynasi */
+.promo{position:fixed;left:18px;bottom:18px;z-index:35;width:min(360px,calc(100vw - 36px));display:flex;gap:14px;padding:16px 18px 16px 16px;border:1px solid var(--v2);border-radius:18px;background:rgba(18,11,31,.97);backdrop-filter:blur(12px);box-shadow:0 0 40px rgba(124,58,237,.4);animation:promoin .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes promoin{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.promo .srv-ic{width:46px;height:46px;font-size:22px;flex:none;border-radius:13px}.promo small{display:block;color:var(--v3);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.promo b{display:block;font:700 17px Sora,Inter,system-ui,sans-serif;margin:2px 0}.promo p{margin:0 0 10px;font-size:14.5px;color:var(--muted)}.promo p strong{color:var(--v4)}
+.promo-x{position:absolute;right:6px;top:4px;width:40px;height:40px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}.promo-x:hover{color:var(--text)}
+@media(max-width:560px){.promo{left:10px;right:10px;bottom:10px;width:auto}}

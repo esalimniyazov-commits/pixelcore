@@ -293,6 +293,7 @@ PAGES.contact = async function () {
     if (USER) data.uid = USER.uid;
     try { await db.collection("contacts").add(data); e.target.reset(); m.className = "err ok"; m.textContent = t("ct.sent"); } catch (x) { m.textContent = t("common.error") + ": " + (x.code || x.message); }
   });
+  $("ytCard").hidden = !LINKS.youtube;
   bindLinks(document);
 };
 

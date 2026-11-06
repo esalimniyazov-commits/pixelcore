@@ -3,6 +3,7 @@ const LINKS = {
   telegram: "https://t.me/PixelCoreStudio",
   instagram: "https://www.instagram.com/esalimniyazov?igsh=MWx1YW14anFrenczOQ==",
   support: "https://t.me/esalimniyazov",
+  youtube: "https://www.youtube.com/@pixelcorestudioyoutube",
   email: "esalimniyazov@gmail.com",
 };
 // Texnologiyalar: d — tarjima kaliti yoki oddiy matn. Faqat haqiqatan ishlatiladiganlarni qoldiring.
@@ -50,3 +51,8 @@ const PACKAGES = [
 const PORTFOLIO = [
   { t: "port.site.t", d: "port.site.d", u: "https://pixelcore-delta.vercel.app/", img: "og.png", tag: "web" },
 ];
+
+// ===== REKLAMA (xizmatlaringiz haqida avtomatik chiqadigan kichik oyna) =====
+// enabled: false — butunlay o'chirish. delaySec — saytga kirgandan necha soniyadan keyin chiqsin.
+// hideDays — foydalanuvchi yopsa, necha kun qayta chiqmasin. Bir sessiyada ko'pi bilan 1 marta chiqadi.
+const PROMO = { enabled: true, delaySec: 12, hideDays: 3 };
