@@ -15,6 +15,16 @@ Qoidalar ma'lumotlarni o'chirmaydi va o'zgartirmaydi; faqat kimga nima ruxsat be
 - **Settings → Authorized domains:** `pixelcore-delta.vercel.app` ni qo'shing (Vercel preview domenlari kerak bo'lsa ularni ham).
 - **Admin hisob:** admin emailingiz bilan ro'yxatdan o'tgan va **emailni tasdiqlagan** bo'lishi shart. Tasdiqlanmagan bo'lsa: kiring → Profil → "Xatni qayta yuborish".
 
+## 2.1 App Check (spam va soxta so'rovlarni kamaytirish)
+1. Google Cloud Console → **Security → Fraud Defense → Keys** → score-based **Web** key yarating. Faqat production domenini (`pixelcore-delta.vercel.app`) qo'shing; `localhost` ni production key'ga qo'shmang. Firebase loyihasi va Cloud loyihasi bir xil (`pixelcore-96f17`) bo'lishi kerak.
+2. Yaratilgan **site key** ni Firebase Console → **App Check → Apps → pixelcore-web → Register → Fraud Defense** ichida ro'yxatdan o'tkazing.
+3. Shu site key'ni `firebase.js` dagi `FIREBASE_APP_CHECK_SITE_KEY` ga ham yozib deploy qiling. Bu key ommaviy frontend sozlamasidir; maxfiy kalit emas.
+4. Deploydan keyin App Check metrikalarini kuzating. Haqiqiy so'rovlar tasdiqlanayotganini tekshirgachgina Firebase Console'da **Cloud Firestore** enforcement'ni yoqing. Enforcement yoqilmasa, App Check tokenlari tekshiruvdan o'tkazilmaydi.
+
+App Check anonim aloqa formasi va hisoblagichlarga soxta skriptlardan keladigan yozuvlarni kamaytiradi; u qat'iy IP/user rate-limit emas va haqiqiy brauzer avtomatizatsiyasini to'liq bartaraf etmaydi. Qat'iy limit kerak bo'lsa, server funksiyasi va rate-limit saqlagichi kerak bo'ladi.
+
+**Narx:** key yaratish va Cloud API'ni yoqishning o'zi to'lovni anglatmaydi. Narxlar va bepul kvotalar o'zgarishi mumkin — Google Cloud Console'da reCAPTCHA Enterprise API uchun amaldagi narxlar, kvota va billing holatini tekshiring. Bepul kvotadan oshgan foydalanish uchun to'lov olinishi mumkin. Billing yoki free trial'ni alohida ruxsatsiz yoqmang. Firebase Spark rejasida so'rovlar soniga cheklovlar bo'lishi mumkin.
+
 ## 3. Rules Playground'da tekshirish (tavsiya)
 | Sinov | Kutiladigan natija |
 |---|---|
@@ -25,6 +35,7 @@ Qoidalar ma'lumotlarni o'chirmaydi va o'zgartirmaydi; faqat kimga nima ruxsat be
 | Oddiy user: `create /users/{uid} {email, username:"ab"}` | Rad (3 belgidan kam) |
 | Oddiy user: `update /users/{uid} {banned:false}` | Rad |
 | Oddiy user: `read /feedback/{boshqaning}` | Rad |
+| Oddiy user: `delete /feedback/{o'ziniki}` | Ruxsat |
 | Kirmagan: `create /contacts/x` (to'g'ri maydonlar, `created=request.time`) | Ruxsat |
 | Kirmagan: `read /contacts/x` | Rad |
 | Admin (email_verified=true): `write /news/x` | Ruxsat |
@@ -32,7 +43,7 @@ Qoidalar ma'lumotlarni o'chirmaydi va o'zgartirmaydi; faqat kimga nima ruxsat be
 ## 4. Vercel
 1. Loyihani GitHub'ga yuklang → vercel.com → **Add New → Project → Import**.
 2. **Framework Preset: Other**; Build Command va Output Directory — **bo'sh**. Deploy.
-3. `vercel.json` sarlavhalar va `/sitemap.xml → /api/sitemap` yo'naltirishini o'z ichiga oladi. `api/sitemap.js` Vercel Hobby'da bepul ishlaydi (Node 18+).
+3. `vercel.json` sarlavhalar, `/sitemap.xml → /api/sitemap` va ijtimoiy tarmoq botlari uchun dinamik sahifa preview yo'naltirishlarini o'z ichiga oladi. `api/sitemap.js` va `api/share.js` Vercel Hobby'da bepul ishlaydi (Node 18+).
 4. Deploy'dan so'ng tekshiring: `/sitemap.xml` (o'yin va yangilik sahifalari ro'yxatda bo'lsin), `/robots.txt`, `/manifest.webmanifest`.
 5. Google Search Console'da `https://pixelcore-delta.vercel.app/sitemap.xml` ni yuboring.
 

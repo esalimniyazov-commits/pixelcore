@@ -62,6 +62,17 @@ function getGames() {
     return db.collection("games").get().then(function (s) { return s.docs.map(function (d) { return { id: d.id, g: d.data() }; }); });
   });
 }
+async function getGamePage(cursor, pageSize) {
+  if (!db) return { games: [], cursor: cursor || null, hasMore: false };
+  let q = db.collection("games").orderBy(firebase.firestore.FieldPath.documentId());
+  if (cursor) q = q.startAfter(cursor);
+  const s = await q.limit(pageSize + 1).get(), docs = s.docs.slice(0, pageSize);
+  return {
+    games: docs.map(function (d) { return { id: d.id, g: d.data() }; }),
+    cursor: docs.length ? docs[docs.length - 1] : cursor || null,
+    hasMore: s.docs.length > pageSize,
+  };
+}
 function getNews() {
   return memo("news", function () {
     if (!db) return Promise.resolve([]);

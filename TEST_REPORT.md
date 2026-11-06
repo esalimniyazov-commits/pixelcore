@@ -45,7 +45,8 @@ Sana: 2026-11-03 (2.3: reklama oynasi, fixed-joylashuv va mobil chet bo'sh joy x
 
 ## Ma'lum cheklovlar
 - Foydalanuvchi sharh/izohidagi `name` maydonini qoidalar profil nomiga bog'lamaydi (faqat uzunlikni tekshiradi) — foydalanuvchi boshqa ism yozishi mumkin. Moderatsiya admin panelda.
-- Aloqa formasi hisobsiz ham ishlaydi (spamga ochiq): honeypot va uzunlik cheklovi bor, rate-limit yo'q. Kerak bo'lsa Firebase App Check qo'shiladi.
+- Aloqa formasi hisobsiz ham ishlaydi: honeypot va uzunlik cheklovi bor. App Check'ni yoqish sozlamalari [SETUP.md](SETUP.md) da berilgan; qat'iy rate-limit yo'q.
+- Google Cloud'da production reCAPTCHA Enterprise key yaratildi. App Check SDK ulanishi mavjud; Firebase Console'da `pixelcore-web` ilovasiga key ro'yxatdan o'tkazilib, yangilangan sayt deploy qilinmaguncha App Check ishlamaydi. Firestore enforcement ataylab yoqilmagan; metrikalarni tekshirgandan keyin yoqish kerak. App Check qat'iy rate-limit o'rnini bosmaydi.
 - Dinamik sahifalar uchun ijtimoiy tarmoq OG ko'rinishi umumiy (SSR yo'q).
 - Push-bildirishnomalar amalga oshirilmagan (SETUP.md 7-bo'lim).
 

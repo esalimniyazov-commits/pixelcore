@@ -44,16 +44,28 @@
       delete: async () => { if (DB[col]) delete DB[col][id]; save(); },
     };
   }
-  function query(col, filters, order, lim) {
+  function query(col, filters, order, lim, cursor) {
     const q = {
-      where: (f, op, v) => query(col, filters.concat([[f, op, v]]), order, lim),
-      orderBy: (f, dir) => query(col, filters, [f, dir || "asc"], lim),
-      limit: (n) => query(col, filters, order, n),
+      where: (f, op, v) => query(col, filters.concat([[f, op, v]]), order, lim, cursor),
+      orderBy: (f, dir) => query(col, filters, [f, dir || "asc"], lim, cursor),
+      limit: (n) => query(col, filters, order, n, cursor),
+      startAfter: (doc) => query(col, filters, order, lim, doc),
       get: async () => {
         if (!readOK(col, filters)) throw denied();
         let rows = Object.keys(DB[col] || {}).map(id => ({ id, d: DB[col][id] }));
         filters.forEach(([f, op, v]) => { rows = rows.filter(r => r.d[f] === v); });
-        if (order) { rows = rows.filter(r => r.d[order[0]] !== undefined); rows.sort((a, b) => { const x = a.d[order[0]], y = b.d[order[0]], xv = x && x.toMillis ? x.toMillis() : x, yv = y && y.toMillis ? y.toMillis() : y; return (xv > yv ? 1 : xv < yv ? -1 : 0) * (order[1] === "desc" ? -1 : 1); }); }
+        if (order) {
+          if (order[0] !== "__name__") rows = rows.filter(r => r.d[order[0]] !== undefined);
+          rows.sort((a, b) => {
+            const x = order[0] === "__name__" ? a.id : a.d[order[0]], y = order[0] === "__name__" ? b.id : b.d[order[0]];
+            const xv = x && x.toMillis ? x.toMillis() : x, yv = y && y.toMillis ? y.toMillis() : y;
+            return (xv > yv ? 1 : xv < yv ? -1 : 0) * (order[1] === "desc" ? -1 : 1);
+          });
+        }
+        if (cursor) {
+          const direction = order && order[1] === "desc" ? -1 : 1;
+          rows = rows.filter(r => (r.id > cursor.id ? 1 : r.id < cursor.id ? -1 : 0) * direction > 0);
+        }
         if (lim) rows = rows.slice(0, lim);
         const docs = rows.map(r => snap(col, r.id, r.d));
         return { docs, size: docs.length, empty: !docs.length, forEach: (f) => docs.forEach(f) };
@@ -69,6 +81,7 @@
     batch: () => { const ops = []; return { set: (r, d) => ops.push(() => r.set(d)), update: (r, d) => ops.push(() => r.update(d)), delete: (r) => ops.push(() => r.delete()), commit: async () => { for (const o of ops) await o(); } }; },
   });
   firestore.FieldValue = FieldValue;
+  firestore.FieldPath = { documentId: () => "__name__" };
   /* ---- auth ---- */
   let cbs = [];
   const mkUser = (m) => m && ({

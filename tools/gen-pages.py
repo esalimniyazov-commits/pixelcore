@@ -1,7 +1,7 @@
 # PixelCore 2.0 — HTML sahifalarni bir xil qolipdan yaratadi (faqat ishlab chiqish vaqtida kerak).
 import os
 SITE="https://pixelcore-delta.vercel.app"
-FB=''.join('  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-%s-compat.js"></script>\n'%x for x in ("app","auth","firestore"))
+FB=''.join('  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-%s-compat.js"></script>\n'%x for x in ("app","auth","firestore","app-check"))
 def head(file,title,desc,og_img="og.png",extra=""):
     url=SITE+"/"+("" if file=="index.html" else file)
     alt="".join('  <link rel="alternate" hreflang="%s" href="%s?lang=%s">\n'%(l,url,l) for l in ("uz","ru","en"))+'  <link rel="alternate" hreflang="x-default" href="%s">\n'%url
@@ -86,6 +86,8 @@ pages["games.html"]=page("games.html","games","O'yinlar katalogi — PixelCore S
       <div class="chips" id="chips"><button type="button" data-sort="dl" data-i18n="games.popular"></button><button type="button" data-sort="new" data-i18n="games.latest"></button><button type="button" data-sort="upd" data-i18n="sort.upd"></button></div>
       <p class="muted" id="count" aria-live="polite"></p>
       <div class="grid" id="games"></div>
+      <p class="muted" data-i18n="games.paginationHint"></p>
+      <button class="btn sm" id="loadMore" type="button" hidden data-i18n="games.loadMore"></button>
     </div>''')
 pages["app.html"]=page("app.html","app","O'yin — PixelCore Studio","PixelCore Studio o'yini haqida batafsil ma'lumot.",'''    <div class="wrap" id="app" style="padding-bottom:30px"><p class="muted" data-i18n="common.loading"></p></div>
     <dialog id="zoom" class="wide"><img id="zimg" alt="" style="width:100%;border-radius:12px"><div class="row" style="margin-top:14px"><button class="btn sm" id="zprev" type="button">←</button><button class="btn sm" id="znext" type="button">→</button><button class="btn sm" id="zc" type="button" style="margin-left:auto" data-i18n="common.close"></button></div></dialog>''')

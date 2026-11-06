@@ -82,10 +82,16 @@ PAGES.home = async function () {
 
 /* ---------- O'yinlar katalogi ---------- */
 PAGES.games = async function () {
-  const games = await getGames(), q0 = new URLSearchParams(location.search).get("q");
+  const PAGE_SIZE = 24, games = [];
+  let cursor = null, hasMore = true, loading = false;
+  const q0 = new URLSearchParams(location.search).get("q");
   if (q0) $("q").value = q0;
-  const genres = Array.from(new Set([].concat.apply([], games.map(function (o) { return gGenres(o.g); })))).sort();
-  $("genre").innerHTML = '<option value="">' + esc(t("games.allGenres")) + "</option>" + genres.map(function (g) { return '<option value="' + esc(g) + '">' + esc(g) + "</option>"; }).join("");
+  function updateGenres() {
+    const selected = $("genre").value;
+    const genres = Array.from(new Set([].concat.apply([], games.map(function (o) { return gGenres(o.g); })))).sort();
+    $("genre").innerHTML = '<option value="">' + esc(t("games.allGenres")) + "</option>" + genres.map(function (g) { return '<option value="' + esc(g) + '">' + esc(g) + "</option>"; }).join("");
+    if (genres.indexOf(selected) >= 0) $("genre").value = selected;
+  }
   function view() {
     const q = $("q").value.trim().toLowerCase(), f = $("flt").value, pf = $("plat").value, gn = $("genre").value, k = $("sort").value;
     let a = games.filter(function (o) {
@@ -100,15 +106,30 @@ PAGES.games = async function () {
       return ms(y.g.created) - ms(x.g.created);
     });
     put("games", a.length ? a.map(function (o) { return gameCard(o.id, o.g); }).join("") : empty(games.length ? "games.noMatch" : "games.none"));
-    $("count").textContent = t("games.count", { n: a.length });
+    $("count").textContent = t("games.loadedCount", { n: a.length, total: games.length });
     qsa("#chips button").forEach(function (b) { b.classList.toggle("on", b.dataset.sort === k); });
+    $("loadMore").hidden = !hasMore;
     bindLinks($("games")); paintFavs();
+  }
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    loading = true; $("loadMore").disabled = true;
+    try {
+      const page = await getGamePage(cursor, PAGE_SIZE);
+      games.push.apply(games, page.games); cursor = page.cursor; hasMore = page.hasMore;
+      updateGenres(); view();
+    } catch (e) {
+      toast(t("common.error") + ": " + (e.code || e.message), "err");
+    } finally {
+      loading = false; $("loadMore").disabled = false;
+    }
   }
   ["q"].forEach(function (i) { $(i).addEventListener("input", debounce(view, 120)); });
   ["flt", "plat", "genre", "sort"].forEach(function (i) { $(i).addEventListener("change", view); });
   qsa("#chips button").forEach(function (b) { b.addEventListener("click", function () { $("sort").value = b.dataset.sort; view(); }); });
+  $("loadMore").addEventListener("click", loadMore);
   document.addEventListener("favs-changed", function () { if ($("flt").value === "fav") view(); });
-  view();
+  await loadMore();
 };
 
 /* ---------- O'yin sahifasi ---------- */
@@ -144,7 +165,11 @@ PAGES.app = async function () {
     (logs.length ? '<section class="blk"><h2>' + esc(t("game.changelog")) + '</h2><div class="log">' + logs.map(function (l) { return "<div>" + esc(l) + "</div>"; }).join("") + "</div></section>" : "") +
     '<section class="blk" id="revBox"></section><section class="blk"><h2>' + esc(t("game.similar")) + '</h2><div class="grid" id="similar"></div></section>';
   bindLinks(box); paintFavs();
-  $("share").addEventListener("click", function () { if (navigator.share) navigator.share({ title: document.title, url: location.href }).catch(function () {}); else if (navigator.clipboard) { navigator.clipboard.writeText(location.href); toast(t("common.copied"), "ok"); } });
+  $("share").addEventListener("click", function () {
+    const u = new URL(location.href); u.searchParams.set("lang", LANG);
+    if (navigator.share) navigator.share({ title: document.title, url: u.toString() }).catch(function () {});
+    else if (navigator.clipboard) { navigator.clipboard.writeText(u.toString()); toast(t("common.copied"), "ok"); }
+  });
   box.addEventListener("click", function (e) {
     const s = e.target.closest(".shot"); if (!s) return;
     let i = +s.dataset.i; const z = $("zoom"), show = function () { $("zimg").src = safeUrl(imgs[i]); }; show(); z.showModal();
@@ -236,7 +261,11 @@ PAGES.article = async function () {
   setMeta(title + " — PixelCore Studio", tr(n, "text").slice(0, 160)); setCanonical("/article.html?id=" + id);
   box.innerHTML = '<div class="tags"><span>' + esc(t("cat." + (n.category || "news"))) + "</span></div><h1>" + esc(title) + '</h1><p class="meta">' + esc(dateStr(n.created)) + "</p>" +
     (n.cover ? '<div class="cover"><img class="cv" src="' + esc(safeUrl(n.cover)) + '" alt=""></div>' : "") + '<div class="txt">' + esc(tr(n, "text")) + '</div><div class="row" style="margin:24px 0"><button class="btn sm" id="share" type="button">' + esc(t("common.share")) + '</button><a class="btn sm" href="news.html">← ' + esc(t("nav.news")) + '</a></div><section class="blk" id="cmBox"></section>';
-  $("share").addEventListener("click", function () { if (navigator.share) navigator.share({ title: title, url: location.href }).catch(function () {}); else if (navigator.clipboard) { navigator.clipboard.writeText(location.href); toast(t("common.copied"), "ok"); } });
+  $("share").addEventListener("click", function () {
+    const u = new URL(location.href); u.searchParams.set("lang", LANG);
+    if (navigator.share) navigator.share({ title: title, url: u.toString() }).catch(function () {});
+    else if (navigator.clipboard) { navigator.clipboard.writeText(u.toString()); toast(t("common.copied"), "ok"); }
+  });
   commentsBlock("cmBox", "news", id);
 };
 
@@ -309,8 +338,11 @@ PAGES.profile = function () {
   onUser(async function (u) {
     const box = $("prof");
     if (!u) { box.innerHTML = '<div class="panel" style="grid-column:1/-1"><p>' + esc(t("prof.need")) + '</p><button class="btn primary" id="pl" type="button">' + esc(t("auth.login")) + "</button></div>"; $("pl").onclick = openAuth; return; }
-    const q = function (col) { return db.collection(col).where("uid", "==", u.uid).get().then(function (s) { return s.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }); }).catch(function () { return []; }); };
-    const r = await Promise.all([q("reviews"), q("comments"), q("feedback"), getGames()]), revs = r[0], cms = r[1], reps = r[2], games = r[3];
+    const q = function (col) { return db.collection(col).where("uid", "==", u.uid).get().then(function (s) { return s.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }); }); };
+    let r;
+    try { r = await Promise.all([q("reviews"), q("comments"), q("feedback"), getGames()]); }
+    catch (x) { box.innerHTML = '<p class="err">' + esc(t("common.error") + ": " + (x.code || x.message)) + "</p>"; return; }
+    const revs = r[0], cms = r[1], reps = r[2], games = r[3];
     const stats = { favs: favs.length, reviews: revs.length, comments: cms.length, reports: reps.length, verified: u.emailVerified };
     const xp = 10 + (u.emailVerified ? 20 : 0) + favs.length * 2 + revs.length * 10 + cms.length * 5 + reps.length * 15, lv = levelOf(xp);
     const pct = Math.min(100, Math.round((xp - lv.cur) / (lv.next - lv.cur) * 100));
@@ -344,7 +376,15 @@ PAGES.profile = function () {
       if (!confirm(t("prof.confirmDel"))) return;
       try {
         try { const at = ((await u.getIdTokenResult()).claims.auth_time || 0) * 1000; if (at && Date.now() - at > 5 * 60e3) { toast(t("prof.relogin"), "err"); return; } } catch (e) {}
-        const bt = db.batch(); revs.forEach(function (x) { bt.delete(db.collection("reviews").doc(x.id)); }); cms.forEach(function (x) { bt.delete(db.collection("comments").doc(x.id)); }); bt.delete(db.collection("users").doc(u.uid)); await bt.commit();
+        const refs = revs.map(function (x) { return db.collection("reviews").doc(x.id); })
+          .concat(cms.map(function (x) { return db.collection("comments").doc(x.id); }))
+          .concat(reps.map(function (x) { return db.collection("feedback").doc(x.id); }));
+        for (let i = 0; i < refs.length; i += 450) {
+          const bt = db.batch();
+          refs.slice(i, i + 450).forEach(function (ref) { bt.delete(ref); });
+          await bt.commit();
+        }
+        const bt = db.batch(); bt.delete(db.collection("users").doc(u.uid)); await bt.commit();
         await u.delete(); try { localStorage.removeItem("favs"); } catch (e) {} location.href = "index.html";
       } catch (x) { toast(x.code === "auth/requires-recent-login" ? t("prof.relogin") : authMsg(x.code || ""), "err"); }
     };

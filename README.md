@@ -37,7 +37,7 @@ tools/gen-pages.py        — HTML sahifalarni bir qolipdan qayta yaratadi (ixti
 - **Admin:** huquq `firestore.rules` dagi email bilan beriladi (serverda tekshiriladi). `firebase.js` dagi `ADMIN_EMAILS` faqat "Admin" tugmasini ko'rsatadi.
 - **Yangi versiya chiqarish:** `sw.js` dagi `VERSION` ni oshiring — foydalanuvchilarga "Yangi versiya tayyor" xabari chiqadi.
 - **Head qismini o'zgartirish:** `tools/gen-pages.py` ni tahrirlab `python3 tools/gen-pages.py` ishga tushiring (yoki 13 ta faylni qo'lda).
-- **Testlar:** `node tests/check-i18n.js`, `node tests/sitemap.test.js`, `node tests/e2e.js` (Playwright kerak). Nima sinalgani va sinalmagani — [TEST_REPORT.md](TEST_REPORT.md).
+- **Testlar:** `node tests/check-i18n.js`, `node tests/sitemap.test.js`, `node tests/share.test.js`, `node tests/e2e.js` (Playwright kerak). Nima sinalgani va sinalmagani — [TEST_REPORT.md](TEST_REPORT.md).
 
 ## Ma'lumotlar modeli (Firestore)
 `games`, `images`, `news`, `reviews`, `feedback`, `users`, `scores` — **mavjud**, tuzilmasi saqlangan (yangi maydonlar ixtiyoriy).

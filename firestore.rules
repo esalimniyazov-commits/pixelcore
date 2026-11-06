@@ -60,7 +60,7 @@ service cloud.firestore {
         && okText(request.resource.data.type, 20)
         && okText(request.resource.data.text, 1000);
       allow read: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() || (signedIn() && resource.data.uid == request.auth.uid);
     }
 
     // ---------- Aloqa formasi: hisobsiz ham yuborish mumkin, faqat admin o'qiydi ----------

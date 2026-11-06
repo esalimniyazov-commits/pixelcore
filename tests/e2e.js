@@ -26,12 +26,12 @@ const SERVICE_TITLES = ['Website', 'Telegram bot', 'Presentations', 'Articles', 
 let pass = 0, fail = 0; const failures = [];
 const ok = (c, m) => { if (c) { pass++; console.log("  ✓", m); } else { fail++; failures.push(m); console.log("  ✗ FAIL:", m); } };
 const KEYLIKE = /(^|\s)(?:[a-z0-9]+\.){1,2}[a-zA-Z0-9]+(?=\s|$)/;
-async function newCtx(browser, opts = {}) {
+async function newCtx(browser, opts = {}, seed = SEED) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 1280, height: 800 }, serviceWorkers: "block" }, opts));
   await ctx.route(/gstatic\.com\/firebasejs/, r => r.fulfill({ contentType: "text/javascript", body: "" })); // (oxirgi route birinchi ishlaydi)
   await ctx.route(/gstatic\.com\/firebasejs.*app-compat/, r => r.fulfill({ contentType: "text/javascript", body: FAKE }));
   await ctx.route(/fonts\.(googleapis|gstatic)\.com|youtube-nocookie/, r => r.fulfill({ status: 200, contentType: "text/css", body: "" }));
-  await ctx.addInitScript((seed) => { if (!localStorage.getItem("fk_db") && !window.__seeded) { window.__SEED = seed; } window.__AUTOVERIFY = ["esalimniyazov@gmail.com"]; }, SEED);
+  await ctx.addInitScript((seed) => { if (!localStorage.getItem("fk_db") && !window.__seeded) { window.__SEED = seed; } window.__AUTOVERIFY = ["esalimniyazov@gmail.com"]; }, seed);
   return ctx;
 }
 async function open(ctx, url, errs) {
@@ -88,6 +88,15 @@ async function open(ctx, url, errs) {
   await pg.selectOption("#sort", "new");
   await pg.click("#games .card:first-child .fav"); ok(await pg.locator("#games .card:first-child .fav.on").count() === 1, "sevimli tugmasi ishlaydi"); await pg.selectOption("#flt", "fav"); ok(await pg.locator("#games .card").count() === 1, "'Sevimlilar' filtri ishlaydi");
   await pg.close();
+  const manyGames = { games: {} };
+  for (let i = 0; i < 26; i++) manyGames.games["g" + String(i).padStart(2, "0")] = { title: "Game " + i, status: "Chiqarilgan", created: T(i) };
+  const pageCtx = await newCtx(browser, {}, manyGames), pageErrors = [];
+  pg = await open(pageCtx, B + "games.html", pageErrors);
+  ok(await pg.locator("#games .card").count() === 24 && await pg.locator("#loadMore").isVisible(), "katalog birinchi sahifada 24 ta o'yin yuklaydi");
+  await pg.click("#loadMore");
+  ok(await pg.locator("#games .card").count() === 26 && await pg.locator("#loadMore").isHidden(), "keyingi sahifa o'yinlarni davom ettirib yuklaydi");
+  ok(pageErrors.length === 0, "katalog sahifalashida JS xatosi yo'q");
+  await pg.close(); await pageCtx.close();
 
   console.log("\n[3] O'yin sahifasi");
   pg = await open(ctx, B + "app.html?id=g1", errs);
@@ -249,6 +258,22 @@ async function open(ctx, url, errs) {
     const pC = await open(c1, B + "games.html", errs); await pC.waitForTimeout(13500);
     ok(await pC.locator("#promo").count() === 0, "yopilgandan keyin boshqa sahifada ham chiqmaydi");
     await c1.close(); await c2.close();
+  }
+
+  console.log("\n[6c] Akkaunt o'chirilganda feedback ham o'chiriladi");
+  {
+    const deleteSeed = {
+      users: { u_delete: { email: "delete@test.com", username: "Delete Me", created: T(1) } },
+      feedback: { f_delete: { uid: "u_delete", email: "delete@test.com", type: "suggestion", text: "Remove with account", created: T(1) } },
+    };
+    const deleteCtx = await newCtx(browser, {}, deleteSeed);
+    await deleteCtx.addInitScript(() => localStorage.setItem("fk_auth", JSON.stringify({ uid: "u_delete", email: "delete@test.com", displayName: "Delete Me", verified: true })));
+    pg = await open(deleteCtx, B + "profile.html", errs);
+    pg.on("dialog", dialog => dialog.accept());
+    await pg.waitForSelector("#pdel"); await pg.click("#pdel"); await pg.waitForTimeout(350);
+    dump = await pg.evaluate(() => window.__fkDump());
+    ok(!dump.users.u_delete && !dump.feedback.f_delete, "profil va foydalanuvchining feedback yozuvi o'chirildi");
+    await pg.close(); await deleteCtx.close();
   }
 
   console.log("\n[7] Service Worker / PWA (haqiqiy brauzerda)");
