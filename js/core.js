@@ -9,8 +9,14 @@ const PLAT = [["android", "Android"], ["windows", "Windows"], ["mac", "macOS"]];
 const ST = { "Chiqarilgan": "rel", "Released": "rel", "Ishlab chiqilmoqda": "dev", "In Development": "dev", "Tez orada": "soon", "Coming Soon": "soon" };
 
 /* ---------- yordamchilar ---------- */
-function tr(o, f) { return (o && (o[f + "_" + LANG] || o[f])) || ""; }
-function tx(s) { return typeof DICT !== "undefined" && DICT[s] ? t(s) : s; }
+function tr(o, f) {
+  const value = (o && (o[f + "_" + LANG] || o[f])) || "";
+  return LANG === "uz" ? toNewUzbekAlphabet(value) : value;
+}
+function tx(s) {
+  const value = typeof DICT !== "undefined" && DICT[s] ? t(s) : s;
+  return LANG === "uz" && typeof value === "string" ? toNewUzbekAlphabet(value) : value;
+}
 function statusInfo(s) { const k = ST[s] || "rel"; return { k: k, cls: "s-" + k, label: t("st." + k) }; }
 function gameLinks(g) { const l = g.links || {}; return { android: l.android || g.link || "", windows: l.windows || "", mac: l.mac || "" }; }
 function gamePlats(g) { const L = gameLinks(g); return PLAT.filter(function (p) { return L[p[0]]; }); }

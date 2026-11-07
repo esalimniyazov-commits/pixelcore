@@ -1,7 +1,30 @@
 # PixelCore 2.0 — HTML sahifalarni bir xil qolipdan yaratadi (faqat ishlab chiqish vaqtida kerak).
 import os
+import re
 SITE="https://pixelcore-delta.vercel.app"
 FB=''.join('  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-%s-compat.js"></script>\n'%x for x in ("app","auth","firestore","app-check"))
+def uz_new(s):
+    def convert(text):
+        protected=[]
+        def keep(match):
+            protected.append(match.group())
+            return "\x00%d\x00"%(len(protected)-1)
+        text=re.sub(r"reCAPTCHA|App Check",keep,text,flags=re.I)
+        text=re.sub(r"[oO][’‘ʻʼ'ʽ]",lambda m:"Ö" if m.group()[0]=="O" else "ö",text)
+        text=re.sub(r"[gG][’‘ʻʼ'ʽ]",lambda m:"Ğ" if m.group()[0]=="G" else "ğ",text)
+        text=re.sub(r"sh",lambda m:"Ş" if m.group()[0]=="S" else "ş",text,flags=re.I)
+        text=re.sub(r"ch",lambda m:"Ç" if m.group()[0]=="C" else "ç",text,flags=re.I)
+        return re.sub(r"\x00(\d+)\x00",lambda m:protected[int(m.group(1))],text)
+    protected=[]
+    def keep(match):
+        protected.append(match.group())
+        return "\x00%d\x00"%(len(protected)-1)
+    s=re.sub(r'<article\b(?=[^>]*data-lang=["\'](?:ru|en)["\'])[\s\S]*?</article>',keep,s,flags=re.I)
+    s=re.sub(r'(<script\b[\s\S]*?</script\s*>|<style\b[\s\S]*?</style\s*>|<!--[\s\S]*?-->|<[^>]+>)|([^<]+)',lambda m:m.group(1) if m.group(1) else convert(m.group(2)),s,flags=re.I)
+    s=re.sub(r'(<meta\b[^>]*\scontent\s*=\s*)(["\'])(.*?)\2',lambda m:m.group(1)+m.group(2)+convert(m.group(3))+m.group(2),s,flags=re.I)
+    s=re.sub(r'(\s(?:placeholder|title|aria-label|alt|value)\s*=\s*)(["\'])(.*?)\2',lambda m:m.group(1)+m.group(2)+convert(m.group(3))+m.group(2),s,flags=re.I)
+    for i,chunk in enumerate(protected): s=s.replace("\x00%d\x00"%i,chunk)
+    return s
 def head(file,title,desc,og_img="og.png",extra=""):
     url=SITE+"/"+("" if file=="index.html" else file)
     alt="".join('  <link rel="alternate" hreflang="%s" href="%s?lang=%s">\n'%(l,url,l) for l in ("uz","ru","en"))+'  <link rel="alternate" hreflang="x-default" href="%s">\n'%url
@@ -135,7 +158,7 @@ priv=''
 for l,(h,u,secs) in PRIV.items():
     priv+='    <article data-lang="%s"%s><h1 class="page-h">%s</h1><p class="muted">%s</p>\n'%(l,'' if l=="uz" else ' hidden',h,u)+''.join('      <h2 style="font-size:22px;margin:28px 0 8px">%s</h2><p class="lead" style="font-size:16.5px">%s</p>\n'%(a,b) for a,b in secs)+'    </article>\n'
 pages["privacy.html"]=page("privacy.html","privacy","Maxfiylik siyosati — PixelCore Studio","PixelCore Studio maxfiylik siyosati.",'    <div class="wrap" style="max-width:860px;padding-top:40px">\n'+priv+'    </div>')
-for f,c in pages.items(): open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..',f),'w').write(c)
+for f,c in pages.items(): open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..',f),'w').write(uz_new(c))
 # alohida soddalashtirilgan sahifalar (404, offline): absolyut yo'llar
 def simple(file,key,tk,pk,btn,href):
     return f'''<!DOCTYPE html>
@@ -145,7 +168,7 @@ def simple(file,key,tk,pk,btn,href):
 <h1 class="page-h" data-i18n="{tk}"></h1><p class="muted" data-i18n="{pk}"></p><a class="btn primary" href="{href}" data-i18n="{btn}"></a></div>
 <script src="/js/dict.js"></script><script src="/js/i18n.js"></script><script src="/js/simple.js"></script></body></html>
 '''
-open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','404.html'),'w').write(simple('404.html','404','e404.t','e404.p','e404.b','/'))
-open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','offline.html'),'w').write(simple('offline.html','offline','off.t','off.p','off.b','/'))
+open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','404.html'),'w').write(uz_new(simple('404.html','404','e404.t','e404.p','e404.b','/')))
+open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','offline.html'),'w').write(uz_new(simple('offline.html','offline','off.t','off.p','off.b','/')))
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','js','simple.js'),'w').write('"use strict";applyI18n(document);document.title="PixelCore Studio — "+t(document.body.dataset.page==="404"?"e404.t":"off.t");\n')
 print(sorted(pages))

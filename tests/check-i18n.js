@@ -1,7 +1,19 @@
 // Tarjimalar tekshiruvi: ishlatilgan har bir kalit lug'atda bormi, uch til ham to'liqmi.  Ishga tushirish: node tests/check-i18n.js
-const fs = require("fs"), path = require("path"), root = path.join(__dirname, "..");
+const fs = require("fs"), path = require("path"), vm = require("vm"), root = path.join(__dirname, "..");
 const src = fs.readFileSync(path.join(root, "js/dict.js"), "utf8");
 const DICT = new Function(src + "; return DICT;")();
+const i18nContext = {
+  DICT, URLSearchParams, location: { search: "" },
+  localStorage: { getItem: function () { return "uz"; }, setItem: function () {} },
+  navigator: { language: "uz" }, document: { documentElement: {} }, console,
+};
+vm.runInNewContext(fs.readFileSync(path.join(root, "js/i18n.js"), "utf8"), i18nContext);
+const alphabetSample = i18nContext.toNewUzbekAlphabet("Shahar, chiroy, Oʻzbekiston, G‘oya! o'yin, g'oya! SH, CH, Oʻ, Gʻ, reCAPTCHA, Firebase App Check");
+if (alphabetSample !== "Şahar, çiroy, Özbekiston, Ğoya! öyin, ğoya! Ş, Ç, Ö, Ğ, reCAPTCHA, Firebase App Check") throw new Error("Yangi o'zbek alifbosi noto'g'ri: " + alphabetSample);
+if (i18nContext.t("nav.games") !== "Öyinlar") throw new Error("O'zbekcha tarjima yangi alifboda emas");
+for (const [key, values] of Object.entries(DICT)) {
+  if (i18nContext.toNewUzbekAlphabet(values[0]) !== values[0]) throw new Error("Eski alifbodagi tarjima: " + key);
+}
 const files = fs.readdirSync(root).filter(f => f.endsWith(".html")).concat(fs.readdirSync(path.join(root, "js")).filter(f => f.endsWith(".js") && f !== "dict.js").map(f => "js/" + f), ["links.js"]);
 const used = new Set();
 for (const f of files) {
