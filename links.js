@@ -56,8 +56,3 @@ const PORTFOLIO = [
 // enabled: false — butunlay o'chirish. delaySec — saytga kirgandan necha soniyadan keyin chiqsin.
 // hideDays — foydalanuvchi yopsa, necha kun qayta chiqmasin. Bir sessiyada ko'pi bilan 1 marta chiqadi.
 const PROMO = { enabled: true, delaySec: 12, hideDays: 3 };
-
-// ===== TELEGRAM MINI APP =====
-// BotFather'da Mini App yaratgach shu yerga yozing (sir EMAS, ochiq nom): bot — bot username'i (@siz), app — /newapp dagi qisqa nom.
-// Mini App ichidagi "Ulashish" tugmasi t.me/<bot>/<app>?startapp=game_<id> havolasini beradi. Bo'sh bo'lsa, oddiy sayt havolasi ishlatiladi.
-const TG_APP = { bot: "pixelcorestudio_bot", app: "site" };

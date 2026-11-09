@@ -30,7 +30,6 @@ async function newCtx(browser, opts = {}, seed = SEED) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 1280, height: 800 }, serviceWorkers: "block" }, opts));
   await ctx.route(/gstatic\.com\/firebasejs/, r => r.fulfill({ contentType: "text/javascript", body: "" })); // (oxirgi route birinchi ishlaydi)
   await ctx.route(/gstatic\.com\/firebasejs.*app-compat/, r => r.fulfill({ contentType: "text/javascript", body: FAKE }));
-  await ctx.route(/telegram\.org\/js\/telegram-web-app\.js/, r => r.fulfill({ contentType: "text/javascript", body: "" })); // oddiy brauzer: Telegram obyekti yo'q (internet shart emas)
   await ctx.route(/fonts\.(googleapis|gstatic)\.com|youtube-nocookie/, r => r.fulfill({ status: 200, contentType: "text/css", body: "" }));
   await ctx.addInitScript((seed) => { if (!localStorage.getItem("fk_db") && !window.__seeded) { window.__SEED = seed; } window.__AUTOVERIFY = ["esalimniyazov@gmail.com"]; }, seed);
   return ctx;

@@ -259,8 +259,7 @@ function initCookies() {
   $("ckOpen").addEventListener("click", function () { const c = consent(); $("ckStat").checked = !!(c && c.stat); $("ckDlg").showModal(); });
   $("ckX").addEventListener("click", function () { $("ckDlg").close(); });
   $("ckSave").addEventListener("click", function () { setConsent($("ckStat").checked); $("ckDlg").close(); toast(t("cookie.saved"), "ok"); });
-  // Mini App ichida suzuvchi cookie paneli ko'rsatilmaydi: statistika sukut bo'yicha O'CHIQ (ruxsat berilmaguncha hisoblanmaydi); sozlama havolasi pastki qismda qoladi.
-  if (!consent() && !(typeof TG !== "undefined" && TG.active)) {
+  if (!consent()) {
     document.body.insertAdjacentHTML("beforeend", '<div class="cookie" id="ckBar" role="region" aria-label="' + esc(t("cookie.title")) + '"><p>' + esc(t("cookie.bar")) + '</p><div class="row"><button class="btn primary sm" id="ckAll" type="button">' + esc(t("cookie.all")) + '</button><button class="btn sm" id="ckNec" type="button">' + esc(t("cookie.only")) + '</button><button class="link-btn" id="ckSet" type="button">' + esc(t("cookie.prefs")) + "</button></div></div>");
     $("ckAll").onclick = function () { setConsent(true); }; $("ckNec").onclick = function () { setConsent(false); }; $("ckSet").onclick = function () { $("ckOpen").click(); };
   }
@@ -276,7 +275,6 @@ function countView() {
 /* ---------- PWA ---------- */
 let deferredInstall = null;
 function initPwa() {
-  if (typeof TG !== "undefined" && TG.active) { const ib = $("installBtn"); if (ib) ib.remove(); return; } // Mini App: PWA o'rnatish va Service Worker kerak emas
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
     navigator.serviceWorker.register("sw.js").then(function (reg) {
       const ask = function (w) { toast(t("pwa.update"), "", { label: t("pwa.reload"), fn: function () { w.postMessage("SKIP_WAITING"); } }); };
@@ -324,7 +322,6 @@ function initBg() {
    cookie paneli yoki dialog ochiq bo'lsa kutadi, xizmatlar/aloqa/admin/profil sahifalarida chiqmaydi. */
 function initPromo() {
   const cfg = Object.assign({ enabled: true, delaySec: 12, hideDays: 3 }, typeof PROMO !== "undefined" ? PROMO : {});
-  if (typeof TG !== "undefined" && TG.active) return; // Mini App ichida reklama oynasi chiqmaydi
   if (!cfg.enabled || ["services", "contact", "admin", "profile", "privacy", "404", "offline"].indexOf(PAGE) >= 0 || typeof SERVICES === "undefined" || !SERVICES.length) return;
   try { if (Date.now() < (+localStorage.getItem("pc-promo-off") || 0) || sessionStorage.getItem("pc-promo-shown")) return; } catch (e) {}
   const off = function (days) { try { localStorage.setItem("pc-promo-off", String(Date.now() + days * 864e5)); } catch (e) {} };

@@ -14,7 +14,7 @@ function coverHtml(g) {
 function dlButtons(id, g, cls) {
   if (statusInfo(g.status).k !== "rel") return '<a class="btn ghost sm" data-link="telegram" target="_blank" rel="noopener">' + esc(t("game.notify")) + "</a>";
   const L = gameLinks(g);
-  return gamePlats(g).map(function (p) { return '<a class="btn ' + (cls || "primary sm") + ' dl" data-id="' + esc(id) + '" href="' + esc(safeUrl(L[p[0]])) + '" target="_blank" rel="noopener">↓ ' + p[1] + "</a>"; }).join("");
+  return gamePlats(g).map(function (p) { return '<a class="btn ' + (cls || "primary sm") + ' dl" data-id="' + id + '" href="' + esc(safeUrl(L[p[0]])) + '" target="_blank" rel="noopener">↓ ' + p[1] + "</a>"; }).join("");
 }
 function gameCard(id, g) {
   const st = statusInfo(g.status), d = tr(g, "tagline") || tr(g, "desc");
@@ -154,9 +154,9 @@ PAGES.app = async function () {
   const logs = String(g.changelog || "").split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
   const ut = g.updated || g.created;
   box.innerHTML = '<div class="gh"><div><div class="cover" style="border-radius:20px">' + (g.cover ? '<img class="cv" src="' + esc(safeUrl(g.cover)) + '" alt="' + esc(g.title) + '">' : '<span class="ph">' + initials(g.title) + "</span>") + '</div></div><div class="info"><div class="tags"><span>' + esc(st.label) + "</span>" + gGenres(g).map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div><h1>" + esc(g.title) + "</h1>" +
-    (tr(g, "tagline") ? '<p class="lead" style="margin:0">' + esc(tr(g, "tagline")) + "</p>" : "") + '<div class="dls">' + dlButtons(gid, g) + '<button class="btn" id="share" type="button">' + esc(t("common.share")) + '</button><button class="fav" id="favBtn" data-id="' + esc(gid) + '" type="button" style="position:static">♡</button></div>' +
+    (tr(g, "tagline") ? '<p class="lead" style="margin:0">' + esc(tr(g, "tagline")) + "</p>" : "") + '<div class="dls">' + dlButtons(gid, g) + '<button class="btn" id="share" type="button">' + esc(t("common.share")) + '</button><button class="fav" id="favBtn" data-id="' + gid + '" type="button" style="position:static">♡</button></div>' +
     '<div class="kv"><div><small>' + esc(t("game.version")) + "</small><b>" + esc(g.version || "—") + "</b></div><div><small>" + esc(t("game.updated")) + "</small><b>" + esc(dateStr(ut) || "—") + "</b></div><div><small>" + esc(t("game.platforms")) + "</small><b>" + (pl.map(function (p) { return p[1]; }).join(", ") || "—") + "</b></div><div><small>" + esc(t("stat.downloads")) + '</small><b id="dlc">' + (g.downloads || 0).toLocaleString() + '</b></div><div><small>' + esc(t("game.rating")) + '</small><b id="avg">—</b></div><div><small>' + esc(t("game.release")) + "</small><b>" + esc(g.releaseDate || "—") + "</b></div></div>" +
-    '<a class="more" href="contact.html?type=bug&game=' + encodeURIComponent(gid) + '#feedback">' + esc(t("game.report")) + "</a></div></div>" +
+    '<a class="more" href="contact.html?type=bug&game=' + gid + '#feedback">' + esc(t("game.report")) + "</a></div></div>" +
     '<section class="blk"><h2>' + esc(t("game.about")) + '</h2><p class="lead" style="white-space:pre-line;max-width:800px">' + esc(desc) + "</p></section>" +
     (vid ? '<section class="blk"><h2>' + esc(t("game.video")) + '</h2><iframe class="vid" loading="lazy" src="https://www.youtube-nocookie.com/embed/' + vid + '" title="' + esc(g.title) + '" allow="accelerometer; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></section>' : "") +
     (imgs.length ? '<section class="blk"><h2>' + esc(t("game.shots")) + '</h2><div class="shots">' + imgs.map(function (u, i) { return '<button class="shot" type="button" data-i="' + i + '" aria-label="' + esc(t("game.shots")) + " " + (i + 1) + '"><img loading="lazy" src="' + esc(safeUrl(u)) + '" alt=""></button>'; }).join("") + "</div></section>" : "") +
@@ -167,7 +167,6 @@ PAGES.app = async function () {
   bindLinks(box); paintFavs();
   $("share").addEventListener("click", function () {
     const u = new URL(location.href); u.searchParams.set("lang", LANG);
-    if (typeof TG !== "undefined" && TG.active && TG.share(TG.directLink("game_" + gid) || u.toString(), document.title)) return;
     if (navigator.share) navigator.share({ title: document.title, url: u.toString() }).catch(function () {});
     else if (navigator.clipboard) { navigator.clipboard.writeText(u.toString()); toast(t("common.copied"), "ok"); }
   });
@@ -264,7 +263,6 @@ PAGES.article = async function () {
     (n.cover ? '<div class="cover"><img class="cv" src="' + esc(safeUrl(n.cover)) + '" alt=""></div>' : "") + '<div class="txt">' + esc(tr(n, "text")) + '</div><div class="row" style="margin:24px 0"><button class="btn sm" id="share" type="button">' + esc(t("common.share")) + '</button><a class="btn sm" href="news.html">← ' + esc(t("nav.news")) + '</a></div><section class="blk" id="cmBox"></section>';
   $("share").addEventListener("click", function () {
     const u = new URL(location.href); u.searchParams.set("lang", LANG);
-    if (typeof TG !== "undefined" && TG.active && TG.share(TG.directLink("news_" + id) || u.toString(), title)) return;
     if (navigator.share) navigator.share({ title: title, url: u.toString() }).catch(function () {});
     else if (navigator.clipboard) { navigator.clipboard.writeText(u.toString()); toast(t("common.copied"), "ok"); }
   });

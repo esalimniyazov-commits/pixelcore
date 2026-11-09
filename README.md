@@ -50,6 +50,3 @@ Hammasi `links.js` faylida (o'zgartirgach `git push`, Firebase'da hech narsa ker
 - **`PORTFOLIO`** — ishlaringiz. Faqat **haqiqiy** ishlarni qo'shing (`{ t, d, u, img, tag }`); ro'yxat bo'sh bo'lsa, bo'lim ko'rinmaydi.
 - Matnlar `js/dict.js` dagi `srv.*`, `pkg.*`, `pw.*`, `pb.*`, `port.*` kalitlarida (uch tilda). `t`, `d`, `f` ga oddiy matn yozsangiz ham bo'ladi (bitta tilda chiqadi).
 - Narxlar qanday belgilangani va manbalar: [PRICING_NOTES.md](PRICING_NOTES.md).
-
-## Telegram Mini App
-Sayt Telegram ichida ham ishlaydi (`js/tg.js`, `style.css` oxiridagi `html.tg` qoidalari). Sozlash: [SETUP.md](SETUP.md) oxiridagi "Telegram Mini App". Testlar: `node tests/tg.e2e.js` (soxta Telegram WebApp bilan). Mini App rejimi faqat `Telegram.WebApp.initData` bo'sh bo'lmasa yoqiladi; `initData` brauzerda soxtalashtirilishi mumkin, shuning uchun u hech qachon xavfsizlik qarori uchun ishlatilmaydi.

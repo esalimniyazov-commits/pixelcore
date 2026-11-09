@@ -7,7 +7,6 @@ let LANG = "uz";
   try { q = new URLSearchParams(location.search).get("lang"); s = localStorage.getItem("lang"); } catch (e) {}
   if (ok(q)) { LANG = q; try { localStorage.setItem("lang", q); } catch (e) {} }
   else if (ok(s)) LANG = s;
-  else if (typeof TG !== "undefined" && TG.active && ok(TG.lang)) LANG = TG.lang; // Mini App: faqat taklif, saqlanmaydi; foydalanuvchi tanlovi (localStorage) ustun
   else { const n = (navigator.language || "uz").slice(0, 2); LANG = n === "ru" ? "ru" : n === "en" ? "en" : "uz"; }
   document.documentElement.lang = LANG;
 })();
