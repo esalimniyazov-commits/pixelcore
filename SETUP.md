@@ -64,3 +64,30 @@ App Check anonim aloqa formasi va hisoblagichlarga soxta skriptlardan keladigan 
 - **Server tomonda SEO (SSR):** kontent Firestore'dan JavaScript bilan yuklanadi. Google JS'ni bajaradi, lekin Telegram/Facebook havola ko'rinishi (OG) o'yin/yangilik sahifalari uchun umumiy rasm va matn ko'rsatadi.
 - **CSP:** `Content-Security-Policy-Report-Only` sifatida yoqilgan (bloklamaydi). Konsolda ogohlantirish chiqmasligini tekshirib, `vercel.json` da `-Report-Only` ni olib tashlab yoqishingiz mumkin.
 - **Google Fonts** tashqi xizmat (bepul); maxfiylik siyosatida eslatilgan.
+
+
+# Telegram Mini App (2.4.0, A bosqichi) — sizning ishlaringiz
+
+## 1. BotFather (bepul)
+1. Telegram'da @BotFather -> `/newbot` (yoki mavjud bot: `/mybots`). Nom va `...bot` bilan tugaydigan username bering. **Bot tokenini hech qayerga (kod, GitHub, chat) yozmang** — A bosqichida token umuman kerak emas.
+2. `/newapp` -> botni tanlang -> sarlavha -> qisqa tavsif -> **640x360 rasm** -> demo GIF (yo'q bo'lsa `/empty`) -> **URL: `https://pixelcore-delta.vercel.app/`** -> **qisqa nom** (masalan `site`). Bu tartib va 640x360 o'lchami bir nechta ikkinchi darajali qo'llanmalarda bir xil; rasmiy `core.telegram.org/bots/webapps` sahifasida `/newapp` bosqichlari yozilmagan, shuning uchun BotFather o'zi so'rayotgan joriy talablarni ustun deb biling.
+3. Menu tugmasi: `/mybots` -> bot -> Bot Settings -> Menu Button -> Configure menu button -> URL: sayt manzili, matn: masalan "PixelCore".
+4. Ixtiyoriy: Bot Settings -> Configure Mini App -> Enable Mini App (asosiy Mini App; profilda "Launch app" tugmasi).
+5. Ishga tushirish havolasi: `https://t.me/<bot>/<qisqa_nom>`. Deep link: `https://t.me/<bot>/<qisqa_nom>?startapp=game_<o'yin_id>` yoki `news_<yangilik_id>`, `games`, `news`, `services`.
+6. `links.js` oxiridagi `TG_APP = { bot: "<bot username (@siz)>", app: "<qisqa nom>" }` ni to'ldiring (sir emas) — "Ulashish" tugmasi to'g'ri havola beradi. Keyin deploy qiling.
+7. Test: havolani o'zingizga yuboring va ochib, pastdagi qo'lda tekshirish ro'yxatidan o'ting.
+
+## 2. Vercel — DIQQAT: tarif
+Vercel rasmiy hujjati (fair use guidelines) bo'yicha **Hobby tarifi faqat shaxsiy, notijorat foydalanish uchun**; har qanday tijorat foydalanish Pro yoki Enterprise talab qiladi (Vercel tijorat deb "loyihada ishtirok etgan istalgan kishining moliyaviy foydasi uchun ishlatilgan deployment"ni hisoblaydi). Saytingiz pullik xizmatlar (sayt, bot, taqdimot) narxlari va buyurtma tugmalarini ko'rsatadi, shuning uchun **Hobby yetarli deb hisoblamang** — ehtimol shartlarga zid. Pro pullik (taxminan oyiga $20, joriy narxni vercel.com/pricing'da tekshiring). Bepul muqobil (Cloudflare Pages, Firebase Hosting va h.k.) shartlari **men tomonimdan tekshirilmadi**; qaror qilishdan oldin ularning joriy shartlarini o'qing. Eslatma: `api/sitemap.js` va `api/share.js` Vercel funksiyalari — boshqa hostingga o'tsangiz ular qayta yozilishi kerak. Qo'shimcha: Vercel Environment Variables A bosqichida kerak emas.
+
+## 3. Firebase Spark kvotalari (rasmiy sahifalar bo'yicha)
+Firestore bepul kvota: **50 000 o'qish/kun, 20 000 yozish/kun, 20 000 o'chirish/kun, 1 GiB, 10 GiB/oy chiqish trafigi**; kvota tugasa operatsiyalar keyingi nollanishgacha (taxminan Tinch okeani vaqti yarim tuni) xato beradi — sayt ro'yxatlarni bo'sh ko'rsatadi. Hisob: bosh sahifa bir sessiyada barcha `games` hujjatlari + oxirgi 60 gacha `news` hujjatini o'qiydi. Masalan 10 o'yin + 20 yangilik = ~30 o'qish/sessiya -> ~1 600 sessiya/kun chegarasi; 40 o'yin + 60 yangilik bo'lsa ~100 o'qish/sessiya -> ~500 sessiya/kun. Telegram trafigi oshsa birinchi bo'lib o'qish kvotasi tugaydi. reCAPTCHA Enterprise bepul kvotasi va Authentication limitlari men tomonimdan rasmiy manbada tekshirilmadi.
+
+## 4. Telegram Web uchun CSP (muhim)
+`vercel.json`: majburiy `Content-Security-Policy: frame-ancestors https://web.telegram.org`. Rasmiy hujjat bu ro'yxatni bermaydi; `web.telegram.org` ni `telegram-web-app.js` manbasi (faqat shu origin'ga ishonadi) va Telegram hujjatidagi `Access-Control-Allow-Origin: https://web.telegram.org` eslatmasi asosida qo'ydim. Agar Telegram Web'da sayt bo'sh ochilsa, brauzer konsolida "frame-ancestors" buzilishini qidiring va ko'rsatilgan origin'ni qo'shing (taxmin qilmadim). Telegram Desktop/mobil iframe emas, ta'sir qilmaydi.
+
+## 5. Qo'lda tekshirish ro'yxati (haqiqiy Telegram)
+Android, iOS, Desktop (Windows, macOS), Web K va Web A'da: (1) sayt ochiladi, qora fon, sarlavha rangi mos; (2) email/parol bilan kirish, chiqish, sahifani qayta ochganda sessiya saqlanadi; (3) o'yinlar va yangiliklar ro'yxati yuklanadi (Firestore); (4) App Check/reCAPTCHA konsolda xato bermaydi; (5) ichki sahifada BackButton, bosh sahifada yo'q; (6) Instagram/YouTube tashqi brauzerda, "Telegram" va xizmat buyurtmasi Telegram ichida ochiladi; (7) APK/EXE/DMG yuklab olish tashqi brauzerda boshlanadi; (8) `?startapp=game_<id>` va `news_<id>` to'g'ri sahifani ochadi; (9) "Ulashish" Telegram ulashish oynasini ochadi; (10) tilni Telegram'dan taklif qiladi, tanlangan til esa ustun; (11) cookie paneli va reklama chiqmaydi, pastda "Cookie sozlamalari" bor; (12) pastki elementlar kesilmaydi (iPhone chuqurchasi, to'liq ekran).
+
+## 6. B bosqichi
+Bajarilmadi (sizning alohida tasdig'ingiz kutilmoqda, bot tokeni va Firebase service account kerak bo'ladi).

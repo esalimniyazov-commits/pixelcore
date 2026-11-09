@@ -204,3 +204,25 @@ footer{margin-top:60px;border-top:1px solid var(--line);background:rgba(8,5,15,.
 .promo b{display:block;font:700 17px Sora,Inter,system-ui,sans-serif;margin:2px 0}.promo p{margin:0 0 10px;font-size:14.5px;color:var(--muted)}.promo p strong{color:var(--v4)}
 .promo-x{position:absolute;right:6px;top:4px;width:40px;height:40px;border:0;border-radius:50%;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}.promo-x:hover{color:var(--text)}
 @media(max-width:560px){.promo{left:10px;right:10px;bottom:10px;width:auto}}
+
+/* ===== Telegram Mini App (faqat <html class="tg">, ya'ni Mini App ichida; oddiy brauzerda hech narsa o'zgarmaydi) =====
+   Dizayn (qora + binafsha neon) o'zgarmaydi. Telegram o'zgaruvchilari (--tg-safe-area-inset-*, --tg-content-safe-area-inset-*)
+   telegram-web-app.js tomonidan qo'yiladi; qiymat kelmagan bo'lsa 0px ishlatiladi. */
+html.tg{
+  --tg-t:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px));
+  --tg-b:calc(var(--tg-safe-area-inset-bottom,0px) + var(--tg-content-safe-area-inset-bottom,0px));
+  --tg-l:calc(var(--tg-safe-area-inset-left,0px) + var(--tg-content-safe-area-inset-left,0px));
+  --tg-r:calc(var(--tg-safe-area-inset-right,0px) + var(--tg-content-safe-area-inset-right,0px));
+  scroll-padding-top:calc(84px + var(--tg-t));background:var(--bg);overscroll-behavior-y:none;
+}
+html.tg body{padding-left:var(--tg-l);padding-right:var(--tg-r);min-height:var(--tg-viewport-stable-height,100vh)}
+html.tg .nav{padding-top:var(--tg-t)}
+html.tg .tabs{top:calc(84px + var(--tg-t))}
+html.tg footer{padding-bottom:var(--tg-b)}
+html.tg .cookie{bottom:calc(14px + var(--tg-b))}
+html.tg .toast{bottom:calc(22px + var(--tg-b))}
+html.tg .promo{bottom:calc(18px + var(--tg-b))}
+html.tg #installBtn{display:none!important}
+@media(max-width:900px){
+  html.tg .nav nav{top:calc(68px + var(--tg-t));max-height:calc(100vh - 68px - var(--tg-t))}
+}

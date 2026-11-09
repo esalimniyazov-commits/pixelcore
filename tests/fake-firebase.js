@@ -102,6 +102,9 @@
     signOut: async () => { localStorage.removeItem(AKEY); fire(); },
     sendPasswordResetEmail: async (e) => { window.__resetTo = e; },
   });
-  window.firebase = { initializeApp() {}, auth, firestore };
+  // App Check: haqiqiy SDK'da firebase.appCheck() bor (firebase.js uni chaqiradi); soxta variantda faqat "activate" kerak.
+  const appCheck = () => ({ activate() {} });
+  appCheck.ReCaptchaEnterpriseProvider = function () {};
+  window.firebase = { initializeApp() {}, auth, firestore, appCheck };
   window.__fkDump = () => JSON.parse(ser(DB));
 })();
