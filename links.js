@@ -60,4 +60,4 @@ const PROMO = { enabled: true, delaySec: 12, hideDays: 3 };
 // ===== TELEGRAM MINI APP =====
 // BotFather'da Mini App yaratgach shu yerga yozing (sir EMAS, ochiq nom): bot — bot username'i (@siz), app — /newapp dagi qisqa nom.
 // Mini App ichidagi "Ulashish" tugmasi t.me/<bot>/<app>?startapp=game_<id> havolasini beradi. Bo'sh bo'lsa, oddiy sayt havolasi ishlatiladi.
-bot: "pixelcorestudio_bot", app: "site"
+const TG_APP = { bot: "pixelcorestudio_bot", app: "site" };
