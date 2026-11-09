@@ -1,0 +1,24 @@
+const bot = require("../api/bot.js");
+let failures = 0; const check = (c, l) => { console.log(c ? "  ✓" : "  ✗ FAIL:", l); if (!c) failures++; };
+const mkRes = () => { const r = { code: 0, status(c) { r.code = c; return r; }, json() { return r; } }; return r; };
+(async () => {
+  const env = { TELEGRAM_BOT_TOKEN: "123:TESTTOKEN", TELEGRAM_WEBHOOK_SECRET: "sec_ret-1" };
+  const upd = { message: { chat: { id: 5, type: "private" }, text: "/start" } };
+  let calls = []; const fetchOk = async (u, o) => { calls.push([u, JSON.parse(o.body)]); return { ok: true, status: 200 }; };
+  const run = async (req, e, f) => { const res = mkRes(); calls = []; await bot.handler(req, res, { env: e || env, fetch: f || fetchOk }); return res; };
+  let r = await run({ method: "POST", headers: { "x-telegram-bot-api-secret-token": "sec_ret-1" }, body: upd });
+  check(r.code === 200 && calls.length === 1 && calls[0][0] === "https://api.telegram.org/bot123:TESTTOKEN/sendMessage" && calls[0][1].chat_id === 5, "to'g'ri maxfiy sarlavha -> /start ga javob yuboriladi");
+  const kb = calls[0][1].reply_markup.inline_keyboard.flat();
+  check(kb[0].web_app.url === "https://pixelcore-delta.vercel.app/" && kb.some(b => b.web_app && b.web_app.url.endsWith("/services.html")) && kb.filter(b => b.web_app && /contact\.html\?service=/.test(b.web_app.url)).length === 6 && kb.every(b => (b.web_app ? b.web_app.url : b.url).startsWith("https://")), "tugmalar: ilova, xizmatlar, 6 ta xizmat buyurtmasi, admin — hammasi https");
+  check(JSON.stringify(calls[0][1]).indexOf("TESTTOKEN") < 0, "token xabar ichida yo'q");
+  r = await run({ method: "POST", headers: { "x-telegram-bot-api-secret-token": "wrong" }, body: upd }); check(r.code === 401 && calls.length === 0, "noto'g'ri maxfiy sarlavha -> 401, hech narsa yuborilmaydi");
+  r = await run({ method: "POST", headers: {}, body: upd }); check(r.code === 401 && calls.length === 0, "sarlavha yo'q -> 401");
+  r = await run({ method: "GET", headers: {}, body: null }); check(r.code === 405, "GET -> 405");
+  r = await run({ method: "POST", headers: { "x-telegram-bot-api-secret-token": "x" }, body: upd }, {}); check(r.code === 500 && calls.length === 0, "env sozlanmagan -> 500, ochiq ishlamaydi");
+  const hdr = { "x-telegram-bot-api-secret-token": "sec_ret-1" };
+  r = await run({ method: "POST", headers: hdr, body: { message: { chat: { id: 1, type: "group" }, text: "/start" } } }); check(r.code === 200 && calls.length === 0, "guruhdagi xabarga javob berilmaydi");
+  r = await run({ method: "POST", headers: hdr, body: { callback_query: {} } }); check(r.code === 200 && calls.length === 0, "boshqa update turlari e'tiborsiz");
+  r = await run({ method: "POST", headers: hdr, body: null }); check(r.code === 200 && calls.length === 0, "bo'sh body'da yiqilmaydi");
+  r = await run({ method: "POST", headers: hdr, body: upd }, env, async () => { throw new Error("network"); }); check(r.code === 200, "Telegram API xatosida ham 200 (qayta yuborishni to'xtatadi)");
+  console.log(failures ? "\nFAIL" : "\nOK"); process.exit(failures ? 1 : 0);
+})();

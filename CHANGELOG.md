@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## 2.4.1 — 2026-11-09
+- **Yangi: `api/bot.js`** — bot `/start` ga javob beradi (salom, ilova tugmasi, xizmatlar va buyurtma tugmalari). Sirlar faqat Vercel env'da. Test: `tests/bot.test.js`. `.gitignore` ga `.env*` qo'shildi.
+
+## 2.4.0 — 2026-11-08 (Telegram Mini App, A bosqichi — sirsiz)
+- **Yangi: `js/tg.js`** — sayt Telegram ichida Mini App sifatida ishlaydi. Rejim faqat `Telegram.WebApp.initData` bo'sh bo'lmasa yoqiladi; oddiy brauzerda hech narsa o'zgarmaydi. Kirish hozirgidek email/parol, serverda yangi sir kerak emas.
+- `ready()`, `expand()`, vertikal surishni o'chirish (7.7+), sarlavha/fon/pastki panel rangi sayt fon rangiga (`#06040c`) moslanadi (versiya tekshiruvi bilan). Dizayn o'zgarmadi.
+- Xavfsiz zonalar (`--tg-safe-area-inset-*`, `--tg-content-safe-area-inset-*`) `style.css` oxiridagi `html.tg` qoidalarida.
+- Mini App ichida: PWA tugmasi va Service Worker o'chirilgan (eskisi o'chiriladi), cookie paneli suzib chiqmaydi (statistika ruxsat berilmaguncha o'chiq, "Cookie sozlamalari" havolasi qoladi), reklama oynasi chiqmaydi.
+- BackButton: ichki sahifalarda ko'rinadi; avval ochiq dialogni yopadi.
+- Havolalar: tashqi https va yuklab olish (APK/EXE/DMG) -> `openLink`; `t.me` -> `openTelegramLink`; `mailto:`/tashqi `http:` tegilmaydi.
+- Deep link: `startapp=game_<id>`, `news_<id>`, `games|news|services|about|contact`; faqat `[A-Za-z0-9_-]`, sessiyada bir marta, faqat bosh sahifada.
+- "Ulashish": Mini App ichida `t.me/share/url`; `links.js` -> `TG_APP` to'ldirilsa `t.me/<bot>/<app>?startapp=...`.
+- Til: `?lang=` > localStorage > Telegram `language_code` (faqat taklif, saqlanmaydi) > brauzer tili.
+- `vercel.json`: `X-Frame-Options: DENY` olib tashlandi, o'rniga majburiy `Content-Security-Policy: frame-ancestors https://web.telegram.org`; (hisobot rejimidagi) CSP `script-src` ga `https://telegram.org` qo'shildi.
+- `privacy.html` (3 til): telegram.org skripti yuklanishi haqida yozuv.
+- Kichik mustahkamlash: `app.html` da URL'dan kelgan `id` HTML/havolada `esc`/`encodeURIComponent` bilan chiqariladi.
+- Testlar: yangi `tests/tg.e2e.js` (95 tekshiruv). `tests/fake-firebase.js` ga `firebase.appCheck` qo'shildi (busiz mavjud e2e boshidan yiqilar edi). `tests/e2e.js` da telegram.org skripti marshrutlandi.
+- Service Worker versiyasi `pc-v2.4.0`.
+
 ## 2.3.1 — 2026-11-03
 - **YouTube** havolasi "Bizni kuzating" bo'limlariga qo'shildi (sayt pastki qismi va Aloqa sahifasi). `links.js` dagi `LINKS.youtube` ga kanal havolasini yozasiz; bo'sh bo'lsa, hech qayerda ko'rinmaydi.
 - Havolalar `safeUrl` orqali tekshiriladi (faqat http/https).

@@ -207,3 +207,18 @@ Sana: 2026-11-03 (2.3: reklama oynasi, fixed-joylashuv va mobil chet bo'sh joy x
 
 NATIJA: 129 o'tdi, 0 muvaffaqiyatsiz
 ```
+
+## 2.4.0 — Telegram Mini App (A bosqichi): halol hisobot (2026-11-08)
+**Sinaldi (sandbox, internetsiz, Chromium + soxta Firebase + SOXTA Telegram WebApp):**
+- `node tests/tg.e2e.js` — **95/95**: rejim aniqlash (yangi va eski klient versiyalari 8.0/6.2/6.0), oddiy brauzerda o'zgarmasligi (initData bo'sh va skript bloklangan), cookie/PWA/reklama, BackButton (tarix, bo'sh tarix, dialog), deep link (to'g'ri va 11 ta noto'g'ri qiymat), `openLink`/`openTelegramLink`, ulashish, til ustuvorligi, safe-area, Service Worker, 14 sahifa x 3 til x 375px.
+- Soxta `window.Telegram.WebApp` rasmiy hujjat va `telegram-web-app.js` manbasiga qarab qo'lda yozilgan; **haqiqiy Telegram klienti emas**.
+
+**Mavjud testlar (ZIP kelgan holatida, mening o'zgarishlarimdan OLDIN ham shunday edi):**
+- `tests/e2e.js` — fake-firebase'da `firebase.appCheck` yo'qligi sababli boshidanoq yiqilar edi (production kodi o'zgartirilmadi, faqat test soxtasiga stub qo'shildi). Stubdan keyin: **128 o'tdi, 5 yiqildi** — o'zgarishlardan oldin ham, keyin ham aynan shu 5 tasi:
+  1. "roadmap va devlog sahifalari olib tashlangan" — ildizda eski `roadmap.html`/`devlog.html` bor (9-band, tasdiq kutilmoqda).
+  2-4. Uchta YouTube testi — test `links.js` dagi `youtube: ""` ni almashtiradi, lekin haqiqiy kanal havolasi allaqachon yozilgan (test eskirgan).
+  5. "profil va feedback o'chirildi" — sababi aniqlanmadi (o'zgarishlarimga aloqasi yo'q).
+- `node tests/check-i18n.js` — 7 ta kalit yetishmaydi (`devlog.*`, `roadmap.*`, `rm.*`): faqat eski ildizdagi `roadmap.html`/`devlog.html` ishlatadi. Yangi kalit qo'shilmadi, yangi xato yo'q.
+- `sitemap.test.js`, `share.test.js` o'tdi. `tests/alphabet.test.js` ZIP'da yo'q (alifbo tekshiruvi `check-i18n.js` ichida).
+
+**Sinalmadi (qo'lda tekshirish kerak, haqiqiy Telegram'da):** Android, iOS, Desktop (Windows/macOS), Web K va Web A; haqiqiy `frame-ancestors` (Telegram Web iframe'i); Firebase Auth/Firestore/App Check (reCAPTCHA) Telegram WebView'da; `startapp` havolalari; BotFather sozlamalari; yuklab olish havolalarining tashqi brauzerda ochilishi. Haqiqiy Firebase qoidalari sinalmadi.
