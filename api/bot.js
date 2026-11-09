@@ -5,7 +5,6 @@ const crypto = require("crypto");
 const SITE = "https://pixelcore-delta.vercel.app";
 const ADMIN = "https://t.me/esalimniyazov";
 const CHANNEL = "https://t.me/PixelCoreStudio";
-const SERVICES = [["web", "🌐 Veb-sayt"], ["bot", "🤖 Telegram bot"], ["ppt", "📊 Taqdimot"], ["art", "✍️ Maqola"], ["test", "📝 Test"], ["doc", "📄 Hujjat"]];
 // Narxlar links.js dagi SERVICES bilan BIR XIL bo'lishi kerak (tests/bot.test.js buni tekshiradi). Matnlar js/dict.js (uz) dan.
 const PRICES = [
   ["🌐", "Veb-sayt yaratiş", "Biznesingiz, xizmatingiz yoki şaxsiy loyihangiz uçun oddiy, çiroyli va tez işlaydigan sayt.", 700000, ""],
@@ -23,9 +22,6 @@ const TEXT = "👋 PixelCore Studio'ga xuş kelibsiz!\n\nBu yerda öyinlarimiz v
 
 function keyboard() {
   const rows = [[{ text: "🎮 Ilovani oçiş", web_app: { url: SITE + "/" } }], [{ text: "🛠 Barcha xizmatlar va narxlar", callback_data: "srv" }]];
-  for (let i = 0; i < SERVICES.length; i += 2) {
-    rows.push(SERVICES.slice(i, i + 2).map(function (s) { return { text: s[1], web_app: { url: SITE + "/contact.html?service=" + s[0] } }; }));
-  }
   rows.push([{ text: "💬 Adminga yozing", url: ADMIN }]);
   return { inline_keyboard: rows };
 }

@@ -9,7 +9,7 @@ const mkRes = () => { const r = { code: 0, status(c) { r.code = c; return r; }, 
   let r = await run({ method: "POST", headers: { "x-telegram-bot-api-secret-token": "sec_ret-1" }, body: upd });
   check(r.code === 200 && calls.length === 1 && calls[0][0] === "https://api.telegram.org/bot123:TESTTOKEN/sendMessage" && calls[0][1].chat_id === 5, "to'g'ri maxfiy sarlavha -> /start ga javob yuboriladi");
   const kb = calls[0][1].reply_markup.inline_keyboard.flat();
-  check(kb[0].web_app.url === "https://pixelcore-delta.vercel.app/" && kb.some(b => b.callback_data === "srv") && kb.filter(b => b.web_app && /contact\.html\?service=/.test(b.web_app.url)).length === 6 && kb.every(b => b.callback_data || (b.web_app ? b.web_app.url : b.url).startsWith("https://")), "tugmalar: ilova, xizmatlar (callback), 6 ta xizmat buyurtmasi, admin — hammasi https");
+  check(kb[0].web_app.url === "https://pixelcore-delta.vercel.app/" && kb.some(b => b.callback_data === "srv") && kb.length === 3 && !kb.some(b => b.web_app && /contact\.html/.test(b.web_app.url)) && kb.every(b => b.callback_data || (b.web_app ? b.web_app.url : b.url).startsWith("https://")), "bosh menyu tugmalari: faqat ilova, xizmatlar (callback), admin (6 ta xizmat tugmasi olib tashlangan) — hammasi https");
   check(JSON.stringify(calls[0][1]).indexOf("TESTTOKEN") < 0, "token xabar ichida yo'q");
   r = await run({ method: "POST", headers: { "x-telegram-bot-api-secret-token": "wrong" }, body: upd }); check(r.code === 401 && calls.length === 0, "noto'g'ri maxfiy sarlavha -> 401, hech narsa yuborilmaydi");
   r = await run({ method: "POST", headers: {}, body: upd }); check(r.code === 401 && calls.length === 0, "sarlavha yo'q -> 401");

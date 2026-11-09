@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2.4.3 — 2026-11-09
+- Bot: bosh menyudagi 6 ta alohida xizmat tugmasi olib tashlandi (xizmatlar "Barcha xizmatlar va narxlar" ichida).
+
 ## 2.4.2 — 2026-11-09
 - Bot: "Barcha xizmatlar va narxlar" tugmasi endi chat ichida (callback + editMessageText) xizmatlar, narxlar va murojaat tugmalarini (admin, buyurtma formasi, kanal, orqaga) ko'rsatadi. Narxlar links.js bilan testda solishtiriladi.
 
