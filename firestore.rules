@@ -104,6 +104,12 @@ service cloud.firestore {
       allow create: if isAdmin() && request.resource.data.keys().hasOnly(['admin', 'action', 'target', 'created']);
     }
 
+    // ---------- Telegram bot obunachilari (faqat server: api/bot.js, service account) ----------
+    // Brauzer (mijoz) bu kolleksiyaga HECH QACHON kira olmaydi: ro'yxatni faqat bot serveri o'qiydi/yozadi.
+    match /tg_subscribers/{id} {
+      allow read, write: if false;
+    }
+
     // ---------- Eski "scores" kolleksiyasi (mavjud ma'lumotlar saqlanadi) ----------
     match /scores/{uid} {
       allow read: if true;

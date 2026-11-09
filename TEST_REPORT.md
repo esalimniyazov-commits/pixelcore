@@ -222,3 +222,7 @@ NATIJA: 129 o'tdi, 0 muvaffaqiyatsiz
 - `sitemap.test.js`, `share.test.js` o'tdi. `tests/alphabet.test.js` ZIP'da yo'q (alifbo tekshiruvi `check-i18n.js` ichida).
 
 **Sinalmadi (qo'lda tekshirish kerak, haqiqiy Telegram'da):** Android, iOS, Desktop (Windows/macOS), Web K va Web A; haqiqiy `frame-ancestors` (Telegram Web iframe'i); Firebase Auth/Firestore/App Check (reCAPTCHA) Telegram WebView'da; `startapp` havolalari; BotFather sozlamalari; yuklab olish havolalarining tashqi brauzerda ochilishi. Haqiqiy Firebase qoidalari sinalmadi.
+
+## 2.5.0 — buyurtma / xabarnoma / ommaviy xabar (2026-11-09)
+**Sinaldi (soxta fetch bilan, haqiqiy Telegram/Google'ga so'rov yuborilmadi):** `bot.test.js` (buyurtma, obuna, admin huquqi, broadcast, 403/429/vaqt chegarasi), `fs.test.js` (haqiqiy RSA kalit bilan JWT imzosi tasdiqlandi, REST so'rov shakllari), `notify.test.js` (escape, takror, eski hujjat, Origin, so'rov cheklovi, xatoda sir oshkor bo'lmasligi), `tg.e2e.js` [13] (forma -> `/api/notify`).
+**Sinalmadi:** haqiqiy Google OAuth/Firestore REST javoblari, haqiqiy Telegram'da buyurtma/obuna/broadcast oqimi, Firestore'da service account App Check yoqilgan bo'lsa ham o'tishi (Admin darajasidagi so'rovlar odatda qoidalarni chetlab o'tadi, lekin sinalmadi), Vercel funksiya vaqt chegarasi.

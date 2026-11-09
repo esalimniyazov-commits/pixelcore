@@ -173,14 +173,17 @@ const calls = (pg, name) => pg.evaluate(n => (window.__tgCalls || []).filter(c =
   await ctx.close();
 
   console.log("\n[8] Ulashish tugmasi");
-  errs = []; ctx = await newCtx(browser, {}); pg = await open(ctx, B + "app.html?id=g1", errs);
+  const LJS = fs.readFileSync(path.join(root, "links.js"), "utf8"), TGLINE = /const TG_APP = \{[^}]*\};/;
+  ok(TGLINE.test(LJS), "links.js da TG_APP bor");
+  const withTg = (bot, app) => LJS.replace(TGLINE, `const TG_APP = { bot: "${bot}", app: "${app}" };`);
+  errs = []; ctx = await newCtx(browser, {}); await ctx.route(/\/links\.js$/, r => r.fulfill({ contentType: "text/javascript", body: withTg("", "") })); pg = await open(ctx, B + "app.html?id=g1", errs);
   await pg.evaluate(() => { navigator.share = () => { window.__navShare = 1; return Promise.resolve(); }; });
   await pg.evaluate(() => document.getElementById("share").click()); await pg.waitForTimeout(150);
   ot = await calls(pg, "openTelegramLink");
   ok(ot.length === 1 && ot[0][1].startsWith("https://t.me/share/url?url=") && decodeURIComponent(ot[0][1]).includes("/app.html?id=g1"), "Mini App'da 'Ulashish' Telegram ulashish havolasini ochadi (bot sozlanmagan -> sayt havolasi)");
   ok(!(await pg.evaluate(() => window.__navShare)), "navigator.share ishlatilmadi");
   await ctx.close();
-  ctx = await newCtx(browser, {}); await ctx.route(/\/links\.js$/, r => r.fulfill({ contentType: "text/javascript", body: fs.readFileSync(path.join(root, "links.js"), "utf8").replace('const TG_APP = { bot: "", app: "" };', 'const TG_APP = { bot: "PixelCoreBot", app: "site" };') }));
+  ctx = await newCtx(browser, {}); await ctx.route(/\/links\.js$/, r => r.fulfill({ contentType: "text/javascript", body: withTg("PixelCoreBot", "site") }));
   pg = await open(ctx, B + "article.html?id=n1", errs);
   await pg.evaluate(() => document.getElementById("share").click()); await pg.waitForTimeout(150);
   ot = await calls(pg, "openTelegramLink");
@@ -240,6 +243,20 @@ const calls = (pg, name) => pg.evaluate(n => (window.__tgCalls || []).filter(c =
     ok(bad.length === 0, `[${lang}] tarjima qilinmagan kalit yo'q ${JSON.stringify(bad.slice(0, 3))}`);
     await ctx.close();
   }
+
+
+  console.log("\n[13] Aloqa formasi adminga xabar yuborishni ishga tushiradi (/api/notify)");
+  errs = []; ctx = await newCtx(browser, "blocked"); const reqs = [];
+  await ctx.route(/\/api\/notify$/, r => { reqs.push(JSON.parse(r.request().postData() || "{}")); r.fulfill({ status: 200, contentType: "application/json", body: '{"ok":true}' }); });
+  pg = await open(ctx, B + "contact.html?service=web", errs);
+  await pg.fill("#ctName", "Ali"); await pg.fill("#ctMail", "ali@example.com"); await pg.fill("#ctText", "Sayt kerak, iltimos"); await pg.click('#ctForm button'); await pg.waitForTimeout(800);
+  ok(reqs.length === 1 && reqs[0].kind === "contact" && typeof reqs[0].id === "string" && reqs[0].id.length >= 3 && Object.keys(reqs[0]).length === 2, "forma yuborilgach brauzer faqat {kind, id} yuboradi (matn emas): " + JSON.stringify(reqs[0] || null).slice(0, 80));
+  ok(await pg.locator("#ctMsg.ok").count() === 1 && errs.length === 0, "foydalanuvchiga 'yuborildi' ko'rsatiladi, xato yo'q");
+  await ctx.close();
+  ctx = await newCtx(browser, "blocked"); await ctx.route(/\/api\/notify$/, r => r.fulfill({ status: 500, body: "x" }));
+  pg = await open(ctx, B + "contact.html", []); await pg.fill("#ctName", "Ali"); await pg.fill("#ctMail", "ali@example.com"); await pg.fill("#ctText", "Salom"); await pg.click('#ctForm button'); await pg.waitForTimeout(800);
+  ok(await pg.locator("#ctMsg.ok").count() === 1, "/api/notify xato qaytarsa ham foydalanuvchi uchun forma muvaffaqiyatli");
+  await ctx.close();
 
   await browser.close(); srv.closeAllConnections(); srv.close();
   console.log(`\nNATIJA: ${pass} o'tdi, ${fail} muvaffaqiyatsiz`);

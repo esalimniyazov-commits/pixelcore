@@ -101,3 +101,34 @@ Bot `/start` va har qanday shaxsiy xabarga salom matni, "Ilovani ochish", "Xizma
 Natija `"ok":true` bo'lishi kerak.
 3. Botga `/start` yozib sinang. Test: `node tests/bot.test.js`.
 Xavfsizlik: maxfiy sarlavha `crypto.timingSafeEqual` bilan tekshiriladi (noto'g'ri bo'lsa 401); env bo'sh bo'lsa funksiya ishlamaydi; token logga yozilmaydi. So'rov cheklovi (rate limit) yo'q.
+
+
+# Buyurtma, xabarnoma va ommaviy xabar (2.5.0)
+Nima qo'shildi: (1) botda "Buyurtma berish" — mijoz xizmatni tanlab tavsif yozadi, sizga Telegram'da keladi; (2) saytdagi aloqa/fikr formasi yuborilsa, sizga Telegram'da xabar keladi (`api/notify.js`); (3) botda "Yangiliklarga obuna" va admin `/broadcast` buyrug'i (`api/bot.js`, `api/_fs.js`).
+
+## Siz qiladigan ishlar
+**1. O'zingizning Telegram ID'ingizni bilib oling.** Botga `/id` yozing, javobdagi raqamni yozib oling (bu maxfiy emas).
+
+**2. Firestore uchun ALOHIDA service account oching** (asosiy Admin SDK kalitini ishlatmang — u juda keng huquqli):
+Google Cloud Console (console.cloud.google.com) -> loyiha `pixelcore-96f17` -> IAM va administratsiya -> Service accounts -> Create service account (nom: `pixelcore-bot`) -> rol: **Cloud Datastore User** (boshqa rol bermang) -> Done. Keyin shu hisobni oching -> Keys -> Add key -> Create new key -> JSON. Fayl kompyuteringizga tushadi. **Uni GitHub'ga, chatga yoki menga bermang.**
+
+**3. Vercel -> Settings -> Environment Variables** (3 ta yangi):
+- `TELEGRAM_ADMIN_ID` = 1-qadamdagi raqam.
+- `FIREBASE_SERVICE_ACCOUNT` = 2-qadamdagi JSON faylning **butun matni** (faylni Bloknot'da ochib, hammasini nusxalab qo'ying).
+- (`TELEGRAM_BOT_TOKEN` va `TELEGRAM_WEBHOOK_SECRET` allaqachon bor.)
+Saqlagach **Redeploy** qiling. JSON fayl endi kompyuteringizdan o'chirilishi mumkin (kerak bo'lsa Google Cloud'dan yangisini ochasiz).
+
+**4. (Ixtiyoriy) `firestore.rules` ni Firebase Console -> Firestore -> Rules ga joylang.** Yangi `tg_subscribers` bloki mijozlarga kirishni yopadi (qoida bo'lmasa ham standart holatda yopiq, lekin aniq yozilgani yaxshi).
+
+## Ishlatish
+- Mijoz: botda `/start` -> "Barcha xizmatlar va narxlar" -> "Buyurtma berish" -> xizmat -> botning so'roviga **reply** qilib tavsif yozadi. Sizga "Yangi buyurtma" xabari keladi (mijoz ismi bosilsa, profili ochiladi).
+- Obuna: "Yangiliklarga obuna" tugmasi; `/stop` — bekor qilish. Faqat chat ID va sana saqlanadi (privacy.html yangilandi).
+- Siz (faqat `TELEGRAM_ADMIN_ID` egasi): `/stats` — obunachilar soni; `/broadcast Matn...` — oldindan ko'rish chiqadi, **Yuborish** bosilganda hamma faol obunachilarga ketadi (oxirida "/stop" eslatmasi avtomatik qo'shiladi).
+- Sayt formasi yuborilsa, sizga "Yangi murojaat (sayt)" xabari keladi.
+
+## Cheklovlar (halol)
+- `/broadcast`: bir buyruqda ~8 soniya ichida yuboradi (Vercel funksiya vaqti), soniyasiga ~25 xabar, shuning uchun taxminan **200 obunachigacha** bir martada yetadi; yetmasa, adminga "N ta yuborilmadi" deb yoziladi. Katta ro'yxat uchun keyin sahifalash kerak bo'ladi.
+- Bot bloklagan foydalanuvchi (403) avtomatik obunadan chiqariladi.
+- `api/notify.js` dagi so'rov cheklovi server nusxasi xotirasida (to'liq himoya emas). Spam bo'lsa, Cloudflare/Vercel Firewall yoki reCAPTCHA kerak bo'ladi.
+- Buyurtmalar Firestore'da saqlanmaydi, faqat sizning Telegram'ingizga yuboriladi.
+- `/broadcast` tasdiqlash tugmasini ikki marta tez bossangiz, ikki marta ketishi mumkin (past ehtimol).

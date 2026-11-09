@@ -1,7 +1,7 @@
 /* PixelCore Studio 2.0 — Service Worker.
    Strategiya: sahifalar — avval tarmoq, oflayn bo'lsa kesh yoki offline.html; statik fayllar — kesh bilan tez ochilib, fonda yangilanadi.
    Firebase, Google Fonts va boshqa tashqi so'rovlarga tegmaydi. Yangi versiya: VERSION ni o'zgartiring. */
-const VERSION = "pc-v2.4.0";
+const VERSION = "pc-v2.5.0";
 const SHELL = ["offline.html", "style.css", "firebase.js", "links.js", "js/dict.js", "js/i18n.js", "js/core.js", "js/pages.js", "js/simple.js", "js/tg.js", "favicon.svg", "icon-192.png", "icon-512.png", "manifest.webmanifest",
   "index.html", "games.html", "news.html", "about.html", "contact.html", "services.html"];
 self.addEventListener("install", function (e) {

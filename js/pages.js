@@ -1,4 +1,8 @@
 "use strict";
+/* Forma yuborilgach adminga Telegram xabari (api/notify.js). Muvaffaqiyatsiz bo'lsa foydalanuvchiga hech narsa ko'rsatilmaydi: xabar baribir Firestore'da saqlangan. */
+function notifyAdmin(kind, id) {
+  try { fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind: kind, id: id }) }).catch(function () {}); } catch (e) {}
+}
 /* PixelCore Studio 2.0 — sahifa mantiqi. Har bir sahifa <body data-page="..."> bo'yicha ishga tushadi. */
 const PAGES = {};
 const put = function (id, html) { const e = $(id); if (e) e.innerHTML = html; return e; };
@@ -314,7 +318,7 @@ PAGES.contact = async function () {
     if (!db) { m.textContent = t("auth.nofb"); return; } if (!requireLogin()) return;
     const data = { uid: USER.uid, email: USER.email, type: $("fbType").value, text: $("fbText").value.trim(), created: firebase.firestore.FieldValue.serverTimestamp() };
     if ($("fbGame").value) data.gameId = $("fbGame").value;
-    try { await db.collection("feedback").add(data); e.target.reset(); m.className = "err ok"; m.textContent = t("fb.sent"); } catch (x) { m.textContent = t("common.error") + ": " + (x.code || x.message); }
+    try { const ref = await db.collection("feedback").add(data); notifyAdmin("feedback", ref.id); e.target.reset(); m.className = "err ok"; m.textContent = t("fb.sent"); } catch (x) { m.textContent = t("common.error") + ": " + (x.code || x.message); }
   });
   $("ctForm").addEventListener("submit", async function (e) {
     e.preventDefault(); const m = $("ctMsg"); m.className = "err"; m.textContent = "";
@@ -322,7 +326,7 @@ PAGES.contact = async function () {
     if (!db) { m.textContent = t("auth.nofb"); return; }
     const data = { name: $("ctName").value.trim(), email: $("ctMail").value.trim(), message: $("ctText").value.trim(), lang: LANG, created: firebase.firestore.FieldValue.serverTimestamp() };
     if (USER) data.uid = USER.uid;
-    try { await db.collection("contacts").add(data); e.target.reset(); m.className = "err ok"; m.textContent = t("ct.sent"); } catch (x) { m.textContent = t("common.error") + ": " + (x.code || x.message); }
+    try { const ref = await db.collection("contacts").add(data); notifyAdmin("contact", ref.id); e.target.reset(); m.className = "err ok"; m.textContent = t("ct.sent"); } catch (x) { m.textContent = t("common.error") + ": " + (x.code || x.message); }
   });
   $("ytCard").hidden = !LINKS.youtube;
   bindLinks(document);

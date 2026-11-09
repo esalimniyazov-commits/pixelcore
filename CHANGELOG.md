@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2.5.0 — 2026-11-09
+- **Bot**: buyurtma berish (force_reply, xizmat nomi tekshiriladi, adminga HTML-escape qilib yuboriladi), yangiliklarga obuna/`/stop`, `/id`, `/help`; admin: `/stats`, `/broadcast` (oldindan ko'rish + tasdiqlash, faqat `TELEGRAM_ADMIN_ID`).
+- **Yangi `api/_fs.js`**: kutubxonasiz Firestore REST + service account JWT (RS256). **Yangi `api/notify.js`**: sayt formalaridan adminga Telegram xabari (matn Firestore'dan o'qiladi, qayta yuborilmaydi).
+- `js/pages.js`: aloqa va fikr formasi yuborilgach `/api/notify` chaqiriladi (xato bo'lsa foydalanuvchiga ta'sir qilmaydi).
+- `firestore.rules`: `tg_subscribers` mijozlarga yopiq. `privacy.html` (3 til): obuna va xabarnoma haqida.
+- Env: `TELEGRAM_ADMIN_ID`, `FIREBASE_SERVICE_ACCOUNT` (faqat Vercel). SW `pc-v2.5.0`.
+- Testlar: `tests/bot.test.js` (kengaytirildi), yangi `tests/fs.test.js`, `tests/notify.test.js`, `tests/tg.e2e.js` [13].
+
 ## 2.4.3 — 2026-11-09
 - Bot: bosh menyudagi 6 ta alohida xizmat tugmasi olib tashlandi (xizmatlar "Barcha xizmatlar va narxlar" ichida).
 

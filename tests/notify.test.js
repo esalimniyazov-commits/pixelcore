@@ -1,0 +1,30 @@
+const n = require("../api/notify.js");
+let failures = 0; const check = (c, l) => { console.log(c ? "  ✓" : "  ✗ FAIL:", l); if (!c) failures++; };
+const mkRes = () => { const r = { code: 0, status(c) { r.code = c; return r; }, json(b) { r.body = b; return r; } }; return r; };
+(async () => {
+  const env = { TELEGRAM_BOT_TOKEN: "123:TESTTOKEN", TELEGRAM_ADMIN_ID: "999" };
+  const now = Date.parse("2026-11-09T10:05:00Z"); const sent = []; const patches = [];
+  const docs = { contacts: { aaaaaaaaaa1: { name: "Ali <b>", email: "a@b.uz", message: "Salom & <script>", lang: "uz", created: "2026-11-09T10:00:00Z" }, aaaaaaaaaa2: { name: "x", email: "y", message: "z", created: "2026-11-09T10:00:00Z", notified: true }, aaaaaaaaaa3: { name: "x", email: "y", message: "z", created: "2026-11-09T08:00:00Z" } }, feedback: { bbbbbbbbbb1: { type: "bug", email: "q@w.er", text: "Xato bor", gameId: "g1", created: "2026-11-09T10:01:00Z" } } };
+  const fs = { configured: true, async get(c, id) { return (docs[c] || {})[id] || null; }, async patch(c, id, o) { patches.push([c, id, o]); docs[c][id] = Object.assign({}, docs[c][id], o); } };
+  const fetchOk = async (u, o) => { sent.push([u, JSON.parse(o.body)]); return { ok: true, status: 200 }; };
+  let ipn = 0;
+  const run = async (body, o = {}) => { const res = mkRes(); sent.length = 0; patches.length = 0; await n.handler({ method: o.method || "POST", headers: Object.assign({ origin: "https://pixelcore-delta.vercel.app", "x-forwarded-for": o.ip || "10.0." + (++ipn) + ".1" }, o.headers), body }, res, { env: o.env || env, fs: o.fs || fs, fetch: o.fetch || fetchOk, now: () => now }); return res; };
+  let r = await run({ kind: "contact", id: "aaaaaaaaaa1" });
+  check(r.code === 200 && sent.length === 1 && sent[0][1].chat_id === "999" && sent[0][0] === "https://api.telegram.org/bot123:TESTTOKEN/sendMessage", "aloqa formasi -> adminga Telegram xabari");
+  check(sent[0][1].text.includes("Ali &lt;b&gt;") && sent[0][1].text.includes("&lt;script&gt;") && !sent[0][1].text.includes("<script>") && sent[0][1].parse_mode === "HTML", "matn HTML-escape qilingan (Firestore'dan o'qilgan, brauzer yuborgani emas)");
+  check(patches.length === 1 && patches[0][2].notified === true, "yuborilgach hujjat notified=true deb belgilanadi");
+  r = await run({ kind: "contact", id: "aaaaaaaaaa2" }); check(r.code === 200 && r.body.dup && sent.length === 0, "allaqachon yuborilgan hujjat qayta yuborilmaydi");
+  r = await run({ kind: "contact", id: "aaaaaaaaaa3" }); check(r.code === 410 && sent.length === 0, "15 daqiqadan eski hujjat uchun xabar yuborilmaydi");
+  r = await run({ kind: "contact", id: "aaaaaaaaaa9" }); check(r.code === 404 && sent.length === 0, "mavjud bo'lmagan hujjat -> 404");
+  r = await run({ kind: "feedback", id: "bbbbbbbbbb1" }); check(r.code === 200 && sent[0][1].text.includes("Xato bor") && sent[0][1].text.includes("g1"), "fikr/xato xabari ham yuboriladi");
+  for (const bad of [{ kind: "users", id: "aaaaaaaaaa1" }, { kind: "contact", id: "../x" }, { kind: "contact", id: "a" }, { kind: "contact" }, null, "str", { kind: "contact", id: 123456789012 }]) { r = await run(bad); check(r.code === 400 && sent.length === 0, "noto'g'ri kirish rad etildi: " + JSON.stringify(bad)); }
+  r = await run({ kind: "contact", id: "aaaaaaaaaa1" }, { headers: { origin: "https://evil.example" } }); check(r.code === 403 && sent.length === 0, "boshqa sayt (Origin) rad etildi");
+  r = await run({}, { method: "GET" }); check(r.code === 405, "GET -> 405");
+  r = await run({ kind: "contact", id: "aaaaaaaaaa1" }, { env: {} }); check(r.code === 503 && sent.length === 0, "env sozlanmagan -> 503");
+  r = await run({ kind: "contact", id: "aaaaaaaaaa1" }, { fs: Object.assign({}, fs, { configured: false }) }); check(r.code === 503, "service account yo'q -> 503");
+  docs.contacts.aaaaaaaaaa1.notified = false;
+  r = await run({ kind: "contact", id: "aaaaaaaaaa1" }, { fetch: async () => ({ ok: false, status: 400 }) }); check(r.code === 502 && patches.length === 0, "Telegram xatosida notified belgilanmaydi (keyin qayta urinish mumkin)");
+  let last; for (let i = 0; i < 8; i++) last = await run({ kind: "feedback", id: "bbbbbbbbbb1" }, { ip: "7.7.7.7" }); check(last.code === 429, "bitta IP'dan ketma-ket ko'p so'rov cheklanadi (429)");
+  r = await run({ kind: "contact", id: "aaaaaaaaaa1" }, { fs: { configured: true, async get() { throw new Error("get-500"); } } }); check(r.code === 500 && JSON.stringify(r.body).indexOf("TESTTOKEN") < 0, "ichki xatoda sir oshkor bo'lmaydi");
+  console.log(failures ? "\nFAIL" : "\nOK"); process.exit(failures ? 1 : 0);
+})();
