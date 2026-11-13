@@ -226,3 +226,22 @@ NATIJA: 129 o'tdi, 0 muvaffaqiyatsiz
 ## 2.5.0 — buyurtma / xabarnoma / ommaviy xabar (2026-11-09)
 **Sinaldi (soxta fetch bilan, haqiqiy Telegram/Google'ga so'rov yuborilmadi):** `bot.test.js` (buyurtma, obuna, admin huquqi, broadcast, 403/429/vaqt chegarasi), `fs.test.js` (haqiqiy RSA kalit bilan JWT imzosi tasdiqlandi, REST so'rov shakllari), `notify.test.js` (escape, takror, eski hujjat, Origin, so'rov cheklovi, xatoda sir oshkor bo'lmasligi), `tg.e2e.js` [13] (forma -> `/api/notify`).
 **Sinalmadi:** haqiqiy Google OAuth/Firestore REST javoblari, haqiqiy Telegram'da buyurtma/obuna/broadcast oqimi, Firestore'da service account App Check yoqilgan bo'lsa ham o'tishi (Admin darajasidagi so'rovlar odatda qoidalarni chetlab o'tadi, lekin sinalmadi), Vercel funksiya vaqt chegarasi.
+
+
+## Telegram Business Assistant — 2026-11-12 (yangi integratsiya)
+**Sinaldi (lokal, soxta Telegram/Firestore fetch):**
+- `node --check api/bot.js`
+- `node --check api/business.js`
+- `node --check api/_fs.js`
+- `node tests/business.test.js`: Business connection owner/rights tekshiruvi, `business_connection_id` bilan salomlashuv, takroriy update deduplikatsiyasi, egasining `user_chat_id` chatini chetlab o'tish, admin javobidan keyin pauza, `/resume`, xizmatlar javobi, to'rt bosqichli buyurtma, admin xabarnomasi, allow-list.
+- `node tests/bot.test.js`: mavjud bot oqimlari va admin huquqlari.
+- `node tests/fs.test.js`: Firestore REST/JWT.
+- `node tests/notify.test.js`, `node tests/share.test.js`, `node tests/sitemap.test.js`.
+
+**Mavjud holatdan qolgan / muhit sabab sinalmagan:**
+- `node tests/check-i18n.js` hozir ham 7 ta kalit yetishmasligini ko'rsatadi (`devlog.h`, `devlog.p`, `roadmap.h`, `roadmap.p`, `rm.planned`, `rm.progress`, `rm.done`). Xuddi shu xato yuklangan original ZIP nusxasida ham bor edi; yangi o'zgarishlardan kelib chiqmagan.
+- `node tests/e2e.js` Playwright kutubxonasi ushbu muhitda o'rnatilmagani uchun ishga tushmadi.
+- Haqiqiy Telegram Business akkaunti, BotFather ruxsatlari, Vercel deployment, Google OAuth/Firestore va haqiqiy mijoz chatlari bilan live sinov o'tkazilmadi.
+- Vercel Hobby serverless muhiti va haqiqiy webhook timeout/retry xatti-harakati live muhitda tekshirilishi kerak.
+
+**Muhim:** Telegram API'ga haqiqiy so'rov yuborilmadi. Kod faqat lokal testlar va sintaksis tekshiruvidan o'tdi; deploy qilingan yoki ishga tushgan deb hisoblanmaydi.

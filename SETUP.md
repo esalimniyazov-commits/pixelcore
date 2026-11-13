@@ -132,3 +132,60 @@ Saqlagach **Redeploy** qiling. JSON fayl endi kompyuteringizdan o'chirilishi mum
 - `api/notify.js` dagi so'rov cheklovi server nusxasi xotirasida (to'liq himoya emas). Spam bo'lsa, Cloudflare/Vercel Firewall yoki reCAPTCHA kerak bo'ladi.
 - Buyurtmalar Firestore'da saqlanmaydi, faqat sizning Telegram'ingizga yuboriladi.
 - `/broadcast` tasdiqlash tugmasini ikki marta tez bossangiz, ikki marta ketishi mumkin (past ehtimol).
+
+
+# Telegram Business Assistant (yangi integratsiya)
+Yangi kod mavjud webhook'ga ulangan: `api/bot.js` → `api/business.js`. Alohida bot yoki alohida hosting talab qilinmaydi. Ma'lumotlar mavjud Firestore service account orqali saqlanadi.
+
+## 1. Vercel Environment Variables
+Mavjud `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_ADMIN_ID`, `FIREBASE_SERVICE_ACCOUNT` qiymatlarini saqlang. Quyidagilarni qo'shing:
+
+- `TELEGRAM_BUSINESS_ALLOWED_CHAT_IDS` — `*` (tasdiqlangan Business akkauntning barcha mijoz private chatlariga ruxsat, egasining `user_chat_id` shaxsiy chatidan tashqari) yoki vergul bilan ajratilgan aniq chat ID'lar. Bo'sh bo'lsa, Business avtomatizatsiyasi xavfsizlik uchun hech kimga javob bermaydi.
+- `TELEGRAM_BUSINESS_GREETING_DAYS` — `0` bo'lsa har bir mijozga faqat bir marta salomlashadi; `30` kabi qiymat yangi davrdan keyin salomlashuvni qayta yuboradi.
+
+`FIREBASE_SERVICE_ACCOUNT` service account'ida Firestore uchun Cloud Datastore User ruxsati bo'lishi kerak. Kod ichiga token yoki JSON kalit joylamang. `.env` Git'dan chetlatilgan.
+
+## 2. Telegram Business akkauntni ulash
+1. Telegram Business mavjud akkaunt sozlamalaridan **Chatbots** bo'limiga kiring.
+2. Mavjud `@pixelcorestudio_bot` botini ulang.
+3. Xabarlarni qabul qilish va javob berish uchun kerakli Business bot ruxsatlarini bering (`can_reply`).
+4. Ulanish yangilanishi kelishi uchun webhook faol bo'lishi kerak. Kod `business_connection` ichidagi `user.id` ni `TELEGRAM_ADMIN_ID` bilan solishtiradi; mos kelmasa, ulanish rad etiladi.
+5. Bot faqat `is_enabled=true`, `can_reply=true`, admin ID mos va allow-list ichidagi chatlarga javob beradi. Business akkaunt egasining `user_chat_id` shaxsiy chatiga javob bermaydi.
+
+## 3. Webhook'ni yangilash
+Avvalgi webhook URL va secret o'zgarmaydi. `allowed_updates` ro'yxatiga Business update'larini qo'shing. Token va secretni faqat o'zingizning terminalingizda almashtiring:
+
+```bash
+curl "https://api.telegram.org/bot<TOKEN>/setWebhook" \
+  -d "url=https://pixelcore-delta.vercel.app/api/bot" \
+  -d "secret_token=<SECRET>" \
+  -d 'allowed_updates=["message","callback_query","business_connection","business_message"]'
+```
+
+Telegram Bot API hujjatida Business uchun `business_connection` va `business_message` update'lari, javob yuborishda esa `sendMessage.business_connection_id` qo'llanadi: https://core.telegram.org/bots/api
+
+## 4. Ishlatish
+Mijoz Business chatga birinchi marta yozganda avtomatik salomlashuv yuboriladi. Keyingi xabarlarda takrorlanmaydi. `/services`, `/portfolio`, `/contact`, `/order`, `/about`, `/help` tayyor javoblari mavjud. `/order` bosqichma-bosqich ism, xizmat, loyiha tavsifi va aloqa ma'lumotini yig'adi; buyurtma Firestore'ga yozilib, mavjud bot orqali adminga yuboriladi.
+
+Admin buyruqlari (faqat `TELEGRAM_ADMIN_ID`):
+- `/business_on` va `/business_off` — Business avtomatik javoblarini yoqish/o'chirish.
+- `/business_status` — Business ulanishlari va mijozlar soni.
+- `/business_greeting <matn>` — salomlashuvni o'zgartirish.
+- `/business_services <matn>` — xizmatlar javobini o'zgartirish.
+- `/business_links <telegram> | <instagram> | <youtube>` — uchta ijtimoiy havolani yangilash.
+- `/business_greeting_default` — standart salomlashuvni qayta tiklash (custom greeting o'rniga).
+- `/orders` — bot va Business buyurtmalarining umumiy ro'yxati.
+- `/business_orders` — Business buyurtmalari.
+- `/business_customers` — mijozlar ro'yxati.
+- `/business_history <chat_id>` — mijozning oxirgi murojaatlari.
+- `/business_resume <chat_id>` — admin pauzasini botning shaxsiy chatidan bekor qilish.
+
+Admin Business chatda o'zi javob yozsa, shu mijoz uchun avtomatik javoblar pauzaga o'tadi. Shu mijoz chatida `/resume` yuborish avtomatik javobni qayta yoqadi. Eslatma: `/resume` Business akkaunt nomidan yuborilgan xabar sifatida mijozga ko'rinishi mumkin; avtomatizatsiyani qayta yoqishda ehtiyot bo'ling.
+
+## 5. Ijtimoiy havolalar bo'yicha tekshiruv
+Business salomlashuvdagi havolalar repository `links.js` dan tekshirildi: Telegram `@PixelCoreStudio`, Instagram esa hozircha repository'da `esalimniyazov` shaxsiy username'iga, YouTube `@pixelcorestudioyoutube` ga yo'naltirilgan. Agar yangi `@pixelcore_studio` sahifasi rasmiy manzil bo'lsa, deploydan oldin `api/business.js` dagi Instagram URL'ni va `links.js` dagi `LINKS.instagram` ni bir xil to'g'ri manzilga yangilang. Repo ichidagi eski URL'ni yashirincha boshqa manzilga almashtirmadim.
+
+## 6. Saqlash va cheklovlar
+Yangi Firestore kolleksiyalari: `tg_business_connections`, `tg_business_events`, `tg_business_customers`, `tg_business_orders`, `tg_business_settings`, `tg_order_sessions`, `tg_orders`. Ular mavjud kolleksiyalarga tegmaydi. Event ID hujjati orqali qayta yuborilgan webhook update'lari deduplikatsiya qilinadi.
+
+Vercel serverless arxitekturasi sababli xotiradagi queue ishlatilmaydi; mijoz, sozlama va buyurtmalar Firestore'da saqlanadi. Telegram 429/5xx xatolarida Business javobi cheklangan retry qiladi. Webhook'ga 200 qaytarish strategiyasi mavjud botdagi kabi saqlangan: muvaffaqiyatsiz event Telegram tomonidan qayta yuborilmasligi mumkin. Shu sababli Telegram/Firestore vaqtinchalik uzilishlaridan keyingi mutlaq yetkazib berish kafolatlanmaydi; monitoring va haqiqiy Telegram sinovi zarur.

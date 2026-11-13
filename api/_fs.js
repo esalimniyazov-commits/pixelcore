@@ -65,6 +65,22 @@ function create(ctx) {
       if (!r.ok) throw new Error("patch-" + r.status);
       return true;
     },
+    // Hujjatni faqat bir marta yaratadi. Firestore 409 bo'lsa, hujjat oldindan mavjud.
+    async createOnce(col, id, obj) {
+      const fields = {}; Object.keys(obj).forEach((k) => { fields[k] = toValue(obj[k]); });
+      const r = await api("/" + col + "?documentId=" + encodeURIComponent(id), { method: "POST", body: JSON.stringify({ fields }) });
+      if (r.status === 409) return false;
+      if (!r.ok) throw new Error("create-" + r.status);
+      return true;
+    },
+    // Cheklangan kolleksiya ro'yxati (admin panel/buyurtmalar).
+    async list(col, limit) {
+      const r = await api(":runQuery", { method: "POST", body: JSON.stringify({ structuredQuery: { from: [{ collectionId: col }], limit: limit || 50 } }) });
+      if (!r.ok) throw new Error("query-" + r.status);
+      return (await r.json()).filter((x) => x.document).map((x) => {
+        const d = fromDoc(x.document); d._id = (x.document.name || "").split("/").pop(); return d;
+      });
+    },
     // obunachilar: tg_subscribers, subscribed == true
     async subscribers(limit) {
       const r = await api(":runQuery", { method: "POST", body: JSON.stringify({ structuredQuery: { from: [{ collectionId: "tg_subscribers" }], where: { fieldFilter: { field: { fieldPath: "subscribed" }, op: "EQUAL", value: { booleanValue: true } } }, limit: limit || 500 } }) });

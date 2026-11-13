@@ -3,6 +3,7 @@
    SIRLAR faqat Vercel Environment Variables'da: TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET. Kodda va repoda sir YO'Q. */
 const crypto = require("crypto");
 const fsMod = require("./_fs.js");
+const businessMod = require("./business.js");
 const SITE = "https://pixelcore-delta.vercel.app";
 const ADMIN = "https://t.me/esalimniyazov";
 const CHANNEL = "https://t.me/PixelCoreStudio";
@@ -24,7 +25,7 @@ const TEXT = "👋 PixelCore Studio'ga xuş kelibsiz!\n\nBu yerda öyinlarimiz v
 const esc = function (x) { return String(x == null ? "" : x).replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); };
 const ORDER_PREFIX = "📝 Buyurtma: ";
 const FOOTER = "\n\n— /stop: obunani bekor qiliş";
-const HELP = "ℹ️ Buyruqlar:\n/start — bosh menyu\n/stop — yangiliklar obunasini bekor qiliş\n/id — Telegram ID'ingiz";
+const HELP = "ℹ️ Buyruqlar:\n/start — bosh menyu\n/help — yordam\n/services — xizmatlar\n/portfolio — portfolio\n/contact — aloqa\n/order — buyurtma berish\n/about — PixelCore Studio haqida\n/stop — yangiliklar obunasini bekor qiliş\n/id — Telegram ID'ingiz";
 
 function keyboard() {
   return { inline_keyboard: [
@@ -84,7 +85,10 @@ async function handle(update, ctx) {
     const om = /^o:([0-5])$/.exec(q.data);
     if (om && PRICES[+om[1]]) {
       await ans();
-      await ctx.call("sendMessage", { chat_id: chat, text: ORDER_PREFIX + PRICES[+om[1]][1] + "\n\nNima kerakligini qisqa yozing (vazifa, muddat, qo'şimça talablar). Telefon raqam yoki @username qoldirsangiz, tezroq bog'lanamiz.\n\n⬇️ Şu xabarga javob (reply) qilib yozing.", reply_markup: { force_reply: true, input_field_placeholder: "Tavsifni yozing..." } });
+      if (ctx.fs.configured) {
+        try { await ctx.fs.patch("tg_order_sessions", String(chat), { chatId: chat, stage: "name", service: PRICES[+om[1]][1], updatedAt: new Date(ctx.now()) }); } catch (e) {}
+      }
+      await ctx.call("sendMessage", { chat_id: chat, text: "📝 Buyurtma: " + PRICES[+om[1]][1] + "\n\n1/4. Ismingizni yozing:", reply_markup: { force_reply: true, input_field_placeholder: "Ismingiz" } });
       return true;
     }
     if (q.data === "sub") {
@@ -107,7 +111,35 @@ async function handle(update, ctx) {
   const cm = /^\/(\w+)(?:@\w+)?(?:\s+([\s\S]*))?$/.exec(m.text);
   const cmd = cm ? cm[1].toLowerCase() : "", arg = cm && cm[2] ? cm[2].trim() : "";
 
-  // Buyurtma: bot so'ragan xabarga reply (holat saqlanmaydi, xizmat nomi xabar matnidan olinadi va tekshiriladi)
+  // Ko'p bosqichli buyurtma: holat Firestore'da saqlanadi, restartdan keyin ham davom etadi.
+  if (!cm && ctx.fs.configured && typeof ctx.fs.get === "function") {
+    try {
+      const session = await ctx.fs.get("tg_order_sessions", String(chat));
+      if (session && session.stage) {
+        const value = m.text.trim();
+        if (value.length < 2 || value.length > 1000) { await reply("Iltimos, 2–1000 belgi oralig'ida javob yuboring."); return true; }
+        const fields = { updatedAt: new Date(ctx.now()) };
+        const next = { name: "service", service: "details", details: "contact", contact: "done" }[session.stage];
+        fields[session.stage] = value;
+        if (next !== "done") {
+          fields.stage = next;
+          await ctx.fs.patch("tg_order_sessions", String(chat), fields);
+          const prompts = { service: "2/4. Qaysi xizmat kerak? (masalan: sayt, mobil o'yin, Telegram bot)", details: "3/4. Loyiha haqida qisqacha ma'lumot bering:", contact: "4/4. Bog'lanish uchun Telegram username yoki boshqa aloqa ma'lumotini yuboring:" };
+          await reply(prompts[next]);
+        } else {
+          const orderId = crypto.createHash("sha256").update(String(chat) + ":" + String(ctx.now()) + ":" + value).digest("hex");
+          const order = { chatId: chat, customerName: session.name || "", service: session.service || "", details: session.details || "", contact: value, status: "new", createdAt: new Date(ctx.now()) };
+          await ctx.fs.createOnce("tg_orders", orderId, order);
+          await ctx.fs.patch("tg_order_sessions", String(chat), { stage: "", completedAt: new Date(ctx.now()) });
+          if (env.TELEGRAM_ADMIN_ID) await ctx.call("sendMessage", { chat_id: env.TELEGRAM_ADMIN_ID, text: "🆕 Yangi buyurtma\\nIsm: " + esc(order.customerName) + "\\nXizmat: " + esc(order.service) + "\\nTavsif: " + esc(order.details) + "\\nAloqa: " + esc(order.contact) + "\\nChat ID: " + chat, parse_mode: "HTML" });
+          await reply("✅ Buyurtmangiz qabul qilindi. Tez orada siz bilan bog'lanamiz!");
+        }
+        return true;
+      }
+    } catch (e) { console.error("order session error", e && e.name); }
+  }
+
+  // Buyurtma: eski reply usuli ham orqaga moslik uchun saqlanadi.
   const rp = m.reply_to_message;
   if (!cm && rp && typeof rp.text === "string" && rp.text.indexOf(ORDER_PREFIX) === 0) {
     const svc = PRICES.find(function (p) { return rp.text.split("\n")[0] === ORDER_PREFIX + p[1]; });
@@ -123,11 +155,102 @@ async function handle(update, ctx) {
   }
   if (cmd === "id") { await reply("Sizning Telegram ID'ingiz: " + chat); return true; }
   if (cmd === "help") { await reply(HELP); return true; }
+  if (cmd === "services") { await reply(SERVICES_TEXT, { parse_mode: "HTML" }); return true; }
+  if (cmd === "about") { await reply("🚀 PixelCore Studio — mustaqil o'yin va dasturiy mahsulotlar studiyasi.\\n\\n🌍 " + SITE + "\\n📢 " + CHANNEL + "\\n📸 https://www.instagram.com/esalimniyazov?igsh=MWx1YW14anFrenczOQ==\\n▶️ https://www.youtube.com/@pixelcorestudioyoutube"); return true; }
+  if (cmd === "portfolio") { await reply("🎮 Portfolio va loyihalar: " + SITE + "games.html\\n🌐 Web loyiha: " + SITE); return true; }
+  if (cmd === "contact") { await reply("📩 Aloqa: " + ADMIN + "\\n🌍 " + SITE + "contact.html"); return true; }
+  if (cmd === "order") { await reply("📝 Buyurtma berish uchun xizmatni tanlang:", { reply_markup: orderKeyboard() }); return true; }
   if (cmd === "stop") {
     if (ctx.fs.configured) { try { await ctx.fs.patch("tg_subscribers", String(chat), { chatId: chat, subscribed: false, updated: new Date(ctx.now()) }); } catch (e) {} }
     await reply("🔕 Yangiliklar obunasi bekor qilindi."); return true;
   }
   if (isAdmin(env, m.from && m.from.id)) {
+    if (cmd === "business_on" || cmd === "business_off") {
+      if (!ctx.fs.configured) { await reply("⚠️ Firestore sozlanmagan."); return true; }
+      try { await ctx.fs.patch("tg_business_settings", "global", { enabled: cmd === "business_on", updatedAt: new Date(ctx.now()) }); await reply(cmd === "business_on" ? "✅ Business avtomatik javoblari yoqildi." : "🔕 Business avtomatik javoblari o'chirildi."); }
+      catch (e) { await reply("⚠️ Sozlamani saqlab bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_status") {
+      try {
+        const st = await ctx.fs.get("tg_business_settings", "global") || {};
+        const conns = await ctx.fs.list("tg_business_connections", 100);
+        const customers = await ctx.fs.list("tg_business_customers", 100);
+        await reply("📊 Business holati\\nAvtomatik javob: " + (st.enabled === false ? "o'chiq" : "yoqilgan") + "\\nUlangan akkauntlar: " + conns.filter(x => x.enabled && x.canReply).length + "\\nMijozlar: " + customers.length);
+      } catch (e) { await reply("⚠️ Business ma'lumotlarini o'qib bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_greeting") {
+      if (!arg || arg.length > 3500) { await reply("Foydalanish: /business_greeting <yangi salomlashuv matni>"); return true; }
+      try { await ctx.fs.patch("tg_business_settings", "global", { greetingText: arg, updatedAt: new Date(ctx.now()) }); await reply("✅ Salomlashuv matni saqlandi."); }
+      catch (e) { await reply("⚠️ Saqlab bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_services") {
+      if (!arg || arg.length > 3500) { await reply("Foydalanish: /business_services <xizmatlar matni>"); return true; }
+      try { await ctx.fs.patch("tg_business_settings", "global", { servicesText: arg, updatedAt: new Date(ctx.now()) }); await reply("✅ Xizmatlar matni saqlandi."); }
+      catch (e) { await reply("⚠️ Saqlab bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_customers") {
+      try {
+        const customers = await ctx.fs.list("tg_business_customers", 30);
+        await reply(customers.length ? "👥 Oxirgi mijozlar:\\n" + customers.map((c, i) => (i + 1) + ". " + (c.firstName || "Mijoz") + (c.username ? " (@" + c.username + ")" : "") + " — chat " + c.chatId + (c.adminPaused ? " [admin pauza]" : "")).join("\\n") : "Mijozlar tarixi bo'sh.");
+      } catch (e) { await reply("⚠️ Mijozlar tarixini o'qib bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_resume") {
+      if (!/^\d+$/.test(arg)) { await reply("Foydalanish: /business_resume <chat_id>"); return true; }
+      try {
+        const customers = await ctx.fs.list("tg_business_customers", 200);
+        const matches = customers.filter(x => String(x.chatId) === arg);
+        for (const c of matches) {
+          const id = crypto.createHash("sha256").update(String(c.connectionId) + ":" + arg).digest("hex");
+          await ctx.fs.patch("tg_business_customers", id, { adminPaused: false, updatedAt: new Date(ctx.now()) });
+        }
+        await reply(matches.length ? "✅ " + matches.length + " ta chat uchun avtomatik javob qayta yoqildi." : "Chat topilmadi.");
+      } catch (e) { await reply("⚠️ Chat holatini yangilab bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_history") {
+      if (!/^\d+$/.test(arg)) { await reply("Foydalanish: /business_history <chat_id>"); return true; }
+      try {
+        const events = await ctx.fs.list("tg_business_events", 100);
+        const history = events.filter(x => String(x.chatId) === arg).sort((a, b) => Date.parse(a.createdAt || 0) - Date.parse(b.createdAt || 0)).slice(-20);
+        await reply(history.length ? "🗂 Mijoz murojaatlari tarixi (oxirgi 20):\\n" + history.map((x, i) => (i + 1) + ". " + (x.fromAdmin ? "ADMIN" : "MIJOZ") + ": " + String(x.text || "").slice(0, 250)).join("\\n") : "Bu chat bo'yicha tarix topilmadi.");
+      } catch (e) { await reply("⚠️ Murojaatlar tarixini o'qib bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_links") {
+      const parts = arg.split("|").map(x => x.trim());
+      const valid = parts.length === 3 && /^https:\/\/t\.me\/[A-Za-z0-9_]+\/?$/.test(parts[0]) &&
+        /^https:\/\/www\.instagram\.com\/[A-Za-z0-9_.]+\/?$/.test(parts[1]) &&
+        /^https:\/\/(www\.)?youtube\.com\//.test(parts[2]);
+      if (!valid) { await reply("Foydalanish: /business_links https://t.me/kanal | https://www.instagram.com/username/ | https://www.youtube.com/@kanal"); return true; }
+      try { await ctx.fs.patch("tg_business_settings", "global", { telegramUrl: parts[0], instagramUrl: parts[1], youtubeUrl: parts[2], updatedAt: new Date(ctx.now()) }); await reply("✅ Ijtimoiy tarmoq havolalari yangilandi."); }
+      catch (e) { await reply("⚠️ Havolalarni saqlab bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_greeting_default") {
+      try { await ctx.fs.patch("tg_business_settings", "global", { greetingText: "", updatedAt: new Date(ctx.now()) }); await reply("✅ Standart salomlashuv qayta tiklandi."); }
+      catch (e) { await reply("⚠️ Sozlamani yangilab bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "orders") {
+      try {
+        const a = await ctx.fs.list("tg_orders", 20), b = await ctx.fs.list("tg_business_orders", 20);
+        const all = a.map(x => Object.assign({ source: "Bot" }, x)).concat(b.map(x => Object.assign({ source: "Business" }, x))).sort((x, y) => Date.parse(y.createdAt || 0) - Date.parse(x.createdAt || 0)).slice(0, 20);
+        await reply(all.length ? "🧾 Oxirgi buyurtmalar:\\n" + all.map((o, i) => (i + 1) + ". [" + o.source + "] " + (o.customerName || o.name || "Mijoz") + " — " + String(o.service || "").slice(0, 100) + "\\n" + String(o.details || "").slice(0, 180)).join("\\n\\n") : "Hozircha buyurtmalar yo'q.");
+      } catch (e) { await reply("⚠️ Buyurtmalarni o'qib bo'lmadi."); }
+      return true;
+    }
+    if (cmd === "business_orders") {
+      try {
+        const orders = await ctx.fs.list("tg_business_orders", 20);
+        await reply(orders.length ? "🧾 Oxirgi buyurtmalar:\\n" + orders.map((o, i) => (i + 1) + ". " + (o.customerName || "Mijoz") + (o.username ? " (@" + o.username + ")" : "") + " — " + String(o.details || "").slice(0, 220)).join("\\n\\n") : "Hozircha Business buyurtmalari yo'q.");
+      } catch (e) { await reply("⚠️ Buyurtmalarni o'qib bo'lmadi."); }
+      return true;
+    }
     if (cmd === "stats") {
       try { const l = await ctx.fs.subscribers(500); await reply("📊 Obunachilar: " + l.length); } catch (e) { await reply("⚠️ Firestore'ga ulanib bo'lmadi."); }
       return true;
@@ -149,14 +272,21 @@ async function handler(req, res, deps) {
   if (req.method !== "POST") return res.status(405).json({ ok: false });
   if (!safeEqual(req.headers["x-telegram-bot-api-secret-token"], secret)) return res.status(401).json({ ok: false }); // Telegram'dan emas
   try {
-    await handle(req.body, {
-      env: env, fs: (deps && deps.fs) || fsMod.create({ env: env, fetch: doFetch }), now: (deps && deps.now) || Date.now, sleep: (deps && deps.sleep) || function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); },
+    const fs = (deps && deps.fs) || fsMod.create({ env: env, fetch: doFetch });
+    const ctx = {
+      env: env, fs: fs, fetch: doFetch, now: (deps && deps.now) || Date.now, sleep: (deps && deps.sleep) || function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); },
       call: async function (method, payload) {
         const r = await doFetch("https://api.telegram.org/bot" + token + "/" + method, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
         if (!r.ok) console.error(method + " status", r.status); // token logga yozilmaydi
         return { ok: r.ok, status: r.status };
       },
-    });
+    };
+    const update = req.body || {};
+    if (update.business_connection || update.business_message) {
+      await businessMod.process(update, ctx);
+    } else {
+      await handle(update, ctx);
+    }
   } catch (e) { console.error("bot error", e && e.name); }
   return res.status(200).json({ ok: true }); // doim 200: Telegram qayta-qayta yubormasin
 }
