@@ -56,6 +56,9 @@ const PORTFOLIO = [
 // enabled: false — butunlay o'chirish. delaySec — saytga kirgandan necha soniyadan keyin chiqsin.
 // hideDays — foydalanuvchi yopsa, necha kun qayta chiqmasin. Bir sessiyada ko'pi bilan 1 marta chiqadi.
 const PROMO = { enabled: true, delaySec: 12, hideDays: 3 };
+// Yangi yil mavzusi (newyear.css + js/newyear.js). from/to — "OY-KUN"; shu oraliqda avtomatik yoqiladi va keyingi yillarda ham o'zi takrorlanadi.
+// O'chirish: enabled: false. Sinab ko'rish: istalgan sahifaga ?ny=1 qo'shing (o'chirish: ?ny=0). Foydalanuvchi pastki qismdan o'zi o'chira oladi.
+const NEWYEAR = { enabled: true, from: "11-26", to: "01-15" };
 
 // ===== TELEGRAM MINI APP =====
 // BotFather'da Mini App yaratgach shu yerga yozing (sir EMAS, ochiq nom): bot — bot username'i (@siz), app — /newapp dagi qisqa nom.

@@ -220,5 +220,16 @@ const DICT = {
 "cookie.necd":["Til, sevimlilar, kiriş sessiyasi, cookie tanlovi, reklama oynasi yopilgani.","Язык, избранное, сессия входа, выбор cookie, закрытие рекламного окна.","Language, favorites, sign-in session, cookie choice, promo window dismissal."],
 "promo.badge":["Xizmatlarimiz","Наши услуги","Our services"],"promo.lead":["AI yordamida tez va hamyonbop narxda.","Быстро и недорого с помощью ИИ.","Fast and affordable with AI."],
 "promo.cta":["Batafsil","Подробнее","Learn more"],"promo.tg":["Telegramda yoziş","Написать в Telegram","Message on Telegram"],"promo.close":["Reklamani yopiş","Закрыть рекламу","Close promo"],
-"contact.ytD":["Videolar va yangiliklar","Видео и новости","Videos and news"]
+"contact.ytD":["Videolar va yangiliklar","Видео и новости","Videos and news"],
+/* Yangi yil mavzusi */
+"ny.until":["Yangi yilgaça qoldi","До Нового года осталось","Until the New Year"],
+"ny.d":["kun","дн.","days"],
+"ny.h":["soat","ч","hrs"],
+"ny.m":["daqiqa","мин","min"],
+"ny.s":["soniya","сек","sec"],
+"ny.aria":["Yangi yilgaça qolgan vaqt","Время до Нового года","Time left until the New Year"],
+"ny.greet":["Yangi {y}-yil bilan!","С Новым {y} годом!","Happy New Year {y}!"],
+"ny.greetSub":["PixelCore jamoasidan barçaga omad, quvonç va yangi öyinlar tilaymiz!","Команда PixelCore желает всем удачи, радости и новых игр!","The PixelCore team wishes everyone luck, joy and new games!"],
+"ny.on":["Yangi yil bezagi: yoqiq","Новогоднее оформление: вкл.","New Year theme: on"],
+"ny.off":["Yangi yil bezagi: öçiq","Новогоднее оформление: выкл.","New Year theme: off"],
 };

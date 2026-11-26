@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 2.6.0 — 2026-11-26 (Yangi yil mavzusi)
+- **Yangi: mavsumiy Yangi yil mavzusi** (`newyear.css`, `js/newyear.js`). Brend (qora + binafsha neon + piksel mark) saqlandi; ustiga faqat bezak qo'shildi:
+  piksel-qor (kanvas, sahifa bosishlariga xalaqit bermaydi), navigatsiya tagida miltillovchi chiroqlar, logotipga piksel-qalpoq (sarlavha, hero, pastki qism; hero'da logotip bilan birga suzadi va aylanadi),
+  pastki qismda qor uyumi va piksel archalar, fon ranglariga muzdek-ko'k va oltin nur, favicon'ga qalpoq.
+- **Bosh sahifa:** haqiqiy **"Yangi yilgacha" hisoblagichi** (tashrif buyuruvchining soati bo'yicha, 3 tilda); 1-yanvardan 15-yanvargacha tabrik ("Yangi 2027-yil bilan!"); sahifa ochiq turganda yarim tunda piksel-salyut. Logotipni bossangiz ham salyut.
+- **Avtomatik mavsum:** `links.js` → `NEWYEAR = { enabled, from: "11-26", to: "01-15" }`. Shu oraliqda yoqiladi va har yili o'zi takrorlanadi; mavsumdan tashqarida mavzu fayllari umuman yuklanmaydi. Sinash: `?ny=1`, o'chirish: `?ny=0`.
+- **Foydalanuvchi nazorati:** pastki qismdagi "Yangi yil bezagi: yoqiq/o'chiq" tugmasi (tanlov `localStorage["pc-ny"]` da). `prefers-reduced-motion`: qor harakatsiz, salyut yo'q, chiroqlar miltillamaydi.
+- Admin panelida (`admin.html`) mavzu yo'q. Mini App (Telegram) ichida ishlaydi.
+- `js/core.js`: `nyState()` va `initNewYear()` (mavzu faylini kerak bo'lsa yuklaydi). `js/dict.js`: 10 ta yangi `ny.*` kalit (uz/ru/en). `privacy.html` (3 til): bezakni o'chirish tanlovi saqlanishi haqida jumla.
+- Service Worker `pc-v2.6.0`; yangi fayllar keshga qo'shildi.
+- Testlar: yangi `tests/newyear.test.js` (38 tekshiruv) va `tests/newyear.e2e.js` (41 tekshiruv: mavsum chegaralari, tugma, yarim tunda tabrik, reduced-motion, 3 til, mobil).
+- **Mavzuni olib tashlash kerak bo'lsa:** `links.js` da `enabled: false` (yoki `newyear.css`, `js/newyear.js`, `core.js` dagi `nyState`/`initNewYear` va `ny.*` kalitlarini o'chiring).
+
 ## 2.5.0 — 2026-11-09
 - **Bot**: buyurtma berish (force_reply, xizmat nomi tekshiriladi, adminga HTML-escape qilib yuboriladi), yangiliklarga obuna/`/stop`, `/id`, `/help`; admin: `/stats`, `/broadcast` (oldindan ko'rish + tasdiqlash, faqat `TELEGRAM_ADMIN_ID`).
 - **Yangi `api/_fs.js`**: kutubxonasiz Firestore REST + service account JWT (RS256). **Yangi `api/notify.js`**: sayt formalaridan adminga Telegram xabari (matn Firestore'dan o'qiladi, qayta yuborilmaydi).

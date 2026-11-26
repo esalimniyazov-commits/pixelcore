@@ -18,6 +18,7 @@ Mahalliy ko'rish: `npx serve .` yoki VSCodium'da Live Server (Service Worker faq
 index.html games.html app.html news.html article.html about.html
 services.html contact.html profile.html admin.html privacy.html 404.html offline.html
 style.css                 — butun dizayn tizimi (qora / to'q binafsha / neon binafsha)
+newyear.css  js/newyear.js — Yangi yil mavzusi (faqat mavsumda yuklanadi; links.js -> NEWYEAR)
 firebase.js               — Firebase sozlamasi (MAVJUD loyiha), ADMIN_EMAILS (faqat tugma uchun)
 links.js                  — havolalar, TECH / SOFTWARE / PARTNERS va SERVICES (xizmatlar, narxlar) ro'yxatlari — o'zingiz tahrirlaysiz
 js/dict.js                — barcha tarjimalar [uz, ru, en]
@@ -32,12 +33,16 @@ tests/                    — i18n tekshiruvi, E2E (Playwright + soxta Firebase)
 tools/gen-pages.py        — HTML sahifalarni bir qolipdan qayta yaratadi (ixtiyoriy)
 ```
 
+## Yangi yil mavzusi
+`links.js` → `NEWYEAR = { enabled: true, from: "11-26", to: "01-15" }` ("OY-KUN"). Shu oraliqda sayt avtomatik bezaladi (qor, chiroqlar, qalpoq, archa, "Yangi yilgacha" hisoblagichi) va keyingi yillarda ham o'zi takrorlanadi.
+Sinash: istalgan sahifaga `?ny=1`; o'chirish: `?ny=0` yoki `enabled: false`. Foydalanuvchi pastki qismdagi tugma bilan o'zi o'chira oladi. Testlar: `node tests/newyear.test.js`, `node tests/newyear.e2e.js`.
+
 ## Muhim qoidalar
 - **Matn qo'shish:** `js/dict.js` ga `"kalit": ["uz","ru","en"]` yozing, HTMLda `data-i18n="kalit"`, JS'da `t("kalit")`. `node tests/check-i18n.js` yetishmayotganini topadi.
 - **Admin:** huquq `firestore.rules` dagi email bilan beriladi (serverda tekshiriladi). `firebase.js` dagi `ADMIN_EMAILS` faqat "Admin" tugmasini ko'rsatadi.
 - **Yangi versiya chiqarish:** `sw.js` dagi `VERSION` ni oshiring — foydalanuvchilarga "Yangi versiya tayyor" xabari chiqadi.
 - **Head qismini o'zgartirish:** `tools/gen-pages.py` ni tahrirlab `python3 tools/gen-pages.py` ishga tushiring (yoki 13 ta faylni qo'lda).
-- **Testlar:** `node tests/check-i18n.js`, `node tests/sitemap.test.js`, `node tests/share.test.js`, `node tests/e2e.js` (Playwright kerak). Nima sinalgani va sinalmagani — [TEST_REPORT.md](TEST_REPORT.md).
+- **Testlar:** `node tests/check-i18n.js`, `node tests/newyear.test.js`, `node tests/sitemap.test.js`, `node tests/share.test.js`, `node tests/e2e.js` (Playwright kerak). Nima sinalgani va sinalmagani — [TEST_REPORT.md](TEST_REPORT.md).
 
 ## Ma'lumotlar modeli (Firestore)
 `games`, `images`, `news`, `reviews`, `feedback`, `users`, `scores` — **mavjud**, tuzilmasi saqlangan (yangi maydonlar ixtiyoriy).

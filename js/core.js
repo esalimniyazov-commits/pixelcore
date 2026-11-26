@@ -319,6 +319,41 @@ function initBg() {
 }
 
 
+/* ---------- Yangi yil mavzusi (mavsumiy) ----------
+   nyState: "on" (yoqilgan) | "off" (foydalanuvchi o'chirgan) | "none" (mavsum emas). Oraliq: links.js -> NEWYEAR.
+   Mavzu fayllari (newyear.css, js/newyear.js) faqat "on" bo'lganda yuklanadi — mavsumdan tashqarida hech narsa yuklanmaydi. */
+/* NY-SEASON-START */
+function nyState(now, search, stored, cfg) {
+  cfg = cfg || {};
+  if (cfg.enabled === false) return "none";
+  let q = ""; try { q = new URLSearchParams(search || "").get("ny") || ""; } catch (e) {}
+  if (q === "0") return "none";
+  if (q === "1") return "on";
+  const md = function (s, d) { const m = /^(\d{1,2})-(\d{1,2})$/.exec(s || ""); return m ? (+m[1]) * 100 + (+m[2]) : d; };
+  const a = md(cfg.from, 1201), b = md(cfg.to, 115), cur = (now.getMonth() + 1) * 100 + now.getDate();
+  if (!(a <= b ? cur >= a && cur <= b : cur >= a || cur <= b)) return "none";
+  return stored === "off" ? "off" : "on";
+}
+/* NY-SEASON-END */
+function initNewYear() {
+  if (PAGE === "admin") return;
+  let stored = ""; try { stored = localStorage.getItem("pc-ny") || ""; } catch (e) {}
+  const st = nyState(new Date(), location.search, stored, typeof NEWYEAR !== "undefined" ? NEWYEAR : {});
+  if (st === "none") return;
+  const fb = $("ckOpen");
+  if (fb) {
+    fb.insertAdjacentHTML("afterend", ' · <button class="link-btn" id="nyBtn" type="button" aria-pressed="' + (st === "on") + '">' + esc(t(st === "on" ? "ny.on" : "ny.off")) + "</button>");
+    $("nyBtn").addEventListener("click", function () {
+      try { localStorage.setItem("pc-ny", st === "on" ? "off" : "on"); } catch (e) {}
+      const u = new URL(location.href); u.searchParams.delete("ny"); location.href = u.toString();
+    });
+  }
+  if (st !== "on") return;
+  document.documentElement.classList.add("ny");
+  const l = document.createElement("link"); l.rel = "stylesheet"; l.href = "newyear.css"; document.head.appendChild(l);
+  const sc = document.createElement("script"); sc.src = "js/newyear.js"; document.body.appendChild(sc);
+}
+
 /* ---------- Xizmatlar reklamasi (o'zimizning xizmatlar, uchinchi tomon reklamasi emas) ----------
    Bezovta qilmaslik uchun: kechikish bilan chiqadi, sessiyada 1 marta, yopilsa N kun chiqmaydi,
    cookie paneli yoki dialog ochiq bo'lsa kutadi, xizmatlar/aloqa/admin/profil sahifalarida chiqmaydi. */
@@ -351,7 +386,7 @@ function boot() {
   applyI18n(document);
   buildLayout(); applyI18n(document);
   if (META[PAGE]) setMeta(t("meta." + PAGE + ".t"), t("meta." + PAGE + ".d"));
-  initAuth(); setMode("login"); initSearch(); initCookies(); initPwa(); initBg(); countView(); initPromo();
+  initAuth(); setMode("login"); initSearch(); initCookies(); initPwa(); initBg(); initNewYear(); countView(); initPromo();
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver(function (items) { items.forEach(function (it) { if (it.isIntersecting) { it.target.classList.add("in"); io.unobserve(it.target); } }); }, { threshold: 0.08 });
     qsa(".sec").forEach(function (s) { io.observe(s); });

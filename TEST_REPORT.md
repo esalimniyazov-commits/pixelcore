@@ -245,3 +245,19 @@ NATIJA: 129 o'tdi, 0 muvaffaqiyatsiz
 - Vercel Hobby serverless muhiti va haqiqiy webhook timeout/retry xatti-harakati live muhitda tekshirilishi kerak.
 
 **Muhim:** Telegram API'ga haqiqiy so'rov yuborilmadi. Kod faqat lokal testlar va sintaksis tekshiruvidan o'tdi; deploy qilingan yoki ishga tushgan deb hisoblanmaydi.
+
+
+---
+## 2.6.0 — Yangi yil mavzusi (2026-11-26)
+Brauzer: haqiqiy Chromium (Playwright), soxta Firebase, internetsiz. Qo'lda ko'rish: bosh sahifa (desktop va mobil), o'yinlar sahifasi, pastki qism, salyut — skrinshotlar ko'zdan kechirildi.
+
+| Test | Natija |
+|---|---|
+| `node tests/newyear.test.js` (mavsum chegaralari, hisoblagich mantiqi, fayllar, lug'at) | ✅ 38/38 |
+| `node tests/newyear.e2e.js` (yoqish/o'chirish tugmasi, mavsumdan tashqarida yuklanmasligi, 3 til, yarim tunda tabrik, reduced-motion, mobil 375px) | ✅ 41/41 |
+| `node tests/tg.e2e.js` (Mini App) | ✅ 99/99 (mavzu yoqiq holatda) |
+| `node tests/bot|business|fs|notify|sitemap|share.test.js` | ✅ |
+| `node tests/e2e.js` | ⚠️ 128 o'tdi, **5 muvaffaqiyatsiz — o'zgarishlardan OLDIN ham xuddi shunday** (asl ZIP'da ham): roadmap/devlog sahifalari qolgan, YouTube havolasi `links.js` da kiritilgani uchun "kiritilmagan" testlari, profil o'chirish testi. Mavzu bilan bog'liq emas; testlarni yangilash kerak. |
+| `node tests/check-i18n.js` | ⚠️ 7 ta kalit yetishmaydi (`devlog.*`, `roadmap.*`, `rm.*` — qolgan eski sahifalar), **o'zgarishlardan oldin ham shunday**. Yangi 10 ta `ny.*` kalit to'liq. |
+
+**Tekshirilmagan:** haqiqiy telefon/Safari/Firefox'da ko'rinish, Telegram Mini App'ning haqiqiy klientida ko'rinish, Lighthouse, jonli saytda deploy. Garland SVG ichidagi animatsiya Chromium'da ko'rildi.
