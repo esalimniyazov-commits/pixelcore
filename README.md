@@ -18,6 +18,7 @@ Mahalliy ko'rish: `npx serve .` yoki VSCodium'da Live Server (Service Worker faq
 index.html games.html app.html news.html article.html about.html
 services.html contact.html profile.html admin.html privacy.html 404.html offline.html
 style.css                 — butun dizayn tizimi (qora / to'q binafsha / neon binafsha)
+js/fx.js                  — qulaylik va jilo (kursor nuri, qiyalik, reveal, klaviatura yorliqlari, scroll chizig'i); skeleton'lar core.js'da
 newyear.css  js/newyear.js — Yangi yil mavzusi (faqat mavsumda yuklanadi; links.js -> NEWYEAR)
 firebase.js               — Firebase sozlamasi (MAVJUD loyiha), ADMIN_EMAILS (faqat tugma uchun)
 links.js                  — havolalar, TECH / SOFTWARE / PARTNERS va SERVICES (xizmatlar, narxlar) ro'yxatlari — o'zingiz tahrirlaysiz
@@ -32,6 +33,10 @@ vercel.json robots.txt
 tests/                    — i18n tekshiruvi, E2E (Playwright + soxta Firebase), sitemap testi
 tools/gen-pages.py        — HTML sahifalarni bir qolipdan qayta yaratadi (ixtiyoriy)
 ```
+
+## Qulaylik va jilo (`js/fx.js`)
+Hamma sahifada (admin'dan tashqari) avtomatik yuklanadi. Klaviatura: `?` yordam, `G` + `H/G/N/S/A/C` sahifalarga o'tish, `/` qidiruv. Harakatli effektlar `prefers-reduced-motion` va sensorli ekranlarda o'chadi.
+O'chirish: `core.js` dagi `loadFx()` chaqiruvini olib tashlang. Testlar: `node tests/fx.test.js`, `node tests/fx.e2e.js`.
 
 ## Yangi yil mavzusi
 `links.js` → `NEWYEAR = { enabled: true, from: "11-26", to: "01-15" }` ("OY-KUN"). Shu oraliqda sayt avtomatik bezaladi (qor, chiroqlar, qalpoq, archa, "Yangi yilgacha" hisoblagichi) va keyingi yillarda ham o'zi takrorlanadi.

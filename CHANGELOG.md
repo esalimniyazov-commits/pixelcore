@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2.7.0 — 2026-11-26 (qulaylik va jilo: `js/fx.js`)
+- **Kursor nuri** (sichqonchali qurilmada): kursor atrofida yumshoq binafsha nur; kartalarning chegarasi kursor ostida yonadi.
+- **Kartalar 3D qiyaligi:** o'yin va yangilik kartalari kursorga qarab sal buriladi, ichidagi rasm parallaks bilan siljiydi. Sensorli ekranlarda yo'q.
+- **Scroll'da paydo bo'lish:** kartalar va statistikalar birin-ketin yumshoq chiqadi; bosh sahifadagi **raqamlar 0 dan sanab chiqadi**. Animatsiya faqat konteyner birinchi marta to'lganda (qidiruv/filtr qayta chizganda miltillamaydi); tugagach `.rv/.in` sinflari olib tashlanadi, shuning uchun hover va qiyalik buzilmaydi.
+- **Skeleton / piksel-loader:** ma'lumot kelguncha kartalar va statistikalar o'rnida logotip bloklaridek birin-ketin yonadigan loader (bosh sahifa, o'yinlar, yangiliklar). Haqiqiy ma'lumot ustidan yozadi; ekran o'qigich uchun "Yuklanmoqda…".
+- **Mikro-javob:** tugmalarda bosish effekti; sevimli (yurakcha) bosilganda yurakcha "sakraydi" va piksel uchqunlari tarqaladi.
+- **Klaviatura yorliqlari:** `?` — yordam oynasi, `G` so'ng `H/G/N/S/A/C` — sahifalarga o'tish (kiritish maydonida va ochiq oynada ishlamaydi). `/` va `Ctrl+K` (qidiruv) avval ham bor edi; endi `/` boshqa oyna ochiq turganda uning ustidan qidiruvni ochmaydi. Pastki qismda "Klaviatura yorliqlari" havolasi (faqat kursor/klaviatura bor qurilmada).
+- **Scroll chizig'i va "tepaga" tugmasi:** sahifa tepasida o'qish chizig'i; 700px pastga tushilganda "↑" tugmasi (Mini App xavfsiz maydonini hisobga oladi).
+- `prefers-reduced-motion`: kursor nuri, qiyalik, paydo bo'lish, sanash va uchqunlar o'chadi; klaviatura yorliqlari, scroll chizig'i va tugma qoladi. `admin.html`da fx yuklanmaydi. Yangi Yil mavzusi bilan birga ishlaydi.
+- Yangi: `js/fx.js` (core.js boot'da yuklaydi), `style.css` oxiriga fx bo'limi, `core.js`da `skelFill()` va `loadFx()`, `dict.js`da 5 ta yangi kalit (`ui.top`, `kb.*`), Service Worker `pc-v2.7.0`.
+- Testlar: `tests/fx.test.js` (42), `tests/fx.e2e.js` (53).
+
 ## 2.6.0 — 2026-11-26 (Yangi yil mavzusi)
 - **Yangi: mavsumiy Yangi yil mavzusi** (`newyear.css`, `js/newyear.js`). Brend (qora + binafsha neon + piksel mark) saqlandi; ustiga faqat bezak qo'shildi:
   piksel-qor (kanvas, sahifa bosishlariga xalaqit bermaydi), navigatsiya tagida miltillovchi chiroqlar, logotipga piksel-qalpoq (sarlavha, hero, pastki qism; hero'da logotip bilan birga suzadi va aylanadi),

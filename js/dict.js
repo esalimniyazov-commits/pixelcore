@@ -232,4 +232,10 @@ const DICT = {
 "ny.greetSub":["PixelCore jamoasidan barçaga omad, quvonç va yangi öyinlar tilaymiz!","Команда PixelCore желает всем удачи, радости и новых игр!","The PixelCore team wishes everyone luck, joy and new games!"],
 "ny.on":["Yangi yil bezagi: yoqiq","Новогоднее оформление: вкл.","New Year theme: on"],
 "ny.off":["Yangi yil bezagi: öçiq","Новогоднее оформление: выкл.","New Year theme: off"],
+/* Qulaylik (fx) */
+"ui.top":["Tepaga qaytiş","Наверх","Back to top"],
+"kb.title":["Klaviatura yorliqlari","Горячие клавиши","Keyboard shortcuts"],
+"kb.open":["Klaviatura yorliqlari","Горячие клавиши","Keyboard shortcuts"],
+"kb.search":["Qidiruvni oçiş","Открыть поиск","Open search"],
+"kb.help":["Şu oynani oçiş","Показать это окно","Show this window"],
 };

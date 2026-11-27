@@ -248,7 +248,7 @@ function initSearch() {
   inp.addEventListener("input", debounce(run, 180));
   document.addEventListener("keydown", function (e) {
     const tag = (document.activeElement || {}).tagName;
-    if ((e.key === "k" && (e.ctrlKey || e.metaKey)) || (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(tag))) { e.preventDefault(); open(); }
+    if ((e.key === "k" && (e.ctrlKey || e.metaKey)) || (e.key === "/" && !/INPUT|TEXTAREA|SELECT/.test(tag) && !document.querySelector("dialog[open]"))) { e.preventDefault(); open(); }
   });
 }
 
@@ -354,6 +354,19 @@ function initNewYear() {
   const sc = document.createElement("script"); sc.src = "js/newyear.js"; document.body.appendChild(sc);
 }
 
+/* ---------- Skeleton: ma'lumot kelguncha kartalar o'rnida piksel-loader (haqiqiy render innerHTML bilan ustidan yozadi) ---------- */
+function skelFill() {
+  const map = { home: [["newGames", "card", 3], ["newsList", "card", 3], ["stats", "stat", 4]], games: [["games", "card", 6]], news: [["newsList", "card", 6]] }[PAGE] || [];
+  const card = '<article class="card skel" aria-hidden="true"><div class="cover"><span class="pxl"><i></i><i></i><i></i><i></i></span></div><div class="body"><h3></h3><p></p><p></p></div></article>';
+  const stat = '<div class="stat skel" aria-hidden="true"><b></b><span></span></div>';
+  map.forEach(function (m) {
+    const el = $(m[0]); if (!el || el.children.length || el.textContent.trim()) return;
+    el.innerHTML = new Array(m[2] + 1).join(m[1] === "stat" ? stat : card) + '<span class="fx-sr" role="status">' + esc(t("common.loading")) + "</span>";
+  });
+}
+/* js/fx.js (kursor nuri, qiyalik, reveal, klaviatura yorliqlari, scroll chizig'i) — admin panelidan tashqari hamma sahifada */
+function loadFx() { if (PAGE === "admin") return; const s = document.createElement("script"); s.src = "js/fx.js"; s.defer = true; document.body.appendChild(s); }
+
 /* ---------- Xizmatlar reklamasi (o'zimizning xizmatlar, uchinchi tomon reklamasi emas) ----------
    Bezovta qilmaslik uchun: kechikish bilan chiqadi, sessiyada 1 marta, yopilsa N kun chiqmaydi,
    cookie paneli yoki dialog ochiq bo'lsa kutadi, xizmatlar/aloqa/admin/profil sahifalarida chiqmaydi. */
@@ -386,11 +399,12 @@ function boot() {
   applyI18n(document);
   buildLayout(); applyI18n(document);
   if (META[PAGE]) setMeta(t("meta." + PAGE + ".t"), t("meta." + PAGE + ".d"));
-  initAuth(); setMode("login"); initSearch(); initCookies(); initPwa(); initBg(); initNewYear(); countView(); initPromo();
+  initAuth(); setMode("login"); initSearch(); initCookies(); initPwa(); initBg(); initNewYear(); loadFx(); countView(); initPromo();
   if ("IntersectionObserver" in window) {
     const io = new IntersectionObserver(function (items) { items.forEach(function (it) { if (it.isIntersecting) { it.target.classList.add("in"); io.unobserve(it.target); } }); }, { threshold: 0.08 });
     qsa(".sec").forEach(function (s) { io.observe(s); });
   } else document.documentElement.classList.add("no-io");
+  skelFill();
   if (typeof PAGES !== "undefined" && PAGES[PAGE]) Promise.resolve(PAGES[PAGE]()).catch(function (e) { console.error(e); });
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();

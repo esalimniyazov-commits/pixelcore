@@ -1,0 +1,23 @@
+// fx (qulaylik/jilo) mantiq testi.  Ishga tushirish: node tests/fx.test.js
+const fs = require("fs"), path = require("path"), root = path.join(__dirname, "..");
+let pass = 0, fail = 0; const ok = (c, m) => { if (c) { pass++; console.log("  ✓", m); } else { fail++; console.log("  ✗ FAIL:", m); } };
+const FX = require("../js/fx.js");
+console.log("\n[1] parseCount (sanab chiqiladigan raqamlar)");
+[["12", 12], ["0", 0], ["1,234", 1234], ["1 234", 1234], ["1.234", 1234], ["12,345,678", 12345678], ["1\u00a0234", 1234]].forEach(([s, v]) => ok(FX.parseCount(s) === v, JSON.stringify(s) + " → " + v));
+["2.5", "3K", "", "abc", "12,34", "1,2345", "-5", "1e3", "5 ta", "99999999999"].forEach(s => ok(FX.parseCount(s) === null, JSON.stringify(s) + " → null (tegilmaydi)"));
+console.log("\n[2] ease");
+ok(FX.ease(0) === 0 && FX.ease(1) === 1 && FX.ease(0.5) > 0.5 && FX.ease(0.5) < 1, "0→0, 1→1, silliq oraliq");
+console.log("\n[3] yorliqlar jadvali");
+const files = ["index.html", "games.html", "news.html", "services.html", "about.html", "contact.html"];
+ok(FX.GO.length === 6 && new Set(FX.GO.map(r => r[0])).size === 6, "6 ta noyob harf");
+FX.GO.forEach(r => ok(fs.existsSync(path.join(root, r[2])) && files.includes(r[2]), "G+" + r[0] + " → " + r[2] + " mavjud"));
+console.log("\n[4] ulanishlar");
+ok(fs.readFileSync(path.join(root, "sw.js"), "utf8").includes('"js/fx.js"'), "sw.js keshida js/fx.js");
+const core = fs.readFileSync(path.join(root, "js/core.js"), "utf8");
+ok(/function loadFx\(\)[^}]*admin/.test(core) && core.includes("loadFx();") && core.includes("skelFill();"), "core.js: loadFx (admin'siz) va skelFill chaqiriladi");
+const DICT = new Function(fs.readFileSync(path.join(root, "js/dict.js"), "utf8") + "; return DICT;")();
+["ui.top", "kb.title", "kb.open", "kb.search", "kb.help"].forEach(k => ok(Array.isArray(DICT[k]) && DICT[k].length === 3 && DICT[k].every(Boolean), "lug'at (uz/ru/en): " + k));
+const css = fs.readFileSync(path.join(root, "style.css"), "utf8");
+["#fxGlow", "html.fx .rv", ".fx-top", "#fxBar", ".skel", ".pxl", "@keyframes fxpress", "@keyframes fxpop", ".kb-list"].forEach(k => ok(css.includes(k), "style.css: " + k));
+ok(!/https?:\/\/(?!www\.w3\.org)/.test(fs.readFileSync(path.join(root, "js/fx.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "")), "fx.js'da tashqi manzil yo'q");
+console.log("\n" + (fail ? "XATO: " + fail : "OK") + " (" + pass + " ta o'tdi)"); process.exit(fail ? 1 : 0);

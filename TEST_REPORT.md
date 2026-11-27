@@ -261,3 +261,20 @@ Brauzer: haqiqiy Chromium (Playwright), soxta Firebase, internetsiz. Qo'lda ko'r
 | `node tests/check-i18n.js` | ⚠️ 7 ta kalit yetishmaydi (`devlog.*`, `roadmap.*`, `rm.*` — qolgan eski sahifalar), **o'zgarishlardan oldin ham shunday**. Yangi 10 ta `ny.*` kalit to'liq. |
 
 **Tekshirilmagan:** haqiqiy telefon/Safari/Firefox'da ko'rinish, Telegram Mini App'ning haqiqiy klientida ko'rinish, Lighthouse, jonli saytda deploy. Garland SVG ichidagi animatsiya Chromium'da ko'rildi.
+
+
+---
+## 2.7.0 — qulaylik va jilo (2026-11-26)
+Brauzer: haqiqiy Chromium (Playwright), soxta Firebase, internetsiz. Skrinshotlar ko'zdan kechirildi: karta qiyaligi + chegara nuri, skeleton, yordam oynasi.
+
+| Test | Natija |
+|---|---|
+| `node tests/fx.test.js` | ✅ 42/42 |
+| `node tests/fx.e2e.js` (skeleton, kursor nuri/qiyalik, uchqunlar, klaviatura, sanash, scroll chizig'i, reduced-motion, sensorli, admin) | ✅ 53/53 |
+| `node tests/newyear.test.js` / `newyear.e2e.js` | ✅ 38/38, 41/41 |
+| `node tests/tg.e2e.js` (Mini App) | ✅ 99/99 |
+| `node tests/e2e.js` | ⚠️ 128 o'tdi, 5 muvaffaqiyatsiz — **asl ZIP'dagi bilan aynan bir xil** (roadmap/devlog, YouTube, profil o'chirish testlari eskirgan) |
+| `bot/business/fs/notify/sitemap/share` | ✅ |
+
+Eslatma: brauzerning cross-document view-transition'i tez-tez navigatsiyada `Transition was aborted…` xatosini beradi — asl saytda ham, fx'siz ham takrorlanadi (tekshirildi); yangi testlarda filtrlangan.
+**Tekshirilmagan:** haqiqiy sensorli qurilmalar, Safari/Firefox, juda sekin tarmoqda skeleton ko'rinishi, ekran o'qigich bilan.
