@@ -138,6 +138,99 @@ PAGES.games = async function () {
 
 /* ---------- O'yin sahifasi ---------- */
 function ytId(u) { const m = /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/))([\w-]{11})/.exec(u || ""); return m ? m[1] : ""; }
+
+/* ---------- O'yin sahifasi yordamchilari ---------- */
+/* GP-PURE-START */
+function detectOS(ua, platform, touch) {
+  ua = ua || ""; platform = platform || "";
+  if (/iPhone|iPad|iPod/.test(ua) || (/Mac/i.test(platform) && touch > 1)) return "ios";
+  if (/Android/i.test(ua)) return "android";
+  if (/Win/i.test(platform) || /Windows/i.test(ua)) return "windows";
+  if (/Mac/i.test(platform) || /Macintosh|Mac OS X/i.test(ua)) return "mac";
+  return "";
+}
+// plats: [[kalit, nom], ...]; os mos kelsa shu asosiy, aks holda birinchisi
+function ctaPick(plats, os) {
+  const main = plats.filter(function (p) { return p[0] === os; })[0] || plats[0];
+  return { main: main, rest: plats.filter(function (p) { return p !== main; }), miss: !!os && !plats.some(function (p) { return p[0] === os; }) };
+}
+// "v1.0.1 - matn" qatorlarini versiyalar bo'yicha guruhlaydi; versiyasiz qatorlar oldingisiga qo'shiladi
+function parseChangelog(lines) {
+  const out = [], bullet = function (l) { return l.replace(/^[-•*]\s*/, ""); };
+  lines.forEach(function (l) {
+    let m = /^v?(\d+(?:\.\d+){1,3})\s*[-–—:]\s*(.+)$/i.exec(l);
+    if (m) { out.push({ ver: m[1], items: [m[2]] }); return; }
+    m = /^v?(\d+(?:\.\d+){1,3})\s*$/i.exec(l);
+    if (m) { out.push({ ver: m[1], items: [] }); return; }
+    if (out.length) out[out.length - 1].items.push(bullet(l)); else out.push({ ver: "", items: [bullet(l)] });
+  });
+  return out;
+}
+function hslToRgb(h, s, l) {
+  const k = function (n) { return (n + h / 30) % 12; }, a = s * Math.min(l, 1 - l), f = function (n) { return l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); };
+  return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+}
+function relLum(rgb) { const c = rgb.map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; }
+// rgba piksellardan (32x32) asosiy rang tonini topadi; rangsiz/juda to'q/oq piksellar hisobga olinmaydi
+function accentFromData(d) {
+  let x = 0, y = 0, w = 0, sw = 0;
+  for (let i = 0; i + 3 < d.length; i += 4) {
+    if (d[i + 3] < 200) continue;
+    const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, c = mx - mn;
+    if (c < 0.12 || l < 0.12 || l > 0.92) continue;
+    let h = mx === r ? ((g - b) / c) % 6 : mx === g ? (b - r) / c + 2 : (r - g) / c + 4; h *= 60; if (h < 0) h += 360;
+    const s = c / (1 - Math.abs(2 * l - 1)), a = h * Math.PI / 180;
+    x += Math.cos(a) * c; y += Math.sin(a) * c; w += c; sw += Math.min(1, s) * c;
+  }
+  if (w < 8) return null;
+  let h = Math.atan2(y, x) * 180 / Math.PI; if (h < 0) h += 360;
+  return { h: Math.round(h) % 360, s: Math.min(0.95, Math.max(0.6, sw / w)) };
+}
+function accentFallback(id) { const P = [268, 190, 330, 38, 152, 215]; let n = 0; String(id || "").split("").forEach(function (c) { n = (n * 31 + c.charCodeAt(0)) % 9973; }); return { h: P[n % P.length], s: 0.8 }; }
+function accentVars(h, s) {
+  const p = Math.round(s * 100), L = function (l) { return "hsl(" + h + "," + p + "%," + l + "%)"; };
+  const mid = relLum(hslToRgb(h, s, 0.43)), white = 1.05 / (mid + 0.05), black = (mid + 0.05) / 0.052;
+  return { "--ga": L(64), "--gam": L(50), "--gad": L(36), "--gag": "hsla(" + h + "," + p + "%,58%,.42)", "--gaa": "hsla(" + h + "," + p + "%,60%,.16)", "--gat": white >= black ? "#ffffff" : "#08050f" };
+}
+/* GP-PURE-END */
+function applyAccent(a) { if (!a) return; const v = accentVars(a.h, a.s), st = document.documentElement.style; Object.keys(v).forEach(function (k) { st.setProperty(k, v[k]); }); }
+function gameAccent(g, gid) {
+  return new Promise(function (res) {
+    const src = g.cover || g.icon; if (!src) return res(accentFallback(gid));
+    const im = new Image(); im.crossOrigin = "anonymous";
+    im.onload = function () {
+      try { const c = document.createElement("canvas"); c.width = c.height = 32; const x = c.getContext("2d", { willReadFrequently: true }); x.drawImage(im, 0, 0, 32, 32); res(accentFromData(x.getImageData(0, 0, 32, 32).data) || accentFallback(gid)); }
+      catch (e) { res(accentFallback(gid)); }
+    };
+    im.onerror = function () { res(accentFallback(gid)); };
+    im.src = safeUrl(src);
+  });
+}
+const OS_NAME = { android: "Android", windows: "Windows", mac: "macOS", ios: "iOS" };
+function dlLink(id, g, p, cls, label) { return '<a class="btn ' + cls + ' dl" data-id="' + esc(id) + '" href="' + esc(safeUrl(gameLinks(g)[p[0]])) + '" target="_blank" rel="noopener">' + label + "</a>"; }
+// Asosiy tugma qurilma tizimiga qarab tanlanadi; mini — yopishqoq panel uchun qisqa tugma
+function gameCta(id, g) {
+  if (statusInfo(g.status).k !== "rel") {
+    const n = function (c) { return '<a class="btn primary ' + c + '" data-link="telegram" target="_blank" rel="noopener">' + esc(t("game.notify")) + "</a>"; };
+    return { main: n("g-main"), rest: "", mini: n("sm"), hint: "" };
+  }
+  const pl = gamePlats(g); if (!pl.length) return { main: "", rest: "", mini: "", hint: "" };
+  const os = detectOS(navigator.userAgent, (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform, navigator.maxTouchPoints), k = ctaPick(pl, os);
+  return {
+    main: dlLink(id, g, k.main, "primary g-main", "↓ " + esc(t("game.dlFor", { p: k.main[1] }))),
+    rest: k.rest.map(function (p) { return dlLink(id, g, p, "sm", "↓ " + esc(p[1])); }).join(""),
+    mini: dlLink(id, g, k.main, "primary sm", "↓ " + esc(k.main[1])),
+    hint: k.miss ? '<p class="g-hint">' + esc(t("game.noOs", { os: OS_NAME[os] })) + "</p>" : ""
+  };
+}
+function changelogHtml(entries, cur) {
+  const norm = function (v) { return String(v || "").replace(/^v/i, "").trim(); };
+  return '<div class="tl">' + entries.map(function (e, i) {
+    const isCur = i === 0 && !!e.ver && norm(cur) === e.ver;
+    return '<article class="tl-i"><span class="tl-dot" aria-hidden="true"></span>' + (e.ver || isCur ? "<header>" + (e.ver ? '<b class="tl-v">v' + esc(e.ver) + "</b>" : "") + (isCur ? '<span class="tl-new">' + esc(t("game.latest")) + "</span>" : "") + "</header>" : "") +
+      (e.items.length ? "<ul>" + e.items.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") + "</article>";
+  }).join("") + "</div>";
+}
 PAGES.app = async function () {
   const gid = new URLSearchParams(location.search).get("id"), box = $("app");
   if (!db || !gid) { box.innerHTML = empty("game.notfound"); return; }
@@ -157,17 +250,31 @@ PAGES.app = async function () {
   }).join("");
   const logs = String(g.changelog || "").split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
   const ut = g.updated || g.created;
-  box.innerHTML = '<div class="gh"><div><div class="cover" style="border-radius:20px">' + (g.cover ? '<img class="cv" src="' + esc(safeUrl(g.cover)) + '" alt="' + esc(g.title) + '">' : '<span class="ph">' + initials(g.title) + "</span>") + '</div></div><div class="info"><div class="tags"><span>' + esc(st.label) + "</span>" + gGenres(g).map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div><h1>" + esc(g.title) + "</h1>" +
-    (tr(g, "tagline") ? '<p class="lead" style="margin:0">' + esc(tr(g, "tagline")) + "</p>" : "") + '<div class="dls">' + dlButtons(gid, g) + '<button class="btn" id="share" type="button">' + esc(t("common.share")) + '</button><button class="fav" id="favBtn" data-id="' + esc(gid) + '" type="button" style="position:static">♡</button></div>' +
+  const accP = gameAccent(g, gid);
+  const acc = await Promise.race([accP, new Promise(function (r) { setTimeout(function () { r(null); }, 450); })]);
+  applyAccent(acc || accentFallback(gid)); if (!acc) accP.then(applyAccent);
+  const cta = gameCta(gid, g), entries = parseChangelog(logs);
+  const iconHtml = g.icon ? '<img src="' + esc(safeUrl(g.icon)) + '" alt="">' : esc(initials(g.title)), bgSrc = g.cover || g.icon;
+  const secs = [["g-about", "game.about"]];
+  if (vid) secs.push(["g-video", "game.video"]); if (imgs.length) secs.push(["g-shots", "game.shots"]); if (feats.length) secs.push(["g-feats", "game.features"]);
+  if (sys) secs.push(["g-sys", "game.sys"]); if (logs.length) secs.push(["g-log", "game.changelog"]); secs.push(["revBox", "game.reviews"], ["g-sim", "game.similar"]);
+  const posterSrc = imgs[0] || g.cover || "";
+  box.innerHTML = '<section class="g-hero"><div class="g-bg' + (bgSrc ? "" : " px") + '" aria-hidden="true">' + (bgSrc ? '<img src="' + esc(safeUrl(bgSrc)) + '" alt="">' : "") + "</div>" +
+    '<div class="gh"><div class="g-cover"><div class="cover">' + (g.cover ? '<img class="cv" src="' + esc(safeUrl(g.cover)) + '" alt="' + esc(g.title) + '">' : '<span class="ph">' + esc(initials(g.title)) + "</span>") + '</div><span class="g-icon">' + iconHtml + "</span></div>" +
+    '<div class="info"><div class="tags"><span>' + esc(st.label) + "</span>" + gGenres(g).map(function (x) { return "<span>" + esc(x) + "</span>"; }).join("") + "</div>" +
+    "<h1>" + esc(g.title) + "</h1>" + (tr(g, "tagline") ? '<p class="lead" style="margin:0">' + esc(tr(g, "tagline")) + "</p>" : "") + '<a class="g-rate" id="gRate" href="#revBox" hidden></a>' +
+    '<div class="g-cta" id="gCta">' + cta.main + '<div class="dls">' + cta.rest + '<button class="btn" id="share" type="button">' + esc(t("common.share")) + '</button><button class="fav" id="favBtn" data-id="' + esc(gid) + '" type="button" style="position:static">♡</button></div>' + cta.hint + "</div>" +
     '<div class="kv"><div><small>' + esc(t("game.version")) + "</small><b>" + esc(g.version || "—") + "</b></div><div><small>" + esc(t("game.updated")) + "</small><b>" + esc(dateStr(ut) || "—") + "</b></div><div><small>" + esc(t("game.platforms")) + "</small><b>" + (pl.map(function (p) { return p[1]; }).join(", ") || "—") + "</b></div><div><small>" + esc(t("stat.downloads")) + '</small><b id="dlc">' + (g.downloads || 0).toLocaleString() + '</b></div><div><small>' + esc(t("game.rating")) + '</small><b id="avg">—</b></div><div><small>' + esc(t("game.release")) + "</small><b>" + esc(g.releaseDate || "—") + "</b></div></div>" +
-    '<a class="more" href="contact.html?type=bug&game=' + encodeURIComponent(gid) + '#feedback">' + esc(t("game.report")) + "</a></div></div>" +
-    '<section class="blk"><h2>' + esc(t("game.about")) + '</h2><p class="lead" style="white-space:pre-line;max-width:800px">' + esc(desc) + "</p></section>" +
-    (vid ? '<section class="blk"><h2>' + esc(t("game.video")) + '</h2><iframe class="vid" loading="lazy" src="https://www.youtube-nocookie.com/embed/' + vid + '" title="' + esc(g.title) + '" allow="accelerometer; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></section>' : "") +
-    (imgs.length ? '<section class="blk"><h2>' + esc(t("game.shots")) + '</h2><div class="shots">' + imgs.map(function (u, i) { return '<button class="shot" type="button" data-i="' + i + '" aria-label="' + esc(t("game.shots")) + " " + (i + 1) + '"><img loading="lazy" src="' + esc(safeUrl(u)) + '" alt=""></button>'; }).join("") + "</div></section>" : "") +
-    (feats.length ? '<section class="blk"><h2>' + esc(t("game.features")) + '</h2><ul class="feats">' + feats.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul></section>" : "") +
-    (sys ? '<section class="blk"><h2>' + esc(t("game.sys")) + '</h2><div class="sysg">' + sys + "</div></section>" : "") +
-    (logs.length ? '<section class="blk"><h2>' + esc(t("game.changelog")) + '</h2><div class="log">' + logs.map(function (l) { return "<div>" + esc(l) + "</div>"; }).join("") + "</div></section>" : "") +
-    '<section class="blk" id="revBox"></section><section class="blk"><h2>' + esc(t("game.similar")) + '</h2><div class="grid" id="similar"></div></section>';
+    '<a class="more" href="contact.html?type=bug&game=' + encodeURIComponent(gid) + '#feedback">' + esc(t("game.report")) + "</a></div></div></section>" +
+    '<nav class="g-nav" id="gNav" aria-label="' + esc(t("game.nav")) + '"><div class="g-navin"><div class="g-chips" id="gChips">' + secs.map(function (x) { return '<a href="#' + x[0] + '" data-s="' + x[0] + '">' + esc(t(x[1])) + "</a>"; }).join("") + "</div>" +
+    '<div class="g-mini" id="gMini"><span class="g-mi">' + iconHtml + '</span><span class="g-mt"><b>' + esc(g.title) + "</b>" + (g.version ? "<small>" + esc(g.version) + "</small>" : "") + "</span>" + cta.mini + "</div></div></nav>" +
+    '<section class="blk" id="g-about"><h2>' + esc(t("game.about")) + '</h2><p class="lead" style="white-space:pre-line;max-width:800px">' + esc(desc) + "</p></section>" +
+    (vid ? '<section class="blk" id="g-video"><h2>' + esc(t("game.video")) + '</h2><button class="vid-poster' + (posterSrc ? "" : " px") + '" type="button" data-vid="' + esc(vid) + '" aria-label="' + esc(t("game.playVideo")) + ": " + esc(g.title) + '">' + (posterSrc ? '<img src="' + esc(safeUrl(posterSrc)) + '" alt="">' : "") + '<span class="vid-play" aria-hidden="true"></span><span class="lbl">' + esc(t("game.playVideo")) + "</span></button></section>" : "") +
+    (imgs.length ? '<section class="blk" id="g-shots"><h2>' + esc(t("game.shots")) + '</h2><div class="g-strip-w"><div class="g-strip" id="gStrip">' + imgs.map(function (u, i) { return '<button class="shot" type="button" data-i="' + i + '" aria-label="' + esc(t("game.shots")) + " " + (i + 1) + '"><img loading="lazy" src="' + esc(safeUrl(u)) + '" alt=""></button>'; }).join("") + '</div><button class="g-arr prev" id="gPrev" type="button" aria-label="' + esc(t("ui.prev")) + '" hidden>‹</button><button class="g-arr next" id="gNext" type="button" aria-label="' + esc(t("ui.next")) + '" hidden>›</button></div></section>' : "") +
+    (feats.length ? '<section class="blk" id="g-feats"><h2>' + esc(t("game.features")) + '</h2><ul class="feats">' + feats.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul></section>" : "") +
+    (sys ? '<section class="blk" id="g-sys"><h2>' + esc(t("game.sys")) + '</h2><div class="sysg">' + sys + "</div></section>" : "") +
+    (logs.length ? '<section class="blk" id="g-log"><h2>' + esc(t("game.changelog")) + "</h2>" + changelogHtml(entries, g.version) + "</section>" : "") +
+    '<section class="blk" id="revBox"></section><section class="blk" id="g-sim"><h2>' + esc(t("game.similar")) + '</h2><div class="grid" id="similar"></div></section>';
   bindLinks(box); paintFavs();
   $("share").addEventListener("click", function () {
     const u = new URL(location.href); u.searchParams.set("lang", LANG);
@@ -176,11 +283,43 @@ PAGES.app = async function () {
     else if (navigator.clipboard) { navigator.clipboard.writeText(u.toString()); toast(t("common.copied"), "ok"); }
   });
   box.addEventListener("click", function (e) {
+    const vp = e.target.closest(".vid-poster");
+    if (vp) { // YouTube faqat bosilganda yuklanadi (sahifa ochilganda Google'ga so'rov ketmaydi)
+      const v = vp.dataset.vid; if (!/^[\w-]{11}$/.test(v)) return;
+      vp.outerHTML = '<iframe class="vid" src="https://www.youtube-nocookie.com/embed/' + v + '?autoplay=1" title="' + esc(g.title) + '" allow="autoplay; accelerometer; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+      const f = box.querySelector("iframe.vid"); if (f) f.focus(); return;
+    }
     const s = e.target.closest(".shot"); if (!s) return;
     let i = +s.dataset.i; const z = $("zoom"), show = function () { $("zimg").src = safeUrl(imgs[i]); }; show(); z.showModal();
     $("zprev").onclick = function () { i = (i + imgs.length - 1) % imgs.length; show(); }; $("znext").onclick = function () { i = (i + 1) % imgs.length; show(); };
   });
   $("zc").addEventListener("click", function () { $("zoom").close(); });
+  // skrinshotlar lentasi: strelkalar (sichqonchali qurilmada), chetiga yetganda o'chadi
+  const strip = $("gStrip");
+  if (strip) {
+    const pv = $("gPrev"), nx = $("gNext"), upd = function () { const mx = strip.scrollWidth - strip.clientWidth; pv.hidden = nx.hidden = mx < 4; pv.disabled = strip.scrollLeft < 4; nx.disabled = strip.scrollLeft > mx - 4; };
+    strip.addEventListener("scroll", upd, { passive: true }); addEventListener("resize", upd);
+    pv.addEventListener("click", function () { strip.scrollBy({ left: -strip.clientWidth * 0.8, behavior: "smooth" }); });
+    nx.addEventListener("click", function () { strip.scrollBy({ left: strip.clientWidth * 0.8, behavior: "smooth" }); });
+    upd(); setTimeout(upd, 400);
+  }
+  // yopishqoq menyu: qaysi bo'limda turganimiz belgilanadi; asosiy tugma ko'zdan chiqqach mini-panel chiqadi
+  const gnav = $("gNav"), gcta = $("gCta"), gchips = $("gChips"), anchors = qsa("a[data-s]", gchips);
+  let gRaf = 0, gCur = "", gLock = null; // chip bosilganda tanlov ~1.5 soniya qotadi (sahifa oxiridagi bo'limlar tepaga yetib bora olmaydi)
+  gchips.addEventListener("click", function (e) { const a = e.target.closest("a[data-s]"); if (a) { gLock = { id: a.dataset.s, t: Date.now() + 1500 }; spy(); } });
+  function spy() {
+    gRaf = 0;
+    let cur = ""; anchors.forEach(function (a) { const el = $(a.dataset.s); if (el && el.getBoundingClientRect().top <= 110) cur = a.dataset.s; });
+    if (gLock && Date.now() < gLock.t) cur = gLock.id;
+    if (cur !== gCur) {
+      gCur = cur;
+      anchors.forEach(function (a) { const on = a.dataset.s === cur; a.classList.toggle("on", on); if (on) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
+      const act = qs("a.on", gchips); if (act) gchips.scrollTo({ left: act.offsetLeft - (gchips.clientWidth - act.offsetWidth) / 2, behavior: "smooth" });
+    }
+    const show = !!gcta && gcta.getBoundingClientRect().bottom < 60;
+    gnav.classList.toggle("cta", show); document.documentElement.classList.toggle("g-bar-on", show);
+  }
+  addEventListener("scroll", function () { if (!gRaf) gRaf = requestAnimationFrame(spy); }, { passive: true }); addEventListener("resize", spy); spy();
   // o'xshash o'yinlar: bir xil janr, so'ng qolganlari
   getGames().then(function (all) {
     const gs = gGenres(g), oth = all.filter(function (o) { return o.id !== gid; });
@@ -195,8 +334,11 @@ PAGES.app = async function () {
     rs.sort(function (a, b) { return (b.created ? b.created.seconds : 9e9) - (a.created ? a.created.seconds : 9e9); });
     const avg = rs.length ? (rs.reduce(function (x, r) { return x + r.stars; }, 0) / rs.length).toFixed(1) : "";
     $("avg").textContent = avg ? "★ " + avg + " (" + rs.length + ")" : "—";
+    const rate = $("gRate"); if (rate) { rate.hidden = !rs.length; rate.textContent = avg ? "★ " + avg + " · " + t("game.nReviews", { n: rs.length }) : ""; }
+    const dist = [5, 4, 3, 2, 1].map(function (n) { return rs.filter(function (r) { return r.stars === n; }).length; });
+    const sum = rs.length ? '<div class="rsum"><div class="rs-l"><div class="big">' + avg + '</div><div class="rs-st" aria-hidden="true">' + stars(Math.round(avg)) + "</div><small>" + esc(t("game.nReviews", { n: rs.length })) + '</small></div><div class="rbars">' + dist.map(function (c, i) { return '<div class="rbar"><span>' + (5 - i) + ' ★</span><i><b style="--w:' + Math.round(c / rs.length * 100) + '%"></b></i><em>' + c + "</em></div>"; }).join("") + "</div></div>" : "";
     const mine = USER ? rs.find(function (r) { return r.uid === USER.uid; }) : null;
-    put("revBox", "<h2>" + esc(t("game.reviews")) + "</h2>" + (rs.map(function (r) {
+    put("revBox", "<h2>" + esc(t("game.reviews")) + "</h2>" + sum + (rs.map(function (r) {
       const own = USER && (USER.uid === r.uid || ADMIN_EMAILS.indexOf(USER.email) >= 0);
       return '<div class="cm">' + avatarSvg(r.uid, "av") + '<div class="cb"><div class="meta"><b>' + esc(r.name) + "</b> · " + stars(r.stars) + " · " + esc(dateStr(r.created)) + "</div><p>" + esc(r.text) + "</p>" + (own ? '<button class="link-btn" data-rid="' + r.id + '" type="button">' + esc(t("common.delete")) + "</button>" : "") + "</div></div>";
     }).join("") || empty("game.noreviews")) + (USER ? '<form id="rf" class="stack"><select class="field" id="rs" aria-label="' + esc(t("game.rating")) + '">' + [5, 4, 3, 2, 1].map(function (n) { return '<option value="' + n + '">' + stars(n) + "</option>"; }).join("") + '</select><textarea class="field" id="rt" maxlength="500" required placeholder="' + esc(t("game.yourReview")) + '"></textarea><button class="btn primary sm">' + esc(t(mine ? "game.updateReview" : "game.sendReview")) + "</button></form>" : '<p class="muted">' + esc(t("game.loginReview")) + "</p>"));

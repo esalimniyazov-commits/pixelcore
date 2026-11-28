@@ -278,3 +278,19 @@ Brauzer: haqiqiy Chromium (Playwright), soxta Firebase, internetsiz. Skrinshotla
 
 Eslatma: brauzerning cross-document view-transition'i tez-tez navigatsiyada `Transition was aborted…` xatosini beradi — asl saytda ham, fx'siz ham takrorlanadi (tekshirildi); yangi testlarda filtrlangan.
 **Tekshirilmagan:** haqiqiy sensorli qurilmalar, Safari/Firefox, juda sekin tarmoqda skeleton ko'rinishi, ekran o'qigich bilan.
+
+
+---
+## 2.8.0 — o'yin sahifasi (2026-11-27)
+Brauzer: haqiqiy Chromium (Playwright), soxta Firebase, internetsiz. Skrinshotlar ko'zdan kechirildi (desktop va 390px mobil: hero, yopishqoq menyu + mini panel, skrinshotlar lentasi, reyting xulosasi).
+
+| Test | Natija |
+|---|---|
+| `node tests/gamepage.test.js` (OS aniqlash, changelog, rang, kontrast) | ✅ 40/40 |
+| `node tests/gamepage.e2e.js` (rang, 5 xil qurilma tizimi × 3 til, mini panel, scrollspy, lenta, video, timeline, reyting, XSS, reduced-motion, 375px) | ✅ 80/80 |
+| `node tests/fx.e2e.js`, `newyear.e2e.js`, `tg.e2e.js` | ✅ 53/53, 41/41, 99/99 |
+| `node tests/e2e.js` | ⚠️ 129 o'tdi, 5 muvaffaqiyatsiz — **asl ZIP'dagi bilan aynan bir xil 5 ta** (eskirgan testlar). Ikki tekshiruv yangi dizaynga moslab yangilandi. |
+| unit: `newyear`, `fx`, `bot`, `business`, `fs`, `notify`, `sitemap`, `share` | ✅ |
+
+Topilma (o'zgartirilmadi): asosiy navigatsiya (`.nav`) `position:sticky`, lekin `#site-header` o'ralgan konteyner balandligi nav'ning o'zicha bo'lgani uchun **hech bir sahifada yopishmaydi** (scroll bilan ketadi). Shuning uchun o'yin sahifasidagi yopishqoq menyu ekran tepasiga (top:0) yopishadi. Agar nav'ni yopishqoq qilsangiz, `.g-nav{top:68px}` ga o'zgartirish kerak.
+**Tekshirilmagan:** haqiqiy telefon/Safari/Firefox, tashqi saytdagi (CORS yo'q) muqovalarda rang (fallback ishlashi kodda bor, brauzerda faqat data-URL bilan sinalgan), haqiqiy YouTube video.

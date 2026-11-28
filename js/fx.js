@@ -35,12 +35,12 @@ const FX = (function () {
       tx = e.clientX; ty = e.clientY;
       if (!shown) { shown = true; g.classList.add("on"); }
       if (!raf) raf = requestAnimationFrame(frame);
-      const c = e.target && e.target.closest ? e.target.closest(".card") : null;
+      const c = e.target && e.target.closest ? e.target.closest(".card, .g-cover") : null;
       if (cur && cur !== c) leave(cur);
       if (c) {
         const r = c.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
         c.style.setProperty("--mx", x + "px"); c.style.setProperty("--my", y + "px");
-        if (c.matches(".card[data-id], .card.post")) { // o'yin va yangilik kartalari
+        if (c.matches(".card[data-id], .card.post, .g-cover")) { // o'yin va yangilik kartalari
           c.classList.add("tilting");
           c.style.setProperty("--ry", ((x / r.width - 0.5) * 9).toFixed(2) + "deg");
           c.style.setProperty("--rx", ((0.5 - y / r.height) * 7).toFixed(2) + "deg");

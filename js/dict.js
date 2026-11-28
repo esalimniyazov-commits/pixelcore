@@ -238,4 +238,13 @@ const DICT = {
 "kb.open":["Klaviatura yorliqlari","Горячие клавиши","Keyboard shortcuts"],
 "kb.search":["Qidiruvni oçiş","Открыть поиск","Open search"],
 "kb.help":["Şu oynani oçiş","Показать это окно","Show this window"],
+/* O'yin sahifasi */
+"game.dlFor":["{p} uçun yuklab oliş","Скачать для {p}","Download for {p}"],
+"game.noOs":["{os} uçun hozirça versiya yöq.","Для {os} пока нет версии.","No version for {os} yet."],
+"game.playVideo":["Videoni köriş","Смотреть видео","Watch the video"],
+"game.latest":["Yangi","Текущая","Latest"],
+"game.nReviews":["Şarhlar: {n}","Отзывов: {n}","Reviews: {n}"],
+"game.nav":["Sahifa bölimlari","Разделы страницы","Page sections"],
+"ui.prev":["Oldingi","Назад","Previous"],
+"ui.next":["Keyingi","Далее","Next"],
 };

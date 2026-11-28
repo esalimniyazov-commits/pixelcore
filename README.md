@@ -34,6 +34,10 @@ tests/                    — i18n tekshiruvi, E2E (Playwright + soxta Firebase)
 tools/gen-pages.py        — HTML sahifalarni bir qolipdan qayta yaratadi (ixtiyoriy)
 ```
 
+## O'yin sahifasi (`app.html`)
+Rang muqovadan avtomatik olinadi (`gameAccent` → `<html>` ga `--ga*` o'zgaruvchilari). Changelog formati: har qatorda `v1.0.1 - matn` (yoki `1.0.1: matn`); "-" bilan boshlangan qatorlar oldingi versiyaga qo'shiladi. Video `video` maydonidagi YouTube havolasidan, bosilganda yuklanadi.
+Testlar: `node tests/gamepage.test.js`, `node tests/gamepage.e2e.js`.
+
 ## Qulaylik va jilo (`js/fx.js`)
 Hamma sahifada (admin'dan tashqari) avtomatik yuklanadi. Klaviatura: `?` yordam, `G` + `H/G/N/S/A/C` sahifalarga o'tish, `/` qidiruv. Harakatli effektlar `prefers-reduced-motion` va sensorli ekranlarda o'chadi.
 O'chirish: `core.js` dagi `loadFx()` chaqiruvini olib tashlang. Testlar: `node tests/fx.test.js`, `node tests/fx.e2e.js`.

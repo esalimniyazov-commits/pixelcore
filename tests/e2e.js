@@ -104,8 +104,10 @@ async function open(ctx, url, errs) {
   ok((await pg.locator("h1").textContent()) === "MindIQ", "o'yin nomi");
   ok((await pg.locator("a.dl").first().getAttribute("href")) === "https://example.com/mindiq.apk", "yuklab olish tugmasi haqiqiy havolaga olib boradi");
   ok(await pg.locator(".shot").count() === 2, "screenshot galereyasi (2 ta)");
-  ok((await pg.locator("iframe.vid").getAttribute("src")).includes("youtube-nocookie.com/embed/dQw4w9WgXcQ"), "gameplay video (YouTube) joylandi");
-  ok(await pg.locator(".feats li").count() === 2 && await pg.locator(".log div").count() === 2, "xususiyatlar va changelog");
+  ok(await pg.locator(".vid-poster").count() === 1 && await pg.locator("iframe.vid").count() === 0, "gameplay video: oldindan ko'rinish (YouTube hali yuklanmagan)");
+  await pg.locator(".vid-poster").click(); await pg.waitForTimeout(200);
+  ok((await pg.locator("iframe.vid").getAttribute("src")).includes("youtube-nocookie.com/embed/dQw4w9WgXcQ"), "gameplay video (YouTube) bosilganda joylandi");
+  ok(await pg.locator(".feats li").count() === 2 && await pg.locator(".tl .tl-i").count() === 2, "xususiyatlar va changelog (vaqt chizig'i)");
   ok((await pg.locator(".sysg").textContent()).includes("Android 8+") && (await pg.locator(".sysg").textContent()).includes("Android 12"), "minimal va tavsiya etilgan talablar");
   ok(await pg.locator("#similar .card").count() === 2, "o'xshash o'yinlar");
   ok(/120/.test(await pg.locator("#dlc").textContent()), "yuklab olish statistikasi");

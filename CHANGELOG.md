@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## 2.8.0 — 2026-11-27 (o'yin sahifasi: `app.html`)
+- **Har bir o'yin o'z rangida:** muqova (yoki ikonka) rasmidan asosiy ton brauzerning o'zida aniqlanadi (32×32 canvas, kulrang/qora/oq/shaffof piksellar hisobga olinmaydi) va sahifa nuri, tugmalar, belgilar, bo'lim sarlavhalari, vaqt chizig'i va reyting chiziqlari shu rangga bo'yaladi. Tugma matni rangga qarab oq yoki to'q tanlanadi (kontrast ≥ 4.4:1, barcha tonlar sinalgan). Muqova bo'lmasa yoki rasm boshqa saytdan bo'lib o'qib bo'lmasa — o'yin id'sidan hosil bo'lgan 6 ta rangdan biri (har safar bir xil). Brend (qora fon, piksel uslub) o'zgarmaydi.
+- **Yangi hero:** muqovaning xira katta fon nuri (sahifa kengligida), kursorga qarab 3D buriladigan muqova (fx.js), ikonka muqova ustida yarim chiqib turadi, katta sarlavha, kirishda yumshoq animatsiya. Muqova bo'lmasa — piksel katakli fon. Sarlavha ostida reyting belgisi ("★ 4.7 · Sharhlar: 3").
+- **Qurilmaga mos asosiy tugma:** Android/Windows/macOS aniqlanadi (UA + platform; iPadOS ham), mos platforma katta tugma bo'ladi, qolganlari kichik. Qurilma tizimi uchun versiya bo'lmasa ("iOS uchun hozircha versiya yo'q") deb yoziladi. "Tez orada" o'yinlarda — "Xabar olish". Yuklashlar sanagichi (`.dl`) avvalgidek ishlaydi.
+- **Yopishqoq bo'limlar menyusi:** Haqida · Video · Skrinshotlar · Imkoniyatlar · Talablar · O'zgarishlar · Sharhlar · O'xshash (faqat mavjudlari). Qaysi bo'limda turganingiz belgilanadi (`aria-current`), bosilgan chip qotadi (sahifa oxiridagi bo'limlar tepaga yeta olmasligi uchun). Asosiy tugma ko'zdan chiqqach o'ng tomonda mini panel (ikonka, nom, versiya, tugma), telefonda — ekran pastida.
+- **Skrinshotlar lentasi:** surib ko'riladigan (scroll-snap), birinchisi katta, sichqonchali qurilmada strelkalar; bosilganda avvalgi lightbox. **Video:** oldindan ko'rinish + play tugmasi; YouTube (`youtube-nocookie`) faqat bosilganda yuklanadi — sahifa ochilganda YouTube'ga so'rov ketmaydi.
+- **O'zgarishlar vaqt chizig'i:** `v1.0.1 - matn` qatorlari versiya belgisi bilan guruhlanadi, "-" bilan boshlangan qatorlar oldingisiga qo'shiladi, joriy versiyaga "Yangi" belgisi. Versiyasiz matn bitta yozuv bo'lib chiqadi. Adminda yozish usuli o'zgarmadi.
+- **Reyting xulosasi:** sharhlar tepasida katta o'rtacha, yulduzlar va 5→1 yulduz taqsimoti.
+- `js/pages.js`: sof funksiyalar (`detectOS`, `ctaPick`, `parseChangelog`, `accentFromData`, `accentVars`…) `GP-PURE` belgilari orasida (testlanadi); `style.css`: o'yin sahifasi bo'limi; `dict.js`: 8 ta yangi kalit; Service Worker `pc-v2.8.0`.
+- Eski `tests/e2e.js` ikki tekshiruvi yangilandi: video endi bosilganda yuklanadi, changelog — `.tl-i`.
+- Testlar: `tests/gamepage.test.js` (40), `tests/gamepage.e2e.js` (80).
+
 ## 2.7.0 — 2026-11-26 (qulaylik va jilo: `js/fx.js`)
 - **Kursor nuri** (sichqonchali qurilmada): kursor atrofida yumshoq binafsha nur; kartalarning chegarasi kursor ostida yonadi.
 - **Kartalar 3D qiyaligi:** o'yin va yangilik kartalari kursorga qarab sal buriladi, ichidagi rasm parallaks bilan siljiydi. Sensorli ekranlarda yo'q.
